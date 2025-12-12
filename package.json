@@ -2,14 +2,15 @@
     "name": "workout-app",
     "private": true,
     "scripts": {
+        "_ruff": "server/.venv/bin/ruff",
         "prepare": "husky && sort-package-json",
         "prettier": "prettier --write .",
-        "ruff": "ruff check --fix && ruff format"
+        "ruff": "npm run _ruff -- check --fix && npm run _ruff -- format"
     },
     "lint-staged": {
         "*.py": [
-            "ruff check --fix",
-            "ruff format"
+            "npm run _ruff -- check --fix",
+            "npm run _ruff -- format"
         ],
         "*": "prettier --write --ignore-unknown"
     },
@@ -21,7 +22,6 @@
         "lint-staged": "^16.2.7",
         "prettier": "3.7.4",
         "prettier-plugin-organize-imports": "^4.3.0",
-        "prettier-plugin-toml": "2.0.6",
-        "ruff": "^1.5.4"
+        "prettier-plugin-toml": "2.0.6"
     }
 }

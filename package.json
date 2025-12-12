@@ -2,15 +2,15 @@
     "name": "workout-app",
     "private": true,
     "scripts": {
-        "_ruff": "server/.venv/bin/ruff",
-        "prepare": "husky && sort-package-json",
-        "prettier": "prettier --write .",
-        "ruff": "npm run _ruff -- check --fix && npm run _ruff -- format"
+        "prettier": "prettier . --write",
+        "format:py": "uv run --project server ruff format server",
+        "format": "npm run prettier && npm run format:py",
+        "lint": "uv run --project server ruff check server --fix"
     },
     "lint-staged": {
         "*.py": [
-            "npm run _ruff -- check --fix",
-            "npm run _ruff -- format"
+            "uv run --project server ruff check --fix",
+            "uv run --project server ruff format"
         ],
         "*": "prettier --write --ignore-unknown"
     },
@@ -20,6 +20,7 @@
     "devDependencies": {
         "husky": "^9.1.7",
         "lint-staged": "^16.2.7",
+        "npm-check-updates": "^19.2.0",
         "prettier": "3.7.4",
         "prettier-plugin-organize-imports": "^4.3.0",
         "prettier-plugin-toml": "2.0.6"

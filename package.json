@@ -1,0 +1,27 @@
+{
+    "name": "workout-app",
+    "private": true,
+    "scripts": {
+        "prepare": "husky && sort-package-json",
+        "prettier": "prettier --write .",
+        "ruff": "ruff check --fix && ruff format"
+    },
+    "lint-staged": {
+        "*.py": [
+            "ruff check --fix",
+            "ruff format"
+        ],
+        "*": "prettier --write --ignore-unknown"
+    },
+    "dependencies": {
+        "sort-package-json": "^3.5.1"
+    },
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
+        "prettier": "3.7.4",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "prettier-plugin-toml": "2.0.6",
+        "ruff": "^1.5.4"
+    }
+}

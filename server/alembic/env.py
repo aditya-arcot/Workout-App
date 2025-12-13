@@ -1,6 +1,7 @@
 import asyncio
 from logging.config import fileConfig
 
+import app.models  # pyright: ignore[reportUnusedImport] # noqa: F401
 from alembic import context
 from app.core.config import settings
 from app.core.db import Base

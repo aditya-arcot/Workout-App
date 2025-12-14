@@ -15,3 +15,9 @@ Start containers:
 ```bash
 docker compose watch
 ```
+
+### Database
+
+All writes should go through SQLAlchemy
+
+Alembic updates & bulk SQLAlchemy updates must explicitly set `updated_at`

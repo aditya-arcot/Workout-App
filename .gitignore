@@ -1,4 +1,7 @@
 node_modules/
 
+# symlink to logs dir
+logs
+
 .env*
 !.env.example

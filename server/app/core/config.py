@@ -1,8 +1,13 @@
+from typing import Literal
+
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    ENV: Literal["dev", "test", "stage", "prod"]
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str

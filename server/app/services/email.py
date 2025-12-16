@@ -5,6 +5,7 @@ from email.message import EmailMessage
 import aiosmtplib
 
 from app.core.config import settings
+from app.models.database.access_request import AccessRequest
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,43 @@ class EmailService(ABC):
         text: str,
         html: str | None = None,
     ) -> None: ...
+
+    async def send_access_request_notification(
+        self, admin_email: str, access_request: AccessRequest
+    ) -> None:
+        """
+        Notify an admin that a new access request has been submitted.
+        """
+        subject = f"New access request: {access_request.email}"
+        body = (
+            f"User {access_request.first_name} {access_request.last_name} "
+            f"has requested access (request id {access_request.id})."
+        )
+        try:
+            await self.send(to=admin_email, subject=subject, text=body)
+        except Exception as e:
+            logger.error(
+                f"Failed to send access request notification to {admin_email}: {e}"
+            )
+
+    async def send_access_request_approved_email(
+        self, access_request: AccessRequest
+    ) -> None:
+        """
+        Notify a user that their access request was approved and provide instructions.
+        """
+        subject = "Access Request Approved"
+        body = (
+            f"Hello {access_request.first_name},\n\n"
+            f"Your access request has been approved!\n"
+            f"Please register to access the application."
+        )
+        try:
+            await self.send(to=access_request.email, subject=subject, text=body)
+        except Exception as e:
+            logger.error(
+                f"Failed to send access request approved email to {access_request.email}: {e}"
+            )
 
 
 class SmtpEmailService(EmailService):

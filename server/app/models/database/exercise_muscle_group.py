@@ -4,7 +4,7 @@ from sqlalchemy import DateTime, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from app.core.db import Base
+from app.core.database import Base
 
 
 class ExerciseMuscleGroup(Base):

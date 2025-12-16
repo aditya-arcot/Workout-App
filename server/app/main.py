@@ -2,7 +2,7 @@ import logging
 
 from fastapi import FastAPI
 
-from .api.health import router as health_router
+from .api import api_router
 from .core.config import settings
 from .core.logging import setup_logging
 
@@ -16,7 +16,7 @@ logger.debug("Settings loaded: %s", settings.model_dump())
 
 def create_app() -> FastAPI:
     app = FastAPI()
-    app.include_router(health_router)
+    app.include_router(api_router, prefix="/api")
     return app
 
 

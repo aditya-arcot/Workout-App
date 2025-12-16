@@ -4,7 +4,9 @@ from fastapi import FastAPI
 
 from .api import api_router
 from .core.config import settings
+from .core.handlers import domain_exception_handler
 from .core.logging import setup_logging
+from .models.errors import DomainError
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +18,7 @@ logger.debug("Settings loaded: %s", settings.model_dump())
 
 def create_app() -> FastAPI:
     app = FastAPI()
+    app.add_exception_handler(DomainError, domain_exception_handler)
     app.include_router(api_router, prefix="/api")
     return app
 

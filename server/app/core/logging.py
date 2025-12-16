@@ -4,13 +4,13 @@ from pathlib import Path
 
 from pythonjsonlogger.json import JsonFormatter
 
+from app.core.config import settings
+
 LOG_DIR = Path.home() / "Projects" / "Logs"
-LOG_FILE = LOG_DIR / "workout_app_server.log"
+LOG_FILE = LOG_DIR / f"workout_app_server_{settings.ENV}.log"
 
 
-def setup_logging(level: str, file_log: bool = False) -> None:
-    level = level.upper()
-
+def setup_logging() -> None:
     handlers = {
         "console": {
             "class": "logging.StreamHandler",
@@ -18,7 +18,7 @@ def setup_logging(level: str, file_log: bool = False) -> None:
         },
     }
 
-    if file_log:
+    if not settings.IS_PROD:
         LOG_DIR.mkdir(parents=True, exist_ok=True)
         handlers["file"] = {
             "class": "logging.FileHandler",
@@ -44,7 +44,7 @@ def setup_logging(level: str, file_log: bool = False) -> None:
             },
             "handlers": handlers,
             "root": {
-                "level": level,
+                "level": settings.LOG_LEVEL,
                 "handlers": list(handlers.keys()),
             },
         }

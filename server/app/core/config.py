@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     ENV: Literal["dev", "test", "stage", "prod"]
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
+    @computed_field
+    @property
+    def IS_PROD(self) -> bool:
+        return self.ENV == "stage" or self.ENV == "prod"
+
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str

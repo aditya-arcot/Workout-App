@@ -8,7 +8,7 @@ from .core.logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
-setup_logging(level=settings.LOG_LEVEL, file_log=settings.ENV == "dev")
+setup_logging()
 
 logger.debug("Logging initialized")
 logger.debug("Settings loaded: %s", settings.model_dump())

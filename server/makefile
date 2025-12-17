@@ -1,4 +1,4 @@
-.PHONY: dev test lint format check
+.PHONY: dev test check_migrations manual_migration auto_migration run_migrations
 
 dev:
 	uv run fastapi dev app/main.py --port 8080

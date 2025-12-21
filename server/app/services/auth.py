@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 
 from fastapi import BackgroundTasks
 from sqlalchemy import select
@@ -17,6 +18,12 @@ from .email import EmailService
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class AccessRequestResult:
+    already_approved: bool
+    access_request: AccessRequest
+
+
 async def request_access(
     db: AsyncSession,
     email: str,
@@ -24,7 +31,7 @@ async def request_access(
     last_name: str,
     email_svc: EmailService,
     background_tasks: BackgroundTasks,
-) -> tuple[bool, AccessRequest]:
+) -> AccessRequestResult:
     logger.info(f"Access request received for email: {email}")
 
     existing_user = (
@@ -33,7 +40,6 @@ async def request_access(
     if existing_user:
         raise EmailAlreadyRegistered()
 
-    already_approved = False
     existing_request = (
         await db.execute(
             select(AccessRequest)
@@ -52,8 +58,10 @@ async def request_access(
                 background_tasks.add_task(
                     email_svc.send_access_request_approved_email, existing_request
                 )
-                already_approved = True
-                return (already_approved, existing_request)
+                return AccessRequestResult(
+                    already_approved=True,
+                    access_request=existing_request,
+                )
 
     access_request = AccessRequest(
         email=email,
@@ -71,4 +79,7 @@ async def request_access(
             email_svc.send_access_request_notification, admin.email, access_request
         )
 
-    return (already_approved, access_request)
+    return AccessRequestResult(
+        already_approved=False,
+        access_request=access_request,
+    )

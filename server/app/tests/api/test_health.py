@@ -7,8 +7,4 @@ async def test_health(client: AsyncClient):
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    assert body["status"] == "success"
-    assert body["code"] == "HEALTH_OK"
-    assert body["message"] == "ok"
-    data = body["data"]
-    assert data is None
+    assert body == "ok"

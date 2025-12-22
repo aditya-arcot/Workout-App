@@ -1,11 +1,12 @@
 from pydantic import BaseModel, EmailStr
 
 
-class AccessRequestCreateRequest(BaseModel):
+class RequestAccessRequest(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
 
 
-class AccessRequestCreateResponse(BaseModel):
+class RequestAccessResponse(BaseModel):
+    detail: str
     access_request_id: int

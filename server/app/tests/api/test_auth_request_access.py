@@ -23,11 +23,8 @@ async def test_request_access(client: AsyncClient):
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    assert body["status"] == "success"
-    assert body["code"] == "ACCESS_REQUEST_CREATED"
-    assert body["message"] == "Access request created. Please wait for admin approval."
-    data = body["data"]
-    assert "access_request_id" in data
+    assert body["detail"] == "Access request created. Please wait for admin approval."
+    assert body["access_request_id"] is not None
 
 
 async def test_request_access_approved(client: AsyncClient, session: AsyncSession):
@@ -51,11 +48,8 @@ async def test_request_access_approved(client: AsyncClient, session: AsyncSessio
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    assert body["status"] == "success"
-    assert body["code"] == "ACCESS_REQUEST_ALREADY_APPROVED"
-    assert body["message"] == "Access request already approved. Approval email resent."
-    data = body["data"]
-    assert "access_request_id" in data
+    assert body["detail"] == "Access request already approved. Approval email resent."
+    assert body["access_request_id"] is not None
 
 
 async def test_request_access_existing_user(client: AsyncClient, session: AsyncSession):
@@ -79,13 +73,9 @@ async def test_request_access_existing_user(client: AsyncClient, session: AsyncS
         },
     )
 
-    assert resp.status_code == EmailAlreadyRegistered.http_status
+    assert resp.status_code == EmailAlreadyRegistered.status_code
     body = resp.json()
-    assert body["status"] == "error"
-    assert body["code"] == EmailAlreadyRegistered.code
-    assert body["message"] == EmailAlreadyRegistered.message
-    data = body["data"]
-    assert data is None
+    assert body["detail"] == EmailAlreadyRegistered.detail
 
 
 async def test_request_access_pending(client: AsyncClient, session: AsyncSession):
@@ -107,13 +97,9 @@ async def test_request_access_pending(client: AsyncClient, session: AsyncSession
         },
     )
 
-    assert resp.status_code == AccessRequestPending.http_status
+    assert resp.status_code == AccessRequestPending.status_code
     body = resp.json()
-    assert body["status"] == "error"
-    assert body["code"] == AccessRequestPending.code
-    assert body["message"] == AccessRequestPending.message
-    data = body["data"]
-    assert data is None
+    assert body["detail"] == AccessRequestPending.detail
 
 
 async def test_request_access_rejected(client: AsyncClient, session: AsyncSession):
@@ -135,10 +121,6 @@ async def test_request_access_rejected(client: AsyncClient, session: AsyncSessio
         },
     )
 
-    assert resp.status_code == AccessRequestRejected.http_status
+    assert resp.status_code == AccessRequestRejected.status_code
     body = resp.json()
-    assert body["status"] == "error"
-    assert body["code"] == AccessRequestRejected.code
-    assert body["message"] == AccessRequestRejected.message
-    data = body["data"]
-    assert data is None
+    assert body["detail"] == AccessRequestRejected.detail

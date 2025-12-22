@@ -1,30 +1,27 @@
-from fastapi import status
+from fastapi import HTTPException, status
 
 
-class HttpError(Exception):
-    code: str
-    message: str
-    http_status: int
+class HTTPError(HTTPException):
+    status_code: int
+    detail: str
 
-    def __init__(self, message: str | None = None):
-        if message:
-            self.message = message
-        super().__init__(self.message)
-
-
-class EmailAlreadyRegistered(HttpError):
-    code = "EMAIL_ALREADY_REGISTERED"
-    message = "This email is already registered. Please log in."
-    http_status = status.HTTP_409_CONFLICT
+    def __init__(self):
+        super().__init__(
+            status_code=self.status_code,
+            detail=self.detail,
+        )
 
 
-class AccessRequestPending(HttpError):
-    code = "ACCESS_REQUEST_PENDING"
-    message = "An access request for this email is already pending"
-    http_status = status.HTTP_409_CONFLICT
+class EmailAlreadyRegistered(HTTPError):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "This email is already registered. Please log in."
 
 
-class AccessRequestRejected(HttpError):
-    code = "ACCESS_REQUEST_REJECTED"
-    message = "An access request for this email was previously rejected"
-    http_status = status.HTTP_403_FORBIDDEN
+class AccessRequestPending(HTTPError):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "An access request for this email is already pending"
+
+
+class AccessRequestRejected(HTTPError):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "An access request for this email was previously rejected"

@@ -25,12 +25,12 @@ class AccessRequestResult:
 
 
 async def request_access(
-    db: AsyncSession,
     email: str,
     first_name: str,
     last_name: str,
-    email_svc: EmailService,
     background_tasks: BackgroundTasks,
+    db: AsyncSession,
+    email_svc: EmailService,
 ) -> AccessRequestResult:
     logger.info(f"Access request received for email: {email}")
 

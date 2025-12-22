@@ -18,12 +18,12 @@ from app.services.auth import request_access
 async def test_request_access(session: AsyncSession, mock_email_svc: AsyncMock):
     background_tasks = BackgroundTasks()
     result = await request_access(
-        db=session,
         email="newuser@example.com",
         first_name="New",
         last_name="User",
-        email_svc=mock_email_svc,
         background_tasks=background_tasks,
+        db=session,
+        email_svc=mock_email_svc,
     )
     already_approved, access_request = result.already_approved, result.access_request
 
@@ -52,12 +52,12 @@ async def test_request_access_approved(
 
     background_tasks = BackgroundTasks()
     result = await request_access(
-        db=session,
         email=approved_email,
         first_name="Test",
         last_name="User",
-        email_svc=mock_email_svc,
         background_tasks=background_tasks,
+        db=session,
+        email_svc=mock_email_svc,
     )
     already_approved, access_request = result.already_approved, result.access_request
 
@@ -87,12 +87,12 @@ async def test_request_access_existing_user(
     background_tasks = BackgroundTasks()
     with pytest.raises(EmailAlreadyRegistered):
         await request_access(
-            db=session,
             email="existing@example.com",
             first_name="Test",
             last_name="User",
-            email_svc=mock_email_svc,
             background_tasks=background_tasks,
+            db=session,
+            email_svc=mock_email_svc,
         )
 
     assert len(background_tasks.tasks) == 0
@@ -111,12 +111,12 @@ async def test_request_access_pending(session: AsyncSession, mock_email_svc: Asy
     background_tasks = BackgroundTasks()
     with pytest.raises(AccessRequestPending):
         await request_access(
-            db=session,
             email="pending@example.com",
             first_name="Test",
             last_name="User",
-            email_svc=mock_email_svc,
             background_tasks=background_tasks,
+            db=session,
+            email_svc=mock_email_svc,
         )
 
     assert len(background_tasks.tasks) == 0
@@ -137,12 +137,12 @@ async def test_request_access_rejected(
     background_tasks = BackgroundTasks()
     with pytest.raises(AccessRequestRejected):
         await request_access(
-            db=session,
             email="rejected@example.com",
             first_name="Test",
             last_name="User",
-            email_svc=mock_email_svc,
             background_tasks=background_tasks,
+            db=session,
+            email_svc=mock_email_svc,
         )
 
     assert len(background_tasks.tasks) == 0

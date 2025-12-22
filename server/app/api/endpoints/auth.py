@@ -25,12 +25,12 @@ async def request_access_route(
     email_svc: EmailService = Depends(get_email_service),
 ) -> ApiResponse[AccessRequestCreateResponse]:
     result = await request_access(
-        db=db,
-        email=payload.email,
         first_name=payload.first_name,
         last_name=payload.last_name,
         email_svc=email_svc,
         background_tasks=background_tasks,
+        db=db,
+        email=payload.email,
     )
     already_approved, access_request = result.already_approved, result.access_request
     if already_approved:

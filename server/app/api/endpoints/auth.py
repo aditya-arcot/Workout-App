@@ -13,7 +13,7 @@ from app.models.schemas.auth import (
 from app.services.auth import login, request_access
 from app.services.email import EmailService, get_email_service
 
-api_router = APIRouter(prefix="/auth")
+api_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @api_router.post("/request-access")

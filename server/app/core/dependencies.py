@@ -10,7 +10,7 @@ from typing_extensions import Annotated
 
 from app.core.config import settings
 from app.models.database.user import User
-from app.models.errors import InvalidCredentials
+from app.models.errors import InsufficientPermissions, InvalidCredentials
 from app.models.schemas.user import TokenData, UserPublic
 
 logger = logging.getLogger(__name__)
@@ -69,3 +69,14 @@ async def get_current_user(
         raise InvalidCredentials()
 
     return UserPublic.model_validate(user, from_attributes=True)
+
+
+async def get_current_admin(
+    user: Annotated[UserPublic, Depends(get_current_user)],
+) -> UserPublic:
+    logger.info("Getting current admin user")
+
+    if not user.is_admin:
+        logger.error(f"User {user.username} is not an admin")
+        raise InsufficientPermissions()
+    return user

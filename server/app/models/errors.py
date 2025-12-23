@@ -30,3 +30,8 @@ class AccessRequestRejected(HTTPError):
 class InvalidCredentials(HTTPError):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Invalid credentials"
+
+
+class InsufficientPermissions(HTTPError):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Insufficient permissions"

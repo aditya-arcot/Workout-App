@@ -6,8 +6,14 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
-        "lint": "eslint .",
+        "lint": "eslint --fix --max-warnings=0",
         "preview": "vite preview"
+    },
+    "lint-staged": {
+        "*": [
+            "eslint --fix --max-warnings=0 --no-warn-ignored",
+            "prettier --write --ignore-unknown"
+        ]
     },
     "dependencies": {
         "react": "^19.2.0",

@@ -1,12 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.dependencies import get_db
 from app.models.schemas.auth import (
-    LoginResponse,
+    LoginRequest,
     RequestAccessRequest,
     RequestAccessResponse,
 )
@@ -45,10 +45,21 @@ async def request_access_endpoint(
     )
 
 
-@api_router.post("/login")
+@api_router.post(
+    "/login",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def login_endpoint(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    payload: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> LoginResponse:
-    token = await login(username=form_data.username, password=form_data.password, db=db)
-    return LoginResponse(access_token=token, token_type="bearer")
+    response: Response,
+):
+    token = await login(username=payload.username, password=payload.password, db=db)
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=settings.IS_PROD,
+        samesite="strict",
+        max_age=60 * 60,  # 1 hour
+    )

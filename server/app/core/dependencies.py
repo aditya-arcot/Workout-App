@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator
 
 import jwt
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import APIKeyCookie
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from typing_extensions import Annotated
@@ -31,11 +31,13 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+access_token_cookie = APIKeyCookie(
+    name="access_token",
+)
 
 
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: Annotated[str, Depends(access_token_cookie)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserPublic:
     logger.info("Getting current user using token")

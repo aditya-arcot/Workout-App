@@ -10,5 +10,10 @@ lint-staged
 echo
 
 echo "Checking for available updates..."
+echo "Checking base project..."
 ncu
+echo
+
+echo "Checking client project..."
+ncu --cwd client
 echo

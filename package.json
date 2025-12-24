@@ -2,11 +2,13 @@
     "name": "workout-app",
     "private": true,
     "scripts": {
-        "prettier": "prettier . --write",
-        "format:py": "uv run --project server ruff format server",
         "format": "npm run prettier && npm run format:py",
+        "format:py": "uv run --project server ruff format server",
+        "lint": "npm run lint:py && cd client && npm run lint",
         "lint:py": "uv run --project server ruff check server --fix",
-        "lint": "npm run lint:py && cd client && npm run lint"
+        "prepare": "husky && npm run sort-package-jsons",
+        "prettier": "prettier . --write",
+        "sort-package-jsons": "sort-package-json && sort-package-json client/package.json"
     },
     "lint-staged": {
         "*.py": [

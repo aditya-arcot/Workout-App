@@ -7,20 +7,16 @@ from .core.config import settings
 from .core.handlers import exception_handler
 from .core.logging import setup_logging
 
-logger = logging.getLogger(__name__)
+if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
 
-setup_logging()
+    setup_logging()
 
-logger.debug("Initialized logging")
-logger.debug("Loaded settings: %s", settings.model_dump())
+    logger.debug("Initialized logging")
+    logger.debug("Loaded settings: %s", settings.model_dump())
 
+    logger.info("Starting app")
 
-def create_app() -> FastAPI:
-    app = FastAPI()
-    app.add_exception_handler(Exception, exception_handler)
-    app.include_router(api_router, prefix="/api")
-    return app
-
-
-logger.info("Starting app")
-app = create_app()
+app = FastAPI()
+app.add_exception_handler(Exception, exception_handler)
+app.include_router(api_router, prefix="/api")

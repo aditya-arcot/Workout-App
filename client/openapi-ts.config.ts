@@ -4,10 +4,7 @@ export default defineConfig({
     input: 'openapi_spec.json',
     output: 'src/api/generated',
     plugins: [
-        {
-            name: '@hey-api/client-axios',
-            runtimeConfigPath: '@/api/axios.ts',
-        },
+        '@hey-api/client-axios',
         {
             name: '@hey-api/sdk',
             asClass: true,

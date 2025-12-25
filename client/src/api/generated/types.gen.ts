@@ -108,106 +108,102 @@ export type ValidationError = {
     type: string
 }
 
-export type GetAccessRequestsEndpointApiAdminAccessRequestsGetData = {
+export type GetAccessRequestsData = {
     body?: never
     path?: never
     query?: never
     url: '/api/admin/access-requests'
 }
 
-export type GetAccessRequestsEndpointApiAdminAccessRequestsGetResponses = {
+export type GetAccessRequestsResponses = {
     /**
      * Successful Response
      */
     200: unknown
 }
 
-export type RequestAccessEndpointApiAuthRequestAccessPostData = {
+export type RequestAccessData = {
     body: RequestAccessRequest
     path?: never
     query?: never
     url: '/api/auth/request-access'
 }
 
-export type RequestAccessEndpointApiAuthRequestAccessPostErrors = {
+export type RequestAccessErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError
 }
 
-export type RequestAccessEndpointApiAuthRequestAccessPostError =
-    RequestAccessEndpointApiAuthRequestAccessPostErrors[keyof RequestAccessEndpointApiAuthRequestAccessPostErrors]
+export type RequestAccessError = RequestAccessErrors[keyof RequestAccessErrors]
 
-export type RequestAccessEndpointApiAuthRequestAccessPostResponses = {
+export type RequestAccessResponses = {
     /**
      * Successful Response
      */
     200: RequestAccessResponse
 }
 
-export type RequestAccessEndpointApiAuthRequestAccessPostResponse =
-    RequestAccessEndpointApiAuthRequestAccessPostResponses[keyof RequestAccessEndpointApiAuthRequestAccessPostResponses]
+export type RequestAccessResponse2 =
+    RequestAccessResponses[keyof RequestAccessResponses]
 
-export type LoginEndpointApiAuthLoginPostData = {
+export type LoginData = {
     body: LoginRequest
     path?: never
     query?: never
     url: '/api/auth/login'
 }
 
-export type LoginEndpointApiAuthLoginPostErrors = {
+export type LoginErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError
 }
 
-export type LoginEndpointApiAuthLoginPostError =
-    LoginEndpointApiAuthLoginPostErrors[keyof LoginEndpointApiAuthLoginPostErrors]
+export type LoginError = LoginErrors[keyof LoginErrors]
 
-export type LoginEndpointApiAuthLoginPostResponses = {
+export type LoginResponses = {
     /**
      * Successful Response
      */
     204: void
 }
 
-export type LoginEndpointApiAuthLoginPostResponse =
-    LoginEndpointApiAuthLoginPostResponses[keyof LoginEndpointApiAuthLoginPostResponses]
+export type LoginResponse = LoginResponses[keyof LoginResponses]
 
-export type GetHealthEndpointApiHealthGetData = {
+export type GetHealthData = {
     body?: never
     path?: never
     query?: never
     url: '/api/health'
 }
 
-export type GetHealthEndpointApiHealthGetResponses = {
+export type GetHealthResponses = {
     /**
-     * Response Get Health Endpoint Api Health Get
+     * Response Gethealth
      *
      * Successful Response
      */
     200: string
 }
 
-export type GetHealthEndpointApiHealthGetResponse =
-    GetHealthEndpointApiHealthGetResponses[keyof GetHealthEndpointApiHealthGetResponses]
+export type GetHealthResponse = GetHealthResponses[keyof GetHealthResponses]
 
-export type GetCurrentUserEndpointApiUsersCurrentGetData = {
+export type GetCurrentUserData = {
     body?: never
     path?: never
     query?: never
     url: '/api/users/current'
 }
 
-export type GetCurrentUserEndpointApiUsersCurrentGetResponses = {
+export type GetCurrentUserResponses = {
     /**
      * Successful Response
      */
     200: UserPublic
 }
 
-export type GetCurrentUserEndpointApiUsersCurrentGetResponse =
-    GetCurrentUserEndpointApiUsersCurrentGetResponses[keyof GetCurrentUserEndpointApiUsersCurrentGetResponses]
+export type GetCurrentUserResponse =
+    GetCurrentUserResponses[keyof GetCurrentUserResponses]

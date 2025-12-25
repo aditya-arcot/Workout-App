@@ -11,6 +11,6 @@ api_router = APIRouter(
 )
 
 
-@api_router.get("/access-requests")
+@api_router.get("/access-requests", operation_id="getAccessRequests")
 async def get_access_requests_endpoint(db: Annotated[AsyncSession, Depends(get_db)]):
     return await get_access_requests(db)

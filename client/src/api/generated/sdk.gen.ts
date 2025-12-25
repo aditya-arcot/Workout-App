@@ -3,18 +3,18 @@
 import type { Client, Options as Options2, TDataShape } from './client'
 import { client } from './client.gen'
 import type {
-    GetAccessRequestsEndpointApiAdminAccessRequestsGetData,
-    GetAccessRequestsEndpointApiAdminAccessRequestsGetResponses,
-    GetCurrentUserEndpointApiUsersCurrentGetData,
-    GetCurrentUserEndpointApiUsersCurrentGetResponses,
-    GetHealthEndpointApiHealthGetData,
-    GetHealthEndpointApiHealthGetResponses,
-    LoginEndpointApiAuthLoginPostData,
-    LoginEndpointApiAuthLoginPostErrors,
-    LoginEndpointApiAuthLoginPostResponses,
-    RequestAccessEndpointApiAuthRequestAccessPostData,
-    RequestAccessEndpointApiAuthRequestAccessPostErrors,
-    RequestAccessEndpointApiAuthRequestAccessPostResponses,
+    GetAccessRequestsData,
+    GetAccessRequestsResponses,
+    GetCurrentUserData,
+    GetCurrentUserResponses,
+    GetHealthData,
+    GetHealthResponses,
+    LoginData,
+    LoginErrors,
+    LoginResponses,
+    RequestAccessData,
+    RequestAccessErrors,
+    RequestAccessResponses,
 } from './types.gen'
 
 export type Options<
@@ -38,16 +38,11 @@ export class AdminService {
     /**
      * Get Access Requests Endpoint
      */
-    public static getAccessRequestsEndpointApiAdminAccessRequestsGet<
-        ThrowOnError extends boolean = false,
-    >(
-        options?: Options<
-            GetAccessRequestsEndpointApiAdminAccessRequestsGetData,
-            ThrowOnError
-        >
+    public static getAccessRequests<ThrowOnError extends boolean = false>(
+        options?: Options<GetAccessRequestsData, ThrowOnError>
     ) {
         return (options?.client ?? client).get<
-            GetAccessRequestsEndpointApiAdminAccessRequestsGetResponses,
+            GetAccessRequestsResponses,
             unknown,
             ThrowOnError
         >({
@@ -69,17 +64,12 @@ export class AuthService {
     /**
      * Request Access Endpoint
      */
-    public static requestAccessEndpointApiAuthRequestAccessPost<
-        ThrowOnError extends boolean = false,
-    >(
-        options: Options<
-            RequestAccessEndpointApiAuthRequestAccessPostData,
-            ThrowOnError
-        >
+    public static requestAccess<ThrowOnError extends boolean = false>(
+        options: Options<RequestAccessData, ThrowOnError>
     ) {
         return (options.client ?? client).post<
-            RequestAccessEndpointApiAuthRequestAccessPostResponses,
-            RequestAccessEndpointApiAuthRequestAccessPostErrors,
+            RequestAccessResponses,
+            RequestAccessErrors,
             ThrowOnError
         >({
             responseType: 'json',
@@ -95,12 +85,12 @@ export class AuthService {
     /**
      * Login Endpoint
      */
-    public static loginEndpointApiAuthLoginPost<
-        ThrowOnError extends boolean = false,
-    >(options: Options<LoginEndpointApiAuthLoginPostData, ThrowOnError>) {
+    public static login<ThrowOnError extends boolean = false>(
+        options: Options<LoginData, ThrowOnError>
+    ) {
         return (options.client ?? client).post<
-            LoginEndpointApiAuthLoginPostResponses,
-            LoginEndpointApiAuthLoginPostErrors,
+            LoginResponses,
+            LoginErrors,
             ThrowOnError
         >({
             url: '/api/auth/login',
@@ -117,11 +107,11 @@ export class HealthService {
     /**
      * Get Health Endpoint
      */
-    public static getHealthEndpointApiHealthGet<
-        ThrowOnError extends boolean = false,
-    >(options?: Options<GetHealthEndpointApiHealthGetData, ThrowOnError>) {
+    public static getHealth<ThrowOnError extends boolean = false>(
+        options?: Options<GetHealthData, ThrowOnError>
+    ) {
         return (options?.client ?? client).get<
-            GetHealthEndpointApiHealthGetResponses,
+            GetHealthResponses,
             unknown,
             ThrowOnError
         >({
@@ -136,16 +126,11 @@ export class UserService {
     /**
      * Get Current User Endpoint
      */
-    public static getCurrentUserEndpointApiUsersCurrentGet<
-        ThrowOnError extends boolean = false,
-    >(
-        options?: Options<
-            GetCurrentUserEndpointApiUsersCurrentGetData,
-            ThrowOnError
-        >
+    public static getCurrentUser<ThrowOnError extends boolean = false>(
+        options?: Options<GetCurrentUserData, ThrowOnError>
     ) {
         return (options?.client ?? client).get<
-            GetCurrentUserEndpointApiUsersCurrentGetResponses,
+            GetCurrentUserResponses,
             unknown,
             ThrowOnError
         >({

@@ -1,5 +1,4 @@
-import type { CreateClientConfig } from '@/api/generated/client.gen'
-import { client } from '@/api/generated/client.gen'
+import { client, type CreateClientConfig } from '@/api/generated/client.gen'
 import { env } from '@/config/env'
 import { AxiosError } from 'axios'
 

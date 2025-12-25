@@ -8,7 +8,10 @@ from app.models.schemas.user import UserPublic
 api_router = APIRouter(prefix="/users", tags=["User"])
 
 
-@api_router.get("/current")
+@api_router.get(
+    "/current",
+    operation_id="getCurrentUser",
+)
 def get_current_user_endpoint(
     user: Annotated[UserPublic, Depends(get_current_user)],
 ) -> UserPublic:

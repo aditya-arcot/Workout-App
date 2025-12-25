@@ -16,7 +16,7 @@ from app.services.email import EmailService, get_email_service
 api_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@api_router.post("/request-access")
+@api_router.post("/request-access", operation_id="requestAccess")
 async def request_access_endpoint(
     payload: RequestAccessRequest,
     background_tasks: BackgroundTasks,
@@ -47,6 +47,7 @@ async def request_access_endpoint(
 
 @api_router.post(
     "/login",
+    operation_id="login",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def login_endpoint(

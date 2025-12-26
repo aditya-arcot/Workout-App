@@ -1,10 +1,36 @@
-import { Outlet } from 'react-router'
+import { AuthService } from '@/api/generated'
+import { useSession } from '@/auth/session'
+import { Button } from '@/components/ui/button'
+import { Outlet, useNavigate } from 'react-router'
 
 export function AppLayout() {
+    const { refresh } = useSession()
+    const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        await AuthService.logout()
+        await refresh()
+        void navigate('/login', { replace: true })
+    }
+
     return (
-        <div>
-            <header>Header</header>
-            <Outlet />
+        <div className="flex flex-col">
+            <header className="border-b">
+                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+                    <span className="text-2xl font-bold">Workout App</span>
+                    <Button
+                        variant="destructive"
+                        onClick={() => void handleLogout()}
+                    >
+                        Logout
+                    </Button>
+                </div>
+            </header>
+            <main className="flex-1">
+                <div className="mx-auto max-w-6xl px-4 py-6">
+                    <Outlet />
+                </div>
+            </main>
         </div>
     )
 }

@@ -12,6 +12,8 @@ import type {
     LoginData,
     LoginErrors,
     LoginResponses,
+    LogoutData,
+    LogoutResponses,
     RequestAccessData,
     RequestAccessErrors,
     RequestAccessResponses,
@@ -100,6 +102,19 @@ export class AuthService {
                 ...options.headers,
             },
         })
+    }
+
+    /**
+     * Logout Endpoint
+     */
+    public static logout<ThrowOnError extends boolean = false>(
+        options?: Options<LogoutData, ThrowOnError>
+    ) {
+        return (options?.client ?? client).post<
+            LogoutResponses,
+            unknown,
+            ThrowOnError
+        >({ url: '/api/auth/logout', ...options })
     }
 }
 

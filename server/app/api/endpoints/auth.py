@@ -64,3 +64,12 @@ async def login_endpoint(
         samesite="strict",
         max_age=60 * 60,  # 1 hour
     )
+
+
+@api_router.post(
+    "/logout",
+    operation_id="logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def logout_endpoint(response: Response):
+    response.delete_cookie(key="access_token")

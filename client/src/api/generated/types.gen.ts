@@ -173,6 +173,22 @@ export type LoginResponses = {
 
 export type LoginResponse = LoginResponses[keyof LoginResponses]
 
+export type LogoutData = {
+    body?: never
+    path?: never
+    query?: never
+    url: '/api/auth/logout'
+}
+
+export type LogoutResponses = {
+    /**
+     * Successful Response
+     */
+    204: void
+}
+
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses]
+
 export type GetHealthData = {
     body?: never
     path?: never

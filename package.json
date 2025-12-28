@@ -1,5 +1,5 @@
 {
-    "name": "workout-app",
+    "name": "rep-track",
     "private": true,
     "scripts": {
         "format": "npm run prettier && npm run format:py",

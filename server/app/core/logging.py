@@ -7,7 +7,7 @@ from pythonjsonlogger.json import JsonFormatter
 from app.core.config import settings
 
 LOG_DIR = Path.home() / "Projects" / "Logs"
-LOG_FILE = LOG_DIR / f"workout_app_server_{settings.ENV}.log"
+LOG_FILE = LOG_DIR / f"reptrack_server_{settings.ENV}.log"
 
 
 def setup_logging() -> None:

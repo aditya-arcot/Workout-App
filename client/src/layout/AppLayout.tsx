@@ -17,7 +17,7 @@ export function AppLayout() {
         <div className="flex h-dvh flex-col bg-muted">
             <header className="border-b bg-background">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-                    <span className="text-2xl font-bold">Workout App</span>
+                    <span className="text-2xl font-bold">RepTrack</span>
                     <Button
                         variant="destructive"
                         onClick={() => void handleLogout()}

@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api import api_router
@@ -8,17 +9,19 @@ from .core.config import settings
 from .core.handlers import exception_handler
 from .core.logging import setup_logging
 
-if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     setup_logging()
-
     logger.debug("Initialized logging")
     logger.debug("Loaded settings: %s", settings.model_dump())
+    logger.info("Starting app...")
+    yield
 
-    logger.info("Starting app")
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.CLIENT_URL],

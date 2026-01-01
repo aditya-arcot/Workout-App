@@ -14,6 +14,19 @@ class Settings(BaseSettings):
     def IS_PROD(self) -> bool:
         return self.ENV == "stage" or self.ENV == "prod"
 
+    @computed_field
+    @property
+    def CORS_URLS(self) -> list[str]:
+        cors_urls = [self.CLIENT_URL]
+        if not self.IS_PROD:
+            cors_urls.append("http://localhost")
+        return cors_urls
+
+    @computed_field
+    @property
+    def COOKIE_SAME_SITE(self) -> Literal["lax", "none"]:
+        return "lax" if self.IS_PROD else "none"
+
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str

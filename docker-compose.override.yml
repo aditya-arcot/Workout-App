@@ -1,0 +1,101 @@
+services:
+    traefik:
+        image: traefik:v3
+        container_name: ${PROJECT?}-${ENV?}-traefik
+        restart: no
+
+        networks:
+            - traefik-public
+        ports:
+            - 80:80
+            - 8080:8080
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+
+        command:
+            - --providers.docker=true
+            - --providers.docker.exposedbydefault=false
+            - --providers.docker.network=traefik-public
+
+            - --entrypoints.web.address=:80
+            - --entrypoints.websecure.address=:443
+
+            - --api.insecure=true
+            - --log.level=DEBUG
+            - --accesslog=true
+
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.${PROJECT?}-${ENV?}-traefik.rule=Host(`traefik.${DOMAIN?}`)
+            - traefik.http.routers.${PROJECT?}-${ENV?}-traefik.entrypoints=web
+            - traefik.http.routers.${PROJECT?}-${ENV?}-traefik.service=${PROJECT?}-${ENV?}-traefik
+            - traefik.http.services.${PROJECT?}-${ENV?}-traefik.loadbalancer.server.port=8080
+
+    database:
+        restart: no
+        ports:
+            - '${POSTGRES_PORT?}:5432'
+
+    mailcatcher:
+        image: dockage/mailcatcher:0.9.0
+        container_name: ${PROJECT?}-${ENV?}-mailcatcher
+        restart: no
+        ports:
+            - '1080:1080' # web ui
+            - '1025:1025' # smtp
+
+    server:
+        pull_policy: build
+        build:
+            context: ./server
+
+        restart: no
+        ports:
+            - '8000:8000'
+
+        # binds to all interfaces
+        command: fastapi run --reload app/main.py
+
+        develop:
+            watch:
+                - path: ./server
+                  action: sync
+                  target: /src
+                - path: ./server/.dockerignore
+                  action: rebuild
+                - path: ./server/Dockerfile
+                  action: rebuild
+                - path: ./server/pyproject.toml
+                  action: rebuild
+                - path: ./server/uv.lock
+                  action: rebuild
+
+    client:
+        pull_policy: build
+        build:
+            context: ./client
+            target: dev
+
+        restart: no
+        ports:
+            - '5173:5173'
+
+        develop:
+            watch:
+                - path: ./client
+                  target: /src
+                  action: sync
+                - path: ./client/.dockerignore
+                  action: rebuild
+                - path: ./client/Dockerfile
+                  action: rebuild
+                - path: ./client/package.json
+                  action: rebuild
+                - path: ./client/package-lock.json
+                  action: rebuild
+                - path: ./client/vite.config.ts
+                  action: rebuild
+
+networks:
+    traefik-public:
+        external: false

@@ -11,21 +11,16 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def IS_PROD(self) -> bool:
-        return self.ENV == "stage" or self.ENV == "prod"
-
-    @computed_field
-    @property
     def CORS_URLS(self) -> list[str]:
         cors_urls = [self.CLIENT_URL]
-        if not self.IS_PROD:
+        if self.ENV == "dev":
             cors_urls.append("http://localhost")
         return cors_urls
 
     @computed_field
     @property
     def COOKIE_SAME_SITE(self) -> Literal["lax", "none"]:
-        return "lax" if self.IS_PROD else "none"
+        return "none" if self.ENV == "dev" else "lax"
 
     POSTGRES_HOST: str
     POSTGRES_PORT: int

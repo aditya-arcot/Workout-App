@@ -18,14 +18,13 @@ def setup_logging() -> None:
         },
     }
 
-    if not settings.IS_PROD:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-        handlers["file"] = {
-            "class": "logging.FileHandler",
-            "formatter": "json",
-            "filename": str(LOG_FILE),
-            "encoding": "utf-8",
-        }
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    handlers["file"] = {
+        "class": "logging.FileHandler",
+        "formatter": "json",
+        "filename": str(LOG_FILE),
+        "encoding": "utf-8",
+    }
 
     logging.config.dictConfig(
         {

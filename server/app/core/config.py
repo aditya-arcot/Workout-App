@@ -11,6 +11,13 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
+    def PROJECT_NAME(self) -> str:
+        if self.ENV == "prod":
+            return "RepTrack"
+        return f"RepTrack-{self.ENV.capitalize()}"
+
+    @computed_field
+    @property
     def IS_PROD(self) -> bool:
         return self.ENV == "stage" or self.ENV == "prod"
 

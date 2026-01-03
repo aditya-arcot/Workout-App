@@ -40,9 +40,9 @@ class EmailService(ABC):
         """
         Notify an admin that a new access request has been submitted.
         """
-        subject = f"New access request: {access_request.email}"
+        subject = f"New Access Request - {settings.PROJECT_NAME}"
         body = (
-            f"User {access_request.first_name} {access_request.last_name} "
+            f"User {access_request.first_name} {access_request.last_name} ({access_request.email}) "
             f"has requested access (request id {access_request.id})."
         )
         try:
@@ -58,7 +58,7 @@ class EmailService(ABC):
         """
         Notify a user that their access request was approved and provide instructions.
         """
-        subject = "Access Request Approved"
+        subject = "Access Request Approved - {settings.PROJECT_NAME}"
         body = (
             f"Hello {access_request.first_name},\n\n"
             f"Your access request has been approved!\n"

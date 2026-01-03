@@ -78,7 +78,47 @@ jobs:
               working-directory: server
               run: uv sync
 
-            # TODO create .env file
+            - name: create .env file
+              working-directory: config/env
+              run: |
+                  echo "PROJECT=${{ vars.PROJECT }}" >> .env
+                  echo "PROD=${{ github.ref_name == 'main' && 'true' || 'false' }}" >> .env
+                  echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+
+                  echo "DOCKER_REGISTRY=${{ secrets.DOCKER_REGISTRY }}" >> .env
+                  echo "TAG=${{ env.TAG }}" >> .env
+
+                  echo "PGADMIN_EMAIL=${{ secrets.PGADMIN_EMAIL }}" >> .env
+                  echo "PGADMIN_PASSWORD=${{ secrets.PGADMIN_PASSWORD }}" >> .env
+
+                  echo "ENV=${{ vars.ENV }}" >> .env
+                  echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
+                  echo "CLIENT_URL=https://${{ secrets.DOMAIN }}" >> .env
+
+                  echo "POSTGRES_HOST=" >> .env
+                  echo "POSTGRES_PORT=" >> .env
+                  echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+                  echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+                  echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+
+                  echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> .env
+                  echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+                  echo "ADMIN_FIRST_NAME=${{ secrets.ADMIN_FIRST_NAME }}" >> .env
+                  echo "ADMIN_LAST_NAME=${{ secrets.ADMIN_LAST_NAME }}" >> .env
+                  echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+
+                  echo "EMAIL_BACKEND=smtp" >> .env
+                  echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+                  echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+                  echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
+                  echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
+                  echo "SMTP_USE_TLS=${{ secrets.SMTP_USE_TLS }}" >> .env
+                  echo "SMTP_USE_SSL=${{ secrets.SMTP_USE_SSL }}" >> .env
+                  echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+
+                  echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+                  echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
+                  echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
 
             - name: server - build & push docker image
               working-directory: server
@@ -89,7 +129,7 @@ jobs:
 
             - name: start containers
               working-directory: config/infra
-              run: docker-compose -f docker-compose.yml up -d
+              run: docker-compose --env-file ../env/.env -f docker-compose.yml up -d
 
             - name: client - remove cache folder
               if: always()

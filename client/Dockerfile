@@ -25,7 +25,7 @@ FROM base AS build
 
 # set through env or build args
 ARG VITE_API_URL=${VITE_API_URL}
-RUN sh -c 'echo "API URL: $VITE_API_URL"; if [ -z "$VITE_API_URL" ]; then exit 1; fi'
+RUN sh -c 'if [ -z "$VITE_API_URL" ]; then exit 1; fi'
 
 RUN npm run build
 

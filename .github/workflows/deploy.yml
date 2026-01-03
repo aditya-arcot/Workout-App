@@ -113,7 +113,6 @@ jobs:
                   echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
                   echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
                   echo "SMTP_USE_TLS=${{ secrets.SMTP_USE_TLS }}" >> .env
-                  echo "SMTP_USE_SSL=${{ secrets.SMTP_USE_SSL }}" >> .env
                   echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
 
                   echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env

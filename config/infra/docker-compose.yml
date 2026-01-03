@@ -72,13 +72,12 @@ services:
             - ADMIN_LAST_NAME=${ADMIN_LAST_NAME?}
             - ADMIN_PASSWORD=${ADMIN_PASSWORD?}
 
-            - EMAIL_BACKEND=${EMAIL_BACKEND?}
-            - SMTP_HOST=${SMTP_HOST?}
-            - SMTP_PORT=${SMTP_PORT?}
+            - EMAIL_BACKEND=smtp
+            - SMTP_HOST=host.docker.internal
+            - SMTP_PORT=1025
             - SMTP_USERNAME=${SMTP_USERNAME?}
             - SMTP_PASSWORD=${SMTP_PASSWORD?}
             - SMTP_USE_TLS=${SMTP_USE_TLS?}
-            - SMTP_USE_SSL=${SMTP_USE_SSL?}
             - EMAIL_FROM=${EMAIL_FROM?}
 
             - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
@@ -120,13 +119,12 @@ services:
             - ADMIN_LAST_NAME=${ADMIN_LAST_NAME?}
             - ADMIN_PASSWORD=${ADMIN_PASSWORD?}
 
-            - EMAIL_BACKEND=${EMAIL_BACKEND?}
-            - SMTP_HOST=${SMTP_HOST?}
-            - SMTP_PORT=${SMTP_PORT?}
+            - EMAIL_BACKEND=smtp
+            - SMTP_HOST=host.docker.internal
+            - SMTP_PORT=1025
             - SMTP_USERNAME=${SMTP_USERNAME?}
             - SMTP_PASSWORD=${SMTP_PASSWORD?}
             - SMTP_USE_TLS=${SMTP_USE_TLS?}
-            - SMTP_USE_SSL=${SMTP_USE_SSL?}
             - EMAIL_FROM=${EMAIL_FROM?}
 
             - JWT_SECRET_KEY=${JWT_SECRET_KEY?}

@@ -54,7 +54,6 @@ class Settings(BaseSettings):
     SMTP_USERNAME: str | None
     SMTP_PASSWORD: str | None
     SMTP_USE_TLS: bool
-    SMTP_USE_SSL: bool
     # allow arbitrary string
     EMAIL_FROM: str
 

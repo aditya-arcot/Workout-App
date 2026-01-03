@@ -78,6 +78,8 @@ jobs:
               working-directory: server
               run: uv sync
 
+            # TODO create .env file
+
             - name: server - build & push docker image
               working-directory: server
               run: |
@@ -85,7 +87,9 @@ jobs:
                   docker build -t $IMAGE .
                   docker push $IMAGE
 
-            # TODO start containers
+            - name: start containers
+              working-directory: config/infra
+              run: docker-compose -f docker-compose.yml up -d
 
             - name: client - remove cache folder
               if: always()

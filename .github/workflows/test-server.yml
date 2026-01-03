@@ -20,13 +20,12 @@ jobs:
               with:
                   ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
 
-            - name: setup python
-              uses: actions/setup-python@v6
-              with:
-                  python-version-file: server/.python-version
-
             - name: setup uv
               uses: astral-sh/setup-uv@v7
+              with:
+                  working-directory: server
+                  enable-cache: true
+                  cache-python: true
 
             - name: install
               working-directory: server

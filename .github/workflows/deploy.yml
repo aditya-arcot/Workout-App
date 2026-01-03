@@ -63,7 +63,7 @@ jobs:
               run: |
                   IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
                   docker build \
-                    --build-arg VITE_API_URL=${{ vars.VITE_API_URL }} \
+                    --build-arg VITE_API_URL=https://api-${{ secrets.DOMAIN }} \
                     -t $IMAGE .
                   docker push $IMAGE
 

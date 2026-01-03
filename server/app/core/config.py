@@ -1,26 +1,31 @@
 from typing import Literal
 
-from pydantic import computed_field
+from pydantic import EmailStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    ENV: Literal["dev", "stage", "prod"]
+    ENV: Literal["dev", "test", "stage", "prod"]
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     CLIENT_URL: str
 
     @computed_field
     @property
+    def IS_PROD(self) -> bool:
+        return self.ENV == "stage" or self.ENV == "prod"
+
+    @computed_field
+    @property
     def CORS_URLS(self) -> list[str]:
         cors_urls = [self.CLIENT_URL]
-        if self.ENV == "dev":
+        if not self.IS_PROD:
             cors_urls.append("http://localhost")
         return cors_urls
 
     @computed_field
     @property
     def COOKIE_SAME_SITE(self) -> Literal["lax", "none"]:
-        return "none" if self.ENV == "dev" else "lax"
+        return "lax" if self.IS_PROD else "none"
 
     POSTGRES_HOST: str
     POSTGRES_PORT: int
@@ -50,7 +55,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None
     SMTP_USE_TLS: bool
     SMTP_USE_SSL: bool
-    EMAIL_FROM: str
+    EMAIL_FROM: EmailStr
 
     JWT_SECRET_KEY: str
     ALGORITHM: str

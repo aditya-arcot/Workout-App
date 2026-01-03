@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 async_engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=settings.ENV != "prod",
+    echo=not settings.IS_PROD,
 )
 
 AsyncSessionLocal = async_sessionmaker(

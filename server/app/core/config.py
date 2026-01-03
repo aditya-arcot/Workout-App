@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import EmailStr, computed_field
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -55,7 +55,8 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None
     SMTP_USE_TLS: bool
     SMTP_USE_SSL: bool
-    EMAIL_FROM: EmailStr
+    # allow arbitrary string
+    EMAIL_FROM: str
 
     JWT_SECRET_KEY: str
     ALGORITHM: str

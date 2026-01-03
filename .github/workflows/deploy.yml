@@ -1,0 +1,75 @@
+name: Deploy Application
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - stage
+            - main
+        paths:
+            - .github/workflows/deploy*.yml
+            - client/src/**
+            - client/Dockerfile
+            - client/nginx.conf'
+            - client/package-lock.json
+            - client/package.json
+            - client/tsconfig.*json
+            - client/vite.config.ts
+            - config/**
+            - server/app/**
+            - server/alembic.ini
+            - server/Dockerfile
+            - server/pyproject.toml
+            - server/uv.lock
+
+concurrency:
+    group: deploy-${{ github.ref_name }}
+    cancel-in-progress: true
+
+permissions:
+    contents: none
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+        environment: ${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
+        steps:
+            - name: create tag
+              run: |
+                  VERSION=${{ github.run_number }}-${{ github.run_attempt }}-${{ github.run_id }}
+                  echo "TAG=$(date +%Y-%m-%d).$VERSION" >> $GITHUB_ENV
+
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
+            - name: checkout
+              uses: actions/checkout@v6
+
+            - name: setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 'lts/*'
+                  check-latest: true
+
+            - name: install, build client
+              working-directory: client
+              run: |
+                  npm config ls
+                  npm ci --cache .npm
+                  npm run build
+
+            - name: build, push client docker image
+              working-directory: client
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
+                  docker build \
+                    --build-arg VITE_API_URL=${{ vars.VITE_API_URL }} \
+                    -t $IMAGE .
+                  docker push $IMAGE
+
+            # TODO server image, start containers
+
+            - name: remove client cache folder
+              if: always()
+              working-directory: client
+              run: rm -rf .npm

@@ -73,16 +73,16 @@ services:
 
         develop:
             watch:
-                - path: ./server
+                - path: ../../server
                   action: sync
                   target: /src
-                - path: ./server/.dockerignore
+                - path: ../../server/.dockerignore
                   action: rebuild
-                - path: ./server/Dockerfile
+                - path: ../../server/Dockerfile
                   action: rebuild
-                - path: ./server/pyproject.toml
+                - path: ../../server/pyproject.toml
                   action: rebuild
-                - path: ./server/uv.lock
+                - path: ../../server/uv.lock
                   action: rebuild
 
         healthcheck:
@@ -111,18 +111,18 @@ services:
 
         develop:
             watch:
-                - path: ./client
+                - path: ../../client
                   target: /src
                   action: sync
-                - path: ./client/.dockerignore
+                - path: ../../client/.dockerignore
                   action: rebuild
-                - path: ./client/Dockerfile
+                - path: ../../client/Dockerfile
                   action: rebuild
-                - path: ./client/package.json
+                - path: ../../client/package.json
                   action: rebuild
-                - path: ./client/package-lock.json
+                - path: ../../client/package-lock.json
                   action: rebuild
-                - path: ./client/vite.config.ts
+                - path: ../../client/vite.config.ts
                   action: rebuild
 
         labels:

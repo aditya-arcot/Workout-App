@@ -45,38 +45,6 @@ jobs:
             - name: checkout
               uses: actions/checkout@v6
 
-            - name: client - setup node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 'lts/*'
-                  check-latest: true
-
-            - name: client - install deps & build
-              working-directory: client
-              run: |
-                  npm config ls
-                  npm ci --cache .npm
-                  npm run build
-
-            - name: client - build & push docker image
-              working-directory: client
-              run: |
-                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
-                  docker build \
-                    --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
-                    -t $IMAGE .
-                  docker push $IMAGE
-
-            - name: server - setup uv
-              uses: astral-sh/setup-uv@v7
-              with:
-                  working-directory: server
-                  enable-cache: true
-
-            - name: server - install deps
-              working-directory: server
-              run: uv sync
-
             - name: create .env file
               working-directory: config/env
               run: |
@@ -119,6 +87,42 @@ jobs:
                   echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
                   echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
                   echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+
+            - name: create pg admin config
+              working-directory: scripts
+              run: ./generate_pg_admin_config.sh
+
+            - name: client - setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 'lts/*'
+                  check-latest: true
+
+            - name: client - install deps & build
+              working-directory: client
+              run: |
+                  npm config ls
+                  npm ci --cache .npm
+                  npm run build
+
+            - name: client - build & push docker image
+              working-directory: client
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
+                  docker build \
+                    --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+                    -t $IMAGE .
+                  docker push $IMAGE
+
+            - name: server - setup uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                  working-directory: server
+                  enable-cache: true
+
+            - name: server - install deps
+              working-directory: server
+              run: uv sync
 
             - name: server - build & push docker image
               working-directory: server

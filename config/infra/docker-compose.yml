@@ -156,9 +156,6 @@ services:
             - traefik-public
             - default
 
-        environment:
-            - VITE_API_URL=http://api-${DOMAIN?}
-
         labels:
             - traefik.enable=true
             - traefik.prod=${PROD?}

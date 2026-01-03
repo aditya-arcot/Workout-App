@@ -45,20 +45,20 @@ jobs:
             - name: checkout
               uses: actions/checkout@v6
 
-            - name: setup node
+            - name: client - setup node
               uses: actions/setup-node@v6
               with:
                   node-version: 'lts/*'
                   check-latest: true
 
-            - name: install, build client
+            - name: client - install deps & build
               working-directory: client
               run: |
                   npm config ls
                   npm ci --cache .npm
                   npm run build
 
-            - name: build, push client docker image
+            - name: client - build & push docker image
               working-directory: client
               run: |
                   IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
@@ -67,9 +67,32 @@ jobs:
                     -t $IMAGE .
                   docker push $IMAGE
 
-            # TODO server image, start containers
+            - name: server - setup uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                  working-directory: server
+                  enable-cache: true
+                  cache-python: true
 
-            - name: remove client cache folder
+            - name: server - install deps
+              working-directory: server
+              run: uv sync
+
+            - name: server - build & push docker image
+              working-directory: server
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-server:${{ env.TAG }}
+                  docker build -t $IMAGE .
+                  docker push $IMAGE
+
+            # TODO start containers
+
+            - name: client - remove cache folder
               if: always()
               working-directory: client
               run: rm -rf .npm
+
+            - name: server - remove cache folder
+              if: always()
+              working-directory: server
+              run: rm -rf .uv

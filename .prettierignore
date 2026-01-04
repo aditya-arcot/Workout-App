@@ -1,3 +1,4 @@
+client/src/api/generated/
 dist/
-.venv/
-.pytest_cache/
+server/.venv/
+server/.pytest_cache/

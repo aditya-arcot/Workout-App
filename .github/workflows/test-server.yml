@@ -1,0 +1,72 @@
+name: Run Server Tests
+
+on:
+    workflow_dispatch:
+    pull_request_target:
+        branches:
+            - stage
+            - main
+
+permissions:
+    contents: none
+
+jobs:
+    test-server:
+        runs-on: self-hosted
+        environment: test
+        steps:
+            - name: checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                  working-directory: server
+                  enable-cache: true
+
+            - name: install
+              working-directory: server
+              run: uv sync
+
+            - name: create .env
+              working-directory: config/env
+              run: |
+                  echo "ENV=test" >> .env
+                  echo "LOG_LEVEL=DEBUG" >> .env
+                  echo "CLIENT_URL=" >> .env
+
+                  # unused
+                  echo "POSTGRES_HOST=" >> .env
+                  echo "POSTGRES_PORT=0" >> .env
+                  echo "POSTGRES_DB=" >> .env
+                  echo "POSTGRES_USER=" >> .env
+                  echo "POSTGRES_PASSWORD=" >> .env
+
+                  echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> .env
+                  echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+                  echo "ADMIN_FIRST_NAME=${{ secrets.ADMIN_FIRST_NAME }}" >> .env
+                  echo "ADMIN_LAST_NAME=${{ secrets.ADMIN_LAST_NAME }}" >> .env
+                  echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+
+                  echo "EMAIL_BACKEND=smtp" >> .env
+                  echo "SMTP_HOST=" >> .env
+                  echo "SMTP_PORT=0" >> .env
+                  echo "SMTP_USERNAME=" >> .env
+                  echo "SMTP_PASSWORD=" >> .env
+                  echo "SMTP_USE_TLS=false" >> .env
+                  echo "EMAIL_FROM=" >> .env
+
+                  echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+                  echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
+                  echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+
+            - name: run tests
+              working-directory: server
+              run: make test
+
+            - name: remove cache folder
+              if: always()
+              working-directory: server
+              run: rm -rf .uv

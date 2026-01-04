@@ -7,7 +7,7 @@ from pythonjsonlogger.json import JsonFormatter
 from app.core.config import settings
 
 LOG_DIR = Path.home() / "Projects" / "Logs"
-LOG_FILE = LOG_DIR / f"workout_app_server_{settings.ENV}.log"
+LOG_FILE = LOG_DIR / f"reptrack_server_{settings.ENV}.log"
 
 
 def setup_logging() -> None:
@@ -18,14 +18,13 @@ def setup_logging() -> None:
         },
     }
 
-    if not settings.IS_PROD:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-        handlers["file"] = {
-            "class": "logging.FileHandler",
-            "formatter": "json",
-            "filename": str(LOG_FILE),
-            "encoding": "utf-8",
-        }
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    handlers["file"] = {
+        "class": "logging.FileHandler",
+        "formatter": "json",
+        "filename": str(LOG_FILE),
+        "encoding": "utf-8",
+    }
 
     logging.config.dictConfig(
         {

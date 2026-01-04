@@ -20,7 +20,7 @@ down_revision: Union[str, Sequence[str], None] = "1e1a6b37847d"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-load_dotenv()
+load_dotenv("../config/env/.env")
 
 username = os.getenv("ADMIN_USERNAME")
 email = os.getenv("ADMIN_EMAIL")

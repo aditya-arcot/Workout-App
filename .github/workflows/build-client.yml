@@ -1,0 +1,38 @@
+name: Build Client Project
+
+on:
+    workflow_dispatch:
+    pull_request_target:
+        branches:
+            - stage
+            - main
+
+permissions:
+    contents: none
+
+jobs:
+    build-client:
+        runs-on: self-hosted
+        steps:
+            - name: checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
+
+            - name: setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 'lts/*'
+                  check-latest: true
+
+            - name: install, build
+              working-directory: client
+              run: |
+                  npm config ls
+                  npm ci --cache .npm
+                  npm run build
+
+            - name: remove cache folder
+              if: always()
+              working-directory: client
+              run: rm -rf .npm

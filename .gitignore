@@ -7,3 +7,7 @@ logs
 !.env.example
 
 openapi_spec.json
+pgpass
+servers.json
+
+todo

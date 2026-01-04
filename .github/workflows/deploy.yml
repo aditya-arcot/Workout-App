@@ -1,0 +1,146 @@
+name: Deploy Application
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - stage
+            - main
+        paths:
+            - .github/workflows/deploy*.yml
+            - client/src/**
+            - client/Dockerfile
+            - client/nginx.conf'
+            - client/package-lock.json
+            - client/package.json
+            - client/tsconfig.*json
+            - client/vite.config.ts
+            - config/**
+            - server/app/**
+            - server/alembic.ini
+            - server/Dockerfile
+            - server/pyproject.toml
+            - server/uv.lock
+
+concurrency:
+    group: deploy-${{ github.ref_name }}
+    cancel-in-progress: true
+
+permissions:
+    contents: none
+
+jobs:
+    deploy:
+        runs-on: mbp-13
+        environment: ${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
+        steps:
+            - name: create tag
+              run: |
+                  VERSION=${{ github.run_number }}-${{ github.run_attempt }}-${{ github.run_id }}
+                  echo "TAG=$(date +%Y-%m-%d).$VERSION" >> $GITHUB_ENV
+
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
+            - name: checkout
+              uses: actions/checkout@v6
+
+            - name: create .env file
+              working-directory: config/env
+              run: |
+                  echo "PROJECT=${{ vars.PROJECT }}" >> .env
+                  echo "PROD=${{ github.ref_name == 'main' && 'true' || 'false' }}" >> .env
+                  echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+
+                  echo "DOCKER_REGISTRY=${{ secrets.DOCKER_REGISTRY }}" >> .env
+                  echo "TAG=${{ env.TAG }}" >> .env
+
+                  echo "PGADMIN_EMAIL=${{ secrets.PGADMIN_EMAIL }}" >> .env
+                  echo "PGADMIN_PASSWORD=${{ secrets.PGADMIN_PASSWORD }}" >> .env
+
+                  echo "TRAEFIK_NETWORK=${{ github.ref_name == 'main' && 'traefik-public' || 'traefik-stage-public' }}" >> .env
+
+                  echo "ENV=${{ vars.ENV }}" >> .env
+                  echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
+                  echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
+
+                  echo "POSTGRES_HOST=" >> .env
+                  echo "POSTGRES_PORT=" >> .env
+                  echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+                  echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+                  echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+
+                  echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> .env
+                  echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+                  echo "ADMIN_FIRST_NAME=${{ secrets.ADMIN_FIRST_NAME }}" >> .env
+                  echo "ADMIN_LAST_NAME=${{ secrets.ADMIN_LAST_NAME }}" >> .env
+                  echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+
+                  echo "EMAIL_BACKEND=smtp" >> .env
+                  echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+                  echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+                  echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
+                  echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
+                  echo "SMTP_USE_TLS=${{ secrets.SMTP_USE_TLS }}" >> .env
+                  echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+
+                  echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+                  echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
+                  echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+
+            - name: create pg admin config
+              working-directory: scripts
+              run: ./generate_pg_admin_config.sh
+
+            - name: client - setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 'lts/*'
+                  check-latest: true
+
+            - name: client - install deps & build
+              working-directory: client
+              run: |
+                  npm config ls
+                  npm ci --cache .npm
+                  npm run build
+
+            - name: client - build & push docker image
+              working-directory: client
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
+                  docker build \
+                    --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+                    -t $IMAGE .
+                  docker push $IMAGE
+
+            - name: server - setup uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                  working-directory: server
+                  enable-cache: true
+
+            - name: server - install deps
+              working-directory: server
+              run: uv sync
+
+            - name: server - build & push docker image
+              working-directory: server
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-server:${{ env.TAG }}
+                  docker build -t $IMAGE .
+                  docker push $IMAGE
+
+            - name: start containers
+              working-directory: config/infra
+              run: docker-compose --env-file ../env/.env -f docker-compose.yml up -d
+
+            - name: client - remove cache folder
+              if: always()
+              working-directory: client
+              run: rm -rf .npm
+
+            - name: server - remove cache folder
+              if: always()
+              working-directory: server
+              run: rm -rf .uv

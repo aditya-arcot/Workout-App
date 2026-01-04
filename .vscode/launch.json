@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Server",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "cwd": "${workspaceFolder}/server",
+            "envFile": "${workspaceFolder}/.env",
+            "args": ["app.main:app", "--reload"],
+            "jinja": true
+        },
+        {
+            "name": "Attach to Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/client"
+        }
+    ]
+}

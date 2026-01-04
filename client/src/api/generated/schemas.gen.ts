@@ -4,15 +4,15 @@ export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
             items: {
-                $ref: '#/components/schemas/ValidationError',
+                $ref: '#/components/schemas/ValidationError'
             },
             type: 'array',
-            title: 'Detail',
-        },
+            title: 'Detail'
+        }
     },
     type: 'object',
-    title: 'HTTPValidationError',
-} as const
+    title: 'HTTPValidationError'
+} as const;
 
 export const LoginRequestSchema = {
     properties: {
@@ -20,87 +20,97 @@ export const LoginRequestSchema = {
             type: 'string',
             maxLength: 50,
             minLength: 3,
-            title: 'Username',
+            title: 'Username'
         },
         password: {
             type: 'string',
             maxLength: 64,
             minLength: 8,
-            title: 'Password',
-        },
+            title: 'Password'
+        }
     },
     type: 'object',
-    required: ['username', 'password'],
-    title: 'LoginRequest',
-} as const
+    required: [
+        'username',
+        'password'
+    ],
+    title: 'LoginRequest'
+} as const;
 
 export const RequestAccessRequestSchema = {
     properties: {
         email: {
             type: 'string',
             format: 'email',
-            title: 'Email',
+            title: 'Email'
         },
         first_name: {
             type: 'string',
             maxLength: 50,
             minLength: 1,
-            title: 'First Name',
+            title: 'First Name'
         },
         last_name: {
             type: 'string',
             maxLength: 50,
             minLength: 1,
-            title: 'Last Name',
-        },
+            title: 'Last Name'
+        }
     },
     type: 'object',
-    required: ['email', 'first_name', 'last_name'],
-    title: 'RequestAccessRequest',
-} as const
+    required: [
+        'email',
+        'first_name',
+        'last_name'
+    ],
+    title: 'RequestAccessRequest'
+} as const;
 
 export const RequestAccessResponseSchema = {
     properties: {
         detail: {
             type: 'string',
-            title: 'Detail',
+            title: 'Detail'
         },
         access_request_id: {
             type: 'integer',
-            title: 'Access Request Id',
-        },
+            title: 'Access Request Id'
+        }
     },
     type: 'object',
-    required: ['detail', 'access_request_id'],
-    title: 'RequestAccessResponse',
-} as const
+    required: [
+        'detail',
+        'access_request_id'
+    ],
+    title: 'RequestAccessResponse'
+} as const;
 
 export const UserPublicSchema = {
     properties: {
         id: {
             type: 'integer',
-            title: 'Id',
+            title: 'Id'
         },
         username: {
             type: 'string',
-            title: 'Username',
+            title: 'Username'
         },
         email: {
             type: 'string',
-            title: 'Email',
+            title: 'Email'
         },
         first_name: {
             type: 'string',
-            title: 'First Name',
+            title: 'First Name'
         },
         last_name: {
             type: 'string',
-            title: 'Last Name',
+            title: 'Last Name'
         },
         is_admin: {
             type: 'boolean',
-            title: 'Is Admin',
-        },
+            title: 'Is Admin'
+        }
     },
     type: 'object',
     required: [
@@ -109,10 +119,10 @@ export const UserPublicSchema = {
         'email',
         'first_name',
         'last_name',
-        'is_admin',
+        'is_admin'
     ],
-    title: 'UserPublic',
-} as const
+    title: 'UserPublic'
+} as const;
 
 export const ValidationErrorSchema = {
     properties: {
@@ -120,26 +130,30 @@ export const ValidationErrorSchema = {
             items: {
                 anyOf: [
                     {
-                        type: 'string',
+                        type: 'string'
                     },
                     {
-                        type: 'integer',
-                    },
-                ],
+                        type: 'integer'
+                    }
+                ]
             },
             type: 'array',
-            title: 'Location',
+            title: 'Location'
         },
         msg: {
             type: 'string',
-            title: 'Message',
+            title: 'Message'
         },
         type: {
             type: 'string',
-            title: 'Error Type',
-        },
+            title: 'Error Type'
+        }
     },
     type: 'object',
-    required: ['loc', 'msg', 'type'],
-    title: 'ValidationError',
-} as const
+    required: [
+        'loc',
+        'msg',
+        'type'
+    ],
+    title: 'ValidationError'
+} as const;

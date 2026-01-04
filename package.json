@@ -1,5 +1,5 @@
 {
-    "name": "workout-app",
+    "name": "rep-track",
     "private": true,
     "scripts": {
         "format": "npm run prettier && npm run format:py",
@@ -15,7 +15,7 @@
             "uv run --project server ruff check --fix",
             "uv run --project server ruff format"
         ],
-        "*": "prettier --write --ignore-unknown"
+        "*": "prettier --write --ignore-unknown --ignore-path .prettierignore"
     },
     "dependencies": {
         "sort-package-json": "^3.6.0"
@@ -23,7 +23,7 @@
     "devDependencies": {
         "husky": "^9.1.7",
         "lint-staged": "^16.2.7",
-        "npm-check-updates": "^19.2.0",
+        "npm-check-updates": "^19.2.1",
         "prettier": "^3.7.4",
         "prettier-plugin-organize-imports": "^4.3.0",
         "prettier-plugin-tailwindcss": "^0.7.2",

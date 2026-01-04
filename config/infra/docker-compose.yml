@@ -1,0 +1,181 @@
+name: ${PROJECT?}-${ENV?}
+
+services:
+    database:
+        image: postgres:18
+        container_name: ${PROJECT?}-${ENV?}-database
+        restart: always
+
+        environment:
+            - PGDATA=/var/lib/postgresql/data/pgdata
+            - POSTGRES_DB=${POSTGRES_DB?}
+            - POSTGRES_USER=${POSTGRES_USER?}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+        volumes:
+            - pg-data:/var/lib/postgresql/data/pgdata
+
+        healthcheck:
+            # pg_isready does not check user or db
+            test: "psql -U ${POSTGRES_USER?} -d ${POSTGRES_DB?} -c 'SELECT 1' || exit 1"
+            start_period: 5s
+            timeout: 5s
+            retries: 3
+            interval: 1m
+
+    pg-admin:
+        image: dpage/pgadmin4:9.11.0
+        container_name: ${PROJECT?}-${ENV?}-pg-admin
+        restart: always
+        networks:
+            - traefik-public
+            - default
+
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL?}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD?}
+            - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+            - PGADMIN_CONFIG_WTF_CSRF_CHECK_DEFAULT=False
+            - PGADMIN_CONFIG_WTF_CSRF_ENABLED=False
+        volumes:
+            - ../env/servers.json:/pgadmin4/servers.json:ro
+            - ../env/pgpass:/pgpass:ro
+
+        entrypoint: |
+            /bin/sh -c "
+                USER_DIR=$(printf "%s" "$PGADMIN_EMAIL" | tr "@" "_");
+                mkdir -p /var/lib/pgadmin/storage/$$USER_DIR;
+                cp -f /pgpass /var/lib/pgadmin/storage/$$USER_DIR;
+                /entrypoint.sh
+            "
+
+        labels:
+            - traefik.enable=true
+            - traefik.prod=${PROD?}
+            - traefik.http.routers.${PROJECT?}-${ENV?}-pg-admin.rule=Host(`db-${DOMAIN?}`)
+            - traefik.http.routers.${PROJECT?}-${ENV?}-pg-admin.entrypoints=websecure
+
+    migrations:
+        image: ${DOCKER_REGISTRY?}/${PROJECT?}-${ENV?}-server:${TAG?}
+        container_name: ${PROJECT?}-${ENV?}-migrations
+        restart: no
+
+        depends_on:
+            database:
+                condition: service_healthy
+                restart: true
+
+        environment:
+            - ENV=${ENV?}
+            - LOG_LEVEL=${LOG_LEVEL?}
+            - CLIENT_URL=${CLIENT_URL?}
+
+            # use internal host & port
+            - POSTGRES_HOST=database
+            - POSTGRES_PORT=5432
+            - POSTGRES_DB=${POSTGRES_DB?}
+            - POSTGRES_USER=${POSTGRES_USER?}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+
+            - ADMIN_USERNAME=${ADMIN_USERNAME?}
+            - ADMIN_EMAIL=${ADMIN_EMAIL?}
+            - ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME?}
+            - ADMIN_LAST_NAME=${ADMIN_LAST_NAME?}
+            - ADMIN_PASSWORD=${ADMIN_PASSWORD?}
+
+            - EMAIL_BACKEND=smtp
+            - SMTP_HOST=host.docker.internal
+            - SMTP_PORT=1025
+            - SMTP_USERNAME=${SMTP_USERNAME?}
+            - SMTP_PASSWORD=${SMTP_PASSWORD?}
+            - SMTP_USE_TLS=${SMTP_USE_TLS?}
+            - EMAIL_FROM=${EMAIL_FROM?}
+
+            - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
+            - ALGORITHM=${ALGORITHM?}
+            - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES?}
+
+        command: alembic upgrade head
+
+    server:
+        image: ${DOCKER_REGISTRY?}/${PROJECT?}-${ENV?}-server:${TAG?}
+        container_name: ${PROJECT?}-${ENV?}-server
+        restart: always
+        networks:
+            - traefik-public
+            - default
+
+        depends_on:
+            database:
+                condition: service_healthy
+                restart: true
+            migrations:
+                condition: service_completed_successfully
+
+        environment:
+            - ENV=${ENV?}
+            - LOG_LEVEL=${LOG_LEVEL?}
+            - CLIENT_URL=${CLIENT_URL?}
+
+            # use internal host & port
+            - POSTGRES_HOST=database
+            - POSTGRES_PORT=5432
+            - POSTGRES_DB=${POSTGRES_DB?}
+            - POSTGRES_USER=${POSTGRES_USER?}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+
+            - ADMIN_USERNAME=${ADMIN_USERNAME?}
+            - ADMIN_EMAIL=${ADMIN_EMAIL?}
+            - ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME?}
+            - ADMIN_LAST_NAME=${ADMIN_LAST_NAME?}
+            - ADMIN_PASSWORD=${ADMIN_PASSWORD?}
+
+            - EMAIL_BACKEND=smtp
+            - SMTP_HOST=host.docker.internal
+            - SMTP_PORT=1025
+            - SMTP_USERNAME=${SMTP_USERNAME?}
+            - SMTP_PASSWORD=${SMTP_PASSWORD?}
+            - SMTP_USE_TLS=${SMTP_USE_TLS?}
+            - EMAIL_FROM=${EMAIL_FROM?}
+
+            - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
+            - ALGORITHM=${ALGORITHM?}
+            - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES?}
+
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/api/health'')"',
+                ]
+            start_period: 5s
+            timeout: 5s
+            retries: 3
+            interval: 1m
+
+        labels:
+            - traefik.enable=true
+            - traefik.prod=${PROD?}
+            - traefik.http.routers.${PROJECT?}-${ENV?}-server.rule=Host(`api-${DOMAIN?}`)
+            - traefik.http.routers.${PROJECT?}-${ENV?}-server.entrypoints=websecure
+
+    client:
+        image: ${DOCKER_REGISTRY?}/${PROJECT?}-${ENV?}-client:${TAG?}
+        container_name: ${PROJECT?}-${ENV?}-client
+        restart: always
+        networks:
+            - traefik-public
+            - default
+
+        labels:
+            - traefik.enable=true
+            - traefik.prod=${PROD?}
+            - traefik.http.routers.${PROJECT?}-${ENV?}-client.rule=Host(`${DOMAIN?}`)
+            - traefik.http.routers.${PROJECT?}-${ENV?}-client.entrypoints=websecure
+
+volumes:
+    pg-data:
+
+networks:
+    traefik-public:
+        external: true
+        name: ${TRAEFIK_NETWORK:-traefik-public}

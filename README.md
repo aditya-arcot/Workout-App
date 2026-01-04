@@ -1,19 +1,24 @@
 ### Local Development
 
-Create `.env.dev` file in root directory
-
-Refer to `.env.example` for required environment variables
-
-Symlink `.env.dev` to `.env`
+Copy `.env.example` to `.env` & populate variables
 
 ```bash
-ln -s .env.dev .env
+cp config/env/.env.example config/env/.env
+```
+
+Install dependencies:
+
+```bash
+envsubst
+npm
+uv
+watchexec
 ```
 
 Start containers:
 
 ```bash
-docker compose watch
+./scripts/dev.sh
 ```
 
 ### Database

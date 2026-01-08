@@ -6,7 +6,7 @@ export function Dashboard() {
     return (
         <div className="space-y-4">
             <h1 className="text-xl font-bold">Dashboard</h1>
-            <p>Welcome {user?.first_name}!</p>
+            <p>Welcome {user?.first_name}</p>
         </div>
     )
 }

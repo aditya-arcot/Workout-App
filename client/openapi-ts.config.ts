@@ -8,9 +8,11 @@ export default defineConfig({
         'zod',
         {
             name: '@hey-api/sdk',
-            asClass: true,
-            operationId: true,
-            classNameBuilder: '{{name}}Service',
+            operations: {
+                strategy: 'byTags',
+                nesting: 'operationId',
+                containerName: '{{name}}Service',
+            },
         },
         {
             name: '@hey-api/schemas',

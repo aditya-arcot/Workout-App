@@ -45,6 +45,30 @@ jobs:
             - name: checkout
               uses: actions/checkout@v6
 
+            - name: log in to docker registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ secrets.DOCKER_REGISTRY }}
+                  username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+                  password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+                  logout: false
+
+            - name: client - build & push docker image
+              working-directory: client
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
+                  docker build \
+                    --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+                    -t $IMAGE .
+                  docker push $IMAGE
+
+            - name: server - build & push docker image
+              working-directory: server
+              run: |
+                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-server:${{ env.TAG }}
+                  docker build -t $IMAGE .
+                  docker push $IMAGE
+
             - name: create .env file
               working-directory: config/env
               run: |
@@ -92,55 +116,6 @@ jobs:
               working-directory: scripts
               run: ./generate_pg_admin_config.sh
 
-            - name: client - setup node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 'lts/*'
-                  check-latest: true
-
-            - name: client - install deps & build
-              working-directory: client
-              run: |
-                  npm config ls
-                  npm ci --cache .npm
-                  npm run build
-
-            - name: client - build & push docker image
-              working-directory: client
-              run: |
-                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-client:${{ env.TAG }}
-                  docker build \
-                    --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
-                    -t $IMAGE .
-                  docker push $IMAGE
-
-            - name: server - setup uv
-              uses: astral-sh/setup-uv@v7
-              with:
-                  working-directory: server
-                  enable-cache: true
-
-            - name: server - install deps
-              working-directory: server
-              run: uv sync
-
-            - name: server - build & push docker image
-              working-directory: server
-              run: |
-                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-server:${{ env.TAG }}
-                  docker build -t $IMAGE .
-                  docker push $IMAGE
-
             - name: start containers
               working-directory: config/infra
               run: docker-compose --env-file ../env/.env -f docker-compose.yml up -d
-
-            - name: client - remove cache folder
-              if: always()
-              working-directory: client
-              run: rm -rf .npm
-
-            - name: server - remove cache folder
-              if: always()
-              working-directory: server
-              run: rm -rf .uv

@@ -1,36 +1,4 @@
 services:
-    traefik:
-        image: traefik:v3
-        container_name: ${PROJECT?}-${ENV?}-traefik
-        restart: no
-
-        networks:
-            - traefik-public
-        ports:
-            - 80:80
-            - 8080:8080
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-
-        command:
-            - --providers.docker=true
-            - --providers.docker.exposedbydefault=false
-            - --providers.docker.network=traefik-public
-
-            - --entrypoints.web.address=:80
-            - --entrypoints.websecure.address=:443
-
-            - --api.insecure=true
-            - --log.level=DEBUG
-            - --accesslog=true
-
-        labels:
-            - traefik.enable=true
-            - traefik.http.routers.${PROJECT?}-${ENV?}-traefik.rule=Host(`traefik.${DOMAIN?}`)
-            - traefik.http.routers.${PROJECT?}-${ENV?}-traefik.entrypoints=web
-            - traefik.http.routers.${PROJECT?}-${ENV?}-traefik.service=${PROJECT?}-${ENV?}-traefik
-            - traefik.http.services.${PROJECT?}-${ENV?}-traefik.loadbalancer.server.port=8080
-
     database:
         restart: no
         ports:
@@ -121,7 +89,3 @@ services:
 
         labels:
             - traefik.http.routers.${PROJECT?}-${ENV?}-client.entrypoints=web
-
-networks:
-    traefik-public:
-        external: false

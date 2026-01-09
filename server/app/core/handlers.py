@@ -14,13 +14,14 @@ async def exception_handler(request: Request, exc: Exception):
             status_code=exc.status_code,
             content={"detail": exc.detail},
         )
+
+    if exc.args and exc.args[0]:
+        message = exc.args[0]
     else:
-        if exc.args and exc.args[0]:
-            message = exc.args[0]
-        else:
-            message = "Internal Server Error"
-        logger.exception(f"Non-HTTP exception - {message}")
-        return JSONResponse(
-            status_code=500,
-            content={"detail": message},
-        )
+        message = "Internal Server Error"
+
+    logger.exception(f"Non-HTTP exception - {message}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": message},
+    )

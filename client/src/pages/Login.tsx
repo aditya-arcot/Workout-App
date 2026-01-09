@@ -46,8 +46,10 @@ export function Login() {
     return (
         <div className="flex h-dvh items-center justify-center bg-muted px-4">
             <Card className="w-full max-w-sm shadow-md">
-                <CardHeader className="-mb-2">
-                    <CardTitle className="p-0 text-2xl">Login</CardTitle>
+                <CardHeader className="-mb-4">
+                    <CardTitle className="p-0 text-center text-2xl">
+                        Login
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form

@@ -1,7 +1,7 @@
-import type { SessionContextValue } from '@/models/session'
+import type { SessionContextType } from '@/models/session'
 import { createContext, useContext } from 'react'
 
-export const SessionContext = createContext<SessionContextValue | null>(null)
+export const SessionContext = createContext<SessionContextType | null>(null)
 
 export function useSession() {
     const ctx = useContext(SessionContext)

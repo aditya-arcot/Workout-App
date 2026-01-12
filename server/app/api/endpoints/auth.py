@@ -76,6 +76,5 @@ async def logout_endpoint(response: Response):
     response.delete_cookie(
         key="access_token",
         httponly=True,
-        secure=True,
         samesite=settings.COOKIE_SAME_SITE,
     )

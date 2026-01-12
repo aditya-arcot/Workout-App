@@ -10,10 +10,9 @@ on:
             - .github/workflows/deploy*.yml
             - client/src/**
             - client/Dockerfile
-            - client/nginx.conf'
-            - client/package-lock.json
-            - client/package.json
-            - client/tsconfig.*json
+            - client/nginx.conf
+            - client/package*.json
+            - client/tsconfig*.json
             - client/vite.config.ts
             - config/**
             - server/app/**

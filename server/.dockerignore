@@ -1,15 +1,2 @@
-# used to prevent sync on changes
-# ignoring .dockerignore or Dockerfile prevents rebuild
-
 **/__pycache__
-.pytest_cache
-.ruff_cache
-.venv
 **/tests
-
-.gitignore
-.python-version
-conftest.py
-makefile
-pytest.ini
-ruff.toml

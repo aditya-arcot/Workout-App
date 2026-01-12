@@ -15,7 +15,7 @@ uv sync
 cd "$CLIENT_DIR"
 npm i
 
-watchexec -r -w "$SERVER_DIR" -e py "$SCRIPT_DIR/generate_api.sh" &
+watchexec -r -w "$SERVER_DIR/app" -e py "$SCRIPT_DIR/generate_api.sh" &
 WATCHEXEC_PID=$!
 
 cleanup() {

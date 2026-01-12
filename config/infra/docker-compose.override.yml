@@ -35,9 +35,9 @@ services:
 
         develop:
             watch:
-                - path: ../../server
+                - path: ../../server/app
                   action: sync
-                  target: /src
+                  target: /src/app
                 - path: ../../server/.dockerignore
                   action: rebuild
                 - path: ../../server/Dockerfile
@@ -73,16 +73,17 @@ services:
 
         develop:
             watch:
-                - path: ../../client
-                  target: /src
+                - path: ../../client/src
                   action: sync
-                - path: ../../client/.dockerignore
-                  action: rebuild
+                  target: /src/src
+                - path: ../../client/index.html
+                  action: sync
+                  target: /src/index.html
                 - path: ../../client/Dockerfile
                   action: rebuild
-                - path: ../../client/package.json
+                - path: ../../client/package*.json
                   action: rebuild
-                - path: ../../client/package-lock.json
+                - path: ../../client/tsconfig*.json
                   action: rebuild
                 - path: ../../client/vite.config.ts
                   action: rebuild

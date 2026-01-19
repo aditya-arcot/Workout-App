@@ -25,13 +25,11 @@ services:
         pull_policy: build
         build:
             context: ../../server
+            target: dev
 
         restart: no
         ports:
             - '8000:8000'
-
-        # binds to all interfaces
-        command: fastapi run --reload app/main.py
 
         develop:
             watch:

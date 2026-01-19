@@ -1,5 +1,5 @@
-# derived image with uv
-FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim
+### base
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim AS base
 
 WORKDIR /src
 
@@ -20,6 +20,18 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
 
 ENV PATH="/src/.venv/bin:$PATH"
+
+
+### dev
+FROM base AS dev
+
+EXPOSE 8000
+
+CMD ["fastapi", "run", "--reload", "app/main.py"]
+
+
+### prod
+FROM base AS prod
 
 EXPOSE 8000
 

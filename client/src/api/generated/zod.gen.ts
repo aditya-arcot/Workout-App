@@ -83,6 +83,17 @@ export const zLoginData = z.object({
  */
 export const zLoginResponse = z.void();
 
+export const zRefreshTokenData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zRefreshTokenResponse = z.void();
+
 export const zLogoutData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),

@@ -8,14 +8,14 @@ from app.services.auth import login
 
 
 async def test_login(session: AsyncSession):
-    token = await login(
+    result = await login(
         username=settings.ADMIN_USERNAME,
         password=settings.ADMIN_PASSWORD,
         db=session,
     )
 
     payload = jwt.decode(
-        token,
+        result.access_token,
         settings.JWT_SECRET_KEY,
         algorithms=[settings.ALGORITHM],
     )

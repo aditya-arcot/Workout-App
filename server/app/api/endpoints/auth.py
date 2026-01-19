@@ -4,13 +4,13 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.dependencies import get_db
+from app.core.dependencies import get_db, refresh_token_cookie
 from app.models.schemas.auth import (
     LoginRequest,
     RequestAccessRequest,
     RequestAccessResponse,
 )
-from app.services.auth import login, request_access
+from app.services.auth import login, refresh, request_access
 from app.services.email import EmailService, get_email_service
 
 api_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -55,10 +55,39 @@ async def login_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
     response: Response,
 ):
-    token = await login(username=payload.username, password=payload.password, db=db)
+    result = await login(username=payload.username, password=payload.password, db=db)
     response.set_cookie(
         key="access_token",
-        value=token,
+        value=result.access_token,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAME_SITE,
+        max_age=60 * 60,  # 1 hour
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=result.refresh_token,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAME_SITE,
+        max_age=60 * 60 * 24 * 365,  # 1 year
+    )
+
+
+@api_router.post(
+    "/refresh-token",
+    operation_id="refreshToken",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def refresh_token_endpoint(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    refresh_token: Annotated[str, Depends(refresh_token_cookie)],
+    response: Response,
+):
+    access_token = await refresh(db=db, token=refresh_token)
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
         httponly=True,
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAME_SITE,
@@ -74,6 +103,12 @@ async def login_endpoint(
 async def logout_endpoint(response: Response):
     response.delete_cookie(
         key="access_token",
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAME_SITE,
+    )
+    response.delete_cookie(
+        key="refresh_token",
         httponly=True,
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAME_SITE,

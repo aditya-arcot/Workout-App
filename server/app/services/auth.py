@@ -5,7 +5,12 @@ from fastapi import BackgroundTasks
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import authenticate_user, create_access_token
+from app.core.security import (
+    authenticate_user,
+    create_access_token,
+    create_refresh_token,
+    verify_token,
+)
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
 from app.models.database.user import User
 from app.models.errors import (
@@ -87,13 +92,36 @@ async def request_access(
     )
 
 
-async def login(username: str, password: str, db: AsyncSession) -> str:
+@dataclass
+class LoginResult:
+    access_token: str
+    refresh_token: str
+
+
+async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
     logger.info(f"Received login attempt for user: {username}")
 
     user = await authenticate_user(username, password, db)
     if not user:
         raise InvalidCredentials()
 
-    data = {"sub": user.username}
-    token = create_access_token(data)
-    return token
+    access_token = create_access_token(user.username)
+    refresh_token = create_refresh_token(user.username)
+
+    return LoginResult(
+        access_token=access_token,
+        refresh_token=refresh_token,
+    )
+
+
+async def refresh(db: AsyncSession, token: str) -> str:
+    logger.info("Received token refresh request")
+
+    username = verify_token(token)
+    user = (
+        await db.execute(select(User).where(User.username == username))
+    ).scalar_one_or_none()
+    if not user:
+        raise InvalidCredentials()
+
+    return create_access_token(user.username)

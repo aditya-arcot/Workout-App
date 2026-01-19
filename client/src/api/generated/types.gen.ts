@@ -172,6 +172,22 @@ export type LoginResponses = {
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
 
+export type RefreshTokenData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/refresh-token';
+};
+
+export type RefreshTokenResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type RefreshTokenResponse = RefreshTokenResponses[keyof RefreshTokenResponses];
+
 export type LogoutData = {
     body?: never;
     path?: never;

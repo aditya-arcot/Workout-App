@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetAccessRequestsData, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserResponses, GetHealthData, GetHealthResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses } from './types.gen';
+import type { GetAccessRequestsData, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserResponses, GetHealthData, GetHealthResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -63,6 +63,21 @@ export class AuthService {
                 'Content-Type': 'application/json',
                 ...options.headers
             }
+        });
+    }
+    
+    /**
+     * Refresh Token Endpoint
+     */
+    public static refreshToken<ThrowOnError extends boolean = false>(options?: Options<RefreshTokenData, ThrowOnError>) {
+        return (options?.client ?? client).post<RefreshTokenResponses, unknown, ThrowOnError>({
+            security: [{
+                    in: 'cookie',
+                    name: 'access_token',
+                    type: 'apiKey'
+                }],
+            url: '/api/auth/refresh-token',
+            ...options
         });
     }
     

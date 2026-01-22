@@ -1,5 +1,5 @@
 ### base
-FROM node:24 AS base
+FROM node:25 AS base
 
 WORKDIR /src
 

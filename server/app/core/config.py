@@ -82,9 +82,7 @@ class Settings(BaseSettings):
         path = Path("data")
         if not path.is_absolute():
             path = Path(os.getcwd()) / path
-        path = path.resolve()
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+        return path.resolve()
 
     @computed_field
     @property
@@ -92,9 +90,7 @@ class Settings(BaseSettings):
         path = Path("logs")
         if not path.is_absolute():
             path = Path(os.getcwd()) / path
-        path = path.resolve()
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+        return path.resolve()
 
     @computed_field
     @property

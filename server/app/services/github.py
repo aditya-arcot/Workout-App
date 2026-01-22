@@ -26,7 +26,7 @@ async def create_feedback_issue(
         title = f"[Feature Request] {feedback.title}"
 
     body_lines = [
-        f"### Details",
+        "### Details",
         f"**ID:** {feedback.id}",
         f"**User ID:** {feedback.user_id}",
         f"**Submitted At:** {get_utc_timestamp_str(feedback.created_at)}",

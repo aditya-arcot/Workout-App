@@ -38,7 +38,7 @@ export function Feedback() {
         resolver: zodResolver(zCreateFeedbackRequest),
         defaultValues: {
             type: 'feedback',
-            url: window.location.href,
+            url: '_',
         },
         mode: 'onSubmit',
         reValidateMode: 'onChange',
@@ -51,7 +51,7 @@ export function Feedback() {
         await FeedbackService.createFeedback({
             body: {
                 type: data.type,
-                url: data.url,
+                url: window.location.href,
                 title: data.title,
                 description: data.description,
                 files: files,

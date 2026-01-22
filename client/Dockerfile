@@ -1,5 +1,5 @@
 ### base
-FROM node:24 AS base
+FROM node:lts-alpine AS base
 
 WORKDIR /src
 

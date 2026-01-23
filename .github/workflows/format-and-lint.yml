@@ -37,13 +37,17 @@ jobs:
             - name: install deps - base
               run: |
                   npm config ls
-                  npm ci --cache .npm
+                  npm ci --ignore-scripts --cache .npm
 
             - name: install deps - client
               working-directory: client
               run: |
                   npm config ls
                   npm ci --cache ../.npm
+
+            - name: install deps - server
+              working-directory: server
+              run: uv sync
 
             - name: format & lint
               run: |
@@ -57,7 +61,7 @@ jobs:
                     git config user.email "github-actions[bot]@users.noreply.github.com"
 
                     git add .
-                    git commit --no-verify -m "chore: format & lint code after PR merge"
+                    git commit -m "chore: format & lint code after PR merge"
                     git push
                   else
                     echo "No formatting changes to commit"

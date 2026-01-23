@@ -1,0 +1,63 @@
+name: Format & Lint Code on PR Merge
+
+on:
+    workflow_dispatch:
+    pull_request:
+        branches:
+            - stage
+        types:
+            - closed
+
+permissions:
+    contents: write
+
+jobs:
+    format-and-lint:
+        if: github.event.pull_request.merged == true
+        runs-on: self-hosted
+        steps:
+            - name: checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
+
+            - name: fetch & rebase
+              run: |
+                  git fetch
+                  git rebase
+
+            - name: setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 'lts/*'
+                  check-latest: true
+
+            - name: update npm
+              run: npm i -g npm@latest
+
+            - name: install deps
+              run: |
+                  npm config ls
+                  npm ci --cache .npm
+
+            - name: format & lint
+              run: |
+                  npm run format
+                  npm run lint
+
+            - name: commit & push
+              run: |
+                  if [[ -n "$(git status --porcelain)" ]]; then
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                    git add .
+                    git commit -m "chore: format & lint code after PR merge"
+                    git push
+                  else
+                    echo "No formatting changes to commit"
+                  fi
+
+            - name: remove cache folder
+              if: always()
+              run: rm -rf .npm

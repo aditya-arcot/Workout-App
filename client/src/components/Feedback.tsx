@@ -21,7 +21,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-type FeedbackForm = z.infer<typeof zCreateFeedbackRequest>
+const feedbackFormSchema = zCreateFeedbackRequest.omit({ url: true, files: true })
+type FeedbackForm = z.infer<typeof feedbackFormSchema>
 
 export function Feedback() {
     const [open, setOpen] = useState(false)
@@ -34,11 +35,10 @@ export function Feedback() {
         watch,
         formState: { errors, isSubmitting, isDirty },
         reset,
-    } = useForm({
-        resolver: zodResolver(zCreateFeedbackRequest),
+    } = useForm<FeedbackForm>({
+        resolver: zodResolver(feedbackFormSchema),
         defaultValues: {
             type: 'feedback',
-            url: '_',
         },
         mode: 'onSubmit',
         reValidateMode: 'onChange',
@@ -50,10 +50,8 @@ export function Feedback() {
     const onSubmit = async (data: FeedbackForm) => {
         await FeedbackService.createFeedback({
             body: {
-                type: data.type,
+                ...data,
                 url: window.location.href,
-                title: data.title,
-                description: data.description,
                 files: files,
             },
         })
@@ -63,7 +61,7 @@ export function Feedback() {
     }
 
     const onAttemptClose = (e: Event) => {
-        if (isDirty && !confirm('Discard changes?')) {
+        if ((isDirty || files.length > 0) && !confirm('Discard changes?')) {
             e.preventDefault()
         } else {
             reset()
@@ -166,9 +164,6 @@ export function Feedback() {
                             multiple
                             onChange={(e) => {
                                 setFiles(Array.from(e.target.files ?? []))
-                                setValue('files', [], {
-                                    shouldDirty: true,
-                                })
                             }}
                         />
                         {files.length > 0 && (
@@ -194,7 +189,7 @@ export function Feedback() {
                     <Button
                         form="feedback-form"
                         type="submit"
-                        disabled={isSubmitting || !isDirty}
+                        disabled={isSubmitting || !(isDirty || files.length > 0)}
                     >
                         {isSubmitting ? 'Submitting…' : 'Submit'}
                     </Button>

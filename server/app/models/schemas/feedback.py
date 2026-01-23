@@ -12,7 +12,9 @@ class FeedbackType(str, Enum):
 
 class CreateFeedbackRequest(BaseModel):
     type: FeedbackType
-    text: str = Field(min_length=1, max_length=10000)
+    url: str = Field(min_length=1, max_length=1000)
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(min_length=1, max_length=10000)
     files: list[Annotated[UploadFile, File()]] = []
 
     @model_validator(mode="after")

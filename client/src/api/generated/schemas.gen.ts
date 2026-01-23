@@ -5,11 +5,23 @@ export const CreateFeedbackRequestSchema = {
         type: {
             $ref: '#/components/schemas/FeedbackType'
         },
-        text: {
+        url: {
+            type: 'string',
+            maxLength: 1000,
+            minLength: 1,
+            title: 'Url'
+        },
+        title: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
             type: 'string',
             maxLength: 10000,
             minLength: 1,
-            title: 'Text'
+            title: 'Description'
         },
         files: {
             items: {
@@ -24,7 +36,9 @@ export const CreateFeedbackRequestSchema = {
     type: 'object',
     required: [
         'type',
-        'text'
+        'url',
+        'title',
+        'description'
     ],
     title: 'CreateFeedbackRequest'
 } as const;

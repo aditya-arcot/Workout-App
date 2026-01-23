@@ -1,2 +1,2 @@
 [lint]
-select = ["I"]
+extend-select = ["I"]

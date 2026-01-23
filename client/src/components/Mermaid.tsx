@@ -1,5 +1,5 @@
 import mermaid from 'mermaid'
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 
 mermaid.initialize({
     startOnLoad: false,
@@ -8,16 +8,16 @@ mermaid.initialize({
 
 export function Mermaid({ code }: { code: string }) {
     const ref = useRef<HTMLDivElement>(null)
+    const id = useId()
 
     useEffect(() => {
         if (!ref.current) return
-        const id = `mermaid-${Math.random().toString(36).slice(2)}`
         void mermaid.render(id, code).then(({ svg }) => {
             if (ref.current) {
                 ref.current.innerHTML = svg
             }
         })
-    }, [code])
+    }, [code, id])
 
     return <div ref={ref} className="my-4 flex justify-center" />
 }

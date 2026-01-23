@@ -12,8 +12,14 @@ from .core.logging import setup_logging
 logger = logging.getLogger(__name__)
 
 
+def create_directories():
+    settings.DATA_DIR.mkdir(parents=True, exist_ok=True)
+    settings.LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    create_directories()
     setup_logging()
     logger.debug("Initialized logging")
     logger.debug("Loaded settings: %s", settings.model_dump())

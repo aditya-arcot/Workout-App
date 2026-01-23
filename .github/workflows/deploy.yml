@@ -8,8 +8,10 @@ on:
             - main
         paths:
             - .github/workflows/deploy*.yml
+            - client/public/**
             - client/src/**
             - client/Dockerfile
+            - client/index.html
             - client/nginx.conf
             - client/package*.json
             - client/tsconfig*.json
@@ -88,6 +90,9 @@ jobs:
                   echo "ENV=${{ vars.ENV }}" >> .env
                   echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
                   echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
+
+                  echo "REPO_OWNER=${{ secrets.REPO_OWNER }}" >> .env
+                  echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env
 
                   echo "POSTGRES_HOST=" >> .env
                   echo "POSTGRES_PORT=" >> .env

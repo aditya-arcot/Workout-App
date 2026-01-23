@@ -12,7 +12,9 @@ export const zFeedbackType = z.enum(['feedback', 'feature']);
  */
 export const zCreateFeedbackRequest = z.object({
     type: zFeedbackType,
-    text: z.string().min(1).max(10000),
+    url: z.string().min(1).max(1000),
+    title: z.string().min(1).max(100),
+    description: z.string().min(1).max(10000),
     files: z.optional(z.array(z.string())).default([])
 });
 

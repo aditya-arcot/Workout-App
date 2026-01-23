@@ -41,7 +41,15 @@ class Feedback(Base):
         ),
         nullable=False,
     )
-    text: Mapped[str] = mapped_column(
+    url: Mapped[str] = mapped_column(
+        TEXT,
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(
+        TEXT,
+        nullable=False,
+    )
+    description: Mapped[str] = mapped_column(
         TEXT,
         nullable=False,
     )

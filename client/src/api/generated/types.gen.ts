@@ -10,9 +10,17 @@ export type ClientOptions = {
 export type CreateFeedbackRequest = {
     type: FeedbackType;
     /**
-     * Text
+     * Url
      */
-    text: string;
+    url: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description: string;
     /**
      * Files
      */

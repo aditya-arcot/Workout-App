@@ -38,6 +38,7 @@ export function Feedback() {
         resolver: zodResolver(zCreateFeedbackRequest),
         defaultValues: {
             type: 'feedback',
+            url: '_',
         },
         mode: 'onSubmit',
         reValidateMode: 'onChange',
@@ -50,7 +51,9 @@ export function Feedback() {
         await FeedbackService.createFeedback({
             body: {
                 type: data.type,
-                text: data.text,
+                url: window.location.href,
+                title: data.title,
+                description: data.description,
                 files: files,
             },
         })
@@ -123,24 +126,39 @@ export function Feedback() {
                     }}
                 >
                     <div className="space-y-1">
+                        <Input
+                            placeholder={'Enter a brief title...'}
+                            aria-invalid={!!errors.title}
+                            className={errors.title ? 'border-destructive' : ''}
+                            {...register('title')}
+                        />
+                        {errors.title && (
+                            <p className="text-sm text-destructive">
+                                {errors.title.message}
+                            </p>
+                        )}
+                    </div>
+                    <div className="space-y-1">
                         <Textarea
                             placeholder={
                                 type === 'feedback'
                                     ? 'Describe your feedback...'
                                     : 'Describe your feature request...'
                             }
-                            aria-invalid={!!errors.text}
-                            className={errors.text ? 'border-destructive' : ''}
-                            {...register('text')}
+                            aria-invalid={!!errors.description}
+                            className={
+                                errors.description ? 'border-destructive' : ''
+                            }
+                            {...register('description')}
                             rows={4}
                         />
-                        {errors.text && (
+                        {errors.description && (
                             <p className="text-sm text-destructive">
-                                {errors.text.message}
+                                {errors.description.message}
                             </p>
                         )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                         <Label htmlFor="files">Attach files (optional)</Label>
                         <Input
                             id="files"

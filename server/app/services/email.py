@@ -1,13 +1,14 @@
 import logging
 import ssl
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from email.message import EmailMessage
 
 import aiosmtplib
 
 from app.core.config import settings
 from app.models.database.access_request import AccessRequest
+from app.utilities.date import get_utc_timestamp_str
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +85,7 @@ class SmtpEmailService(EmailService):
         text: str,
         html: str | None = None,
     ) -> None:
-        now = datetime.now().isoformat()
+        now = get_utc_timestamp_str(datetime.now(timezone.utc))
         logger.info("Sending email to %s with subject %s (%s)", to, subject, now)
 
         message = EmailMessage()

@@ -35,7 +35,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     op.add_column(
-        "feedbacks", sa.Column("text", sa.TEXT(), autoincrement=False, nullable=False)
+        "feedbacks", sa.Column("text", sa.TEXT(), autoincrement=False, nullable=False, server_default="")
     )
     op.drop_column("feedbacks", "description")
     op.drop_column("feedbacks", "title")

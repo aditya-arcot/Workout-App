@@ -34,10 +34,16 @@ jobs:
             - name: update npm
               run: npm i -g npm@latest
 
-            - name: install deps
+            - name: install deps - base
               run: |
                   npm config ls
                   npm ci --cache .npm
+
+            - name: install deps - client
+              working-directory: client
+              run: |
+                  npm config ls
+                  npm ci --cache ../.npm
 
             - name: format & lint
               run: |

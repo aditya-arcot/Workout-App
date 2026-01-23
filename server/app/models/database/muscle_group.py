@@ -1,13 +1,9 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
 
 from sqlalchemy import TEXT, DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from .exercise import Exercise
 
 
 class MuscleGroup(Base):
@@ -20,9 +16,4 @@ class MuscleGroup(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
-    )
-
-    exercises: Mapped[List[Exercise]] = relationship(
-        secondary="exercise_muscle_groups",
-        back_populates="muscle_groups",
     )

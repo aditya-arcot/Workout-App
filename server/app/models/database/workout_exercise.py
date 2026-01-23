@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     TEXT,
@@ -11,14 +10,9 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from .exercise import Exercise
-    from .set import Set
-    from .workout import Workout
 
 
 class WorkoutExercise(Base):
@@ -53,13 +47,4 @@ class WorkoutExercise(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
-    )
-
-    workout: Mapped[Workout] = relationship(back_populates="workout_exercises")
-    exercise: Mapped[Exercise] = relationship(back_populates="workout_exercises")
-    sets: Mapped[List[Set]] = relationship(
-        back_populates="workout_exercise",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        order_by="Set.set_number",
     )

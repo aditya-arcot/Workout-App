@@ -1,17 +1,10 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
 
 from sqlalchemy import Boolean, DateTime, Index, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from .access_request import AccessRequest
-    from .exercise import Exercise
-    from .feedback import Feedback
-    from .workout import Workout
 
 
 class User(Base):
@@ -59,21 +52,4 @@ class User(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
-    )
-
-    reviewed_access_requests: Mapped[list[AccessRequest]] = relationship(
-        back_populates="reviewer"
-    )
-    exercises: Mapped[List[Exercise]] = relationship(
-        back_populates="user",
-        passive_deletes=True,
-    )
-    feedbacks: Mapped[List["Feedback"]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
-    workouts: Mapped[List[Workout]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
     )

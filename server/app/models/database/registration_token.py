@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     DateTime,
@@ -7,13 +6,10 @@ from sqlalchemy import (
     Index,
     String,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from .access_request import AccessRequest
 
 
 class RegistrationToken(Base):
@@ -59,8 +55,3 @@ class RegistrationToken(Base):
     @property
     def is_used(self) -> bool:
         return self.used_at is not None
-
-    access_request: Mapped[AccessRequest | None] = relationship(
-        "AccessRequest",
-        back_populates="registration_tokens",
-    )

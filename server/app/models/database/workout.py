@@ -1,14 +1,9 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
 
 from sqlalchemy import TEXT, DateTime, ForeignKey, Index, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from .user import User
-    from .workout_exercise import WorkoutExercise
 
 
 class Workout(Base):
@@ -41,12 +36,4 @@ class Workout(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
-    )
-
-    user: Mapped[User] = relationship(back_populates="workouts")
-    workout_exercises: Mapped[List[WorkoutExercise]] = relationship(
-        back_populates="workout",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        order_by="WorkoutExercise.position",
     )

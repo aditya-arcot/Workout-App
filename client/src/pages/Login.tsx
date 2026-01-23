@@ -38,7 +38,11 @@ export function Login() {
     })
 
     const onSubmit = async (data: LoginForm) => {
-        await AuthService.login({ body: data })
+        const res = await AuthService.login({ body: data })
+        if (res.status === 401) {
+            // TODO show error message
+            return
+        }
         await refresh()
         void navigate(from, { replace: true })
     }

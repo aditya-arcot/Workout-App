@@ -18,12 +18,7 @@ jobs:
             - name: checkout
               uses: actions/checkout@v6
               with:
-                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
-
-            - name: fetch & rebase
-              run: |
-                  git fetch
-                  git rebase origin/${{ github.event.pull_request.base.ref }}
+                  ref: ${{ github.event.pull_request.base.ref }}
 
             - name: setup node
               uses: actions/setup-node@v6
@@ -34,10 +29,20 @@ jobs:
             - name: update npm
               run: npm i -g npm@latest
 
-            - name: install deps
+            - name: install deps - base
               run: |
                   npm config ls
-                  npm ci --cache .npm
+                  npm ci --ignore-scripts --cache .npm
+
+            - name: install deps - client
+              working-directory: client
+              run: |
+                  npm config ls
+                  npm ci --cache ../.npm
+
+            - name: install deps - server
+              working-directory: server
+              run: uv sync
 
             - name: format & lint
               run: |
@@ -51,7 +56,9 @@ jobs:
                     git config user.email "github-actions[bot]@users.noreply.github.com"
 
                     git add .
+                    git status
                     git commit -m "chore: format & lint code after PR merge"
+                    git status
                     git push
                   else
                     echo "No formatting changes to commit"

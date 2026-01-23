@@ -18,9 +18,7 @@ jobs:
             - name: checkout
               uses: actions/checkout@v6
               with:
-                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
-
-            # TODO rebase?
+                  ref: ${{ github.event.pull_request.base.ref }}
 
             - name: setup node
               uses: actions/setup-node@v6

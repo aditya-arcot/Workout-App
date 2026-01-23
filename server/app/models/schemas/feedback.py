@@ -1,13 +1,9 @@
-from enum import Enum
 from typing import Annotated, Self
 
 from fastapi import File, UploadFile
 from pydantic import BaseModel, Field, model_validator
 
-
-class FeedbackType(str, Enum):
-    feedback = "feedback"
-    feature = "feature"
+from app.models.enums import FeedbackType
 
 
 class CreateFeedbackRequest(BaseModel):

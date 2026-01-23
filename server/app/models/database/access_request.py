@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
@@ -15,16 +14,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
+from app.models.enums import AccessRequestStatus
 
 if TYPE_CHECKING:
     from .registration_token import RegistrationToken
     from .user import User
-
-
-class AccessRequestStatus(str, Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
 
 
 class AccessRequest(Base):

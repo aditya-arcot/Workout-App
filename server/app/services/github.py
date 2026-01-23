@@ -10,7 +10,14 @@ from app.utilities.date import get_utc_timestamp_str
 
 logger = logging.getLogger(__name__)
 
-GITHUB_API_URL = "https://api.github.com"
+GITHUB_API_URL_REPO = (
+    f"https://api.github.com/repos/{settings.REPO_OWNER}/{settings.REPO_NAME}"
+)
+
+HEADERS = {
+    "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+    "Accept": "application/vnd.github+json",
+}
 
 
 async def create_feedback_issue(
@@ -18,7 +25,7 @@ async def create_feedback_issue(
 ):
     logging.info(f"Creating GitHub issue for feedback id: {feedback.id}")
 
-    url = f"{GITHUB_API_URL}/repos/{settings.REPO_OWNER}/{settings.REPO_NAME}/issues"
+    url = f"{GITHUB_API_URL_REPO}/issues"
 
     if feedback.type == FeedbackType.feedback:
         title = f"[Feedback] {feedback.title}"
@@ -27,9 +34,9 @@ async def create_feedback_issue(
 
     body_lines = [
         "### Details",
+        f"**Timestamp:** {get_utc_timestamp_str(feedback.created_at)}",
         f"**ID:** {feedback.id}",
         f"**User ID:** {feedback.user_id}",
-        f"**Submitted At:** {get_utc_timestamp_str(feedback.created_at)}",
         f"**URL:** {feedback.url}",
         "",
         "### Description",
@@ -48,17 +55,13 @@ async def create_feedback_issue(
 
     body = "\n".join(body_lines)
 
-    headers = {
-        "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
-        "Accept": "application/vnd.github+json",
-    }
     payload: dict[str, Any] = {
         "title": title,
         "body": body,
         "assignees": [settings.REPO_OWNER],
     }
     async with httpx.AsyncClient() as client:
-        resp = await client.post(url, json=payload, headers=headers)
+        resp = await client.post(url, headers=HEADERS, json=payload)
         resp.raise_for_status()
 
     logging.info(f"Created GitHub issue for feedback id: {feedback.id}")

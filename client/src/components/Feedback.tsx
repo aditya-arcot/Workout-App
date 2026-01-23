@@ -21,7 +21,10 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-const feedbackFormSchema = zCreateFeedbackRequest.omit({ url: true, files: true })
+const feedbackFormSchema = zCreateFeedbackRequest.omit({
+    url: true,
+    files: true,
+})
 type FeedbackForm = z.infer<typeof feedbackFormSchema>
 
 export function Feedback() {
@@ -189,7 +192,9 @@ export function Feedback() {
                     <Button
                         form="feedback-form"
                         type="submit"
-                        disabled={isSubmitting || !(isDirty || files.length > 0)}
+                        disabled={
+                            isSubmitting || !(isDirty || files.length > 0)
+                        }
                     >
                         {isSubmitting ? 'Submitting…' : 'Submit'}
                     </Button>

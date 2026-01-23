@@ -158,7 +158,7 @@ export function Feedback() {
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="files">Attach files (optional)</Label>
-                         <Input
+                        <Input
                             id="files"
                             type="file"
                             multiple

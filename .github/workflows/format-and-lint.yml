@@ -1,7 +1,6 @@
 name: Format & Lint Code on PR Merge
 
 on:
-    workflow_dispatch:
     pull_request:
         branches:
             - stage

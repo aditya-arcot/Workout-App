@@ -32,6 +32,7 @@ export function Login() {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
+        reset,
     } = useForm({
         resolver: zodResolver(zLoginRequest),
         mode: 'onSubmit',
@@ -42,6 +43,7 @@ export function Login() {
         const res = await AuthService.login({ body: data })
         if (res.status === 401) {
             // TODO show error message
+            reset({ password: '' })
             return
         }
         // TODO show success message

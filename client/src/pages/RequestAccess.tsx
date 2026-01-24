@@ -1,0 +1,144 @@
+import { AuthService } from '@/api/generated'
+import { zRequestAccessRequest } from '@/api/generated/zod.gen'
+import { Button } from '@/components/ui/button'
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { z } from 'zod'
+
+type RequestAccessForm = z.infer<typeof zRequestAccessRequest>
+
+export function RequestAccess() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm<RequestAccessForm>({
+        resolver: zodResolver(zRequestAccessRequest),
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
+    })
+
+    const onSubmit = async (data: RequestAccessForm) => {
+        const res = await AuthService.requestAccess({ body: data })
+        // TODO handle based on status
+        if (res.status !== 200) {
+            // TODO show error message
+            // eslint-disable-next-line no-console
+            console.log('Error requesting access', res)
+            reset()
+            return
+        }
+        // TODO show success message
+        // eslint-disable-next-line no-console
+        console.log('Access requested successfully')
+        reset()
+    }
+
+    return (
+        <div className="flex h-dvh items-center justify-center bg-muted px-4">
+            <Card className="w-full max-w-sm shadow-md">
+                <CardHeader className="-mb-4">
+                    <CardTitle className="p-0 text-center text-2xl">
+                        Request Access
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form
+                        id="request-access-form"
+                        className="space-y-4"
+                        onSubmit={(e) => {
+                            void handleSubmit(onSubmit)(e)
+                        }}
+                    >
+                        <div className="space-y-1">
+                            <Label htmlFor="first_name">First name</Label>
+                            <Input
+                                id="first_name"
+                                autoComplete="given-name"
+                                aria-invalid={!!errors.first_name}
+                                className={
+                                    errors.first_name
+                                        ? 'border-destructive'
+                                        : ''
+                                }
+                                {...register('first_name')}
+                            />
+                            {errors.first_name && (
+                                <p className="text-sm text-destructive">
+                                    {errors.first_name.message}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="last_name">Last name</Label>
+                            <Input
+                                id="last_name"
+                                autoComplete="family-name"
+                                aria-invalid={!!errors.last_name}
+                                className={
+                                    errors.last_name ? 'border-destructive' : ''
+                                }
+                                {...register('last_name')}
+                            />
+                            {errors.last_name && (
+                                <p className="text-sm text-destructive">
+                                    {errors.last_name.message}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                autoComplete="email"
+                                aria-invalid={!!errors.email}
+                                className={
+                                    errors.email ? 'border-destructive' : ''
+                                }
+                                {...register('email')}
+                            />
+                            {errors.email && (
+                                <p className="text-sm text-destructive">
+                                    {errors.email.message}
+                                </p>
+                            )}
+                        </div>
+                    </form>
+                </CardContent>
+                <CardFooter className="flex flex-col gap-3">
+                    <Button
+                        form="request-access-form"
+                        className="w-full"
+                        disabled={isSubmitting}
+                        type="submit"
+                    >
+                        {isSubmitting ? 'Submitting…' : 'Request Access'}
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                        Already have an account?{' '}
+                        <Link to="/login">
+                            <Button
+                                variant="link"
+                                className="p-0 align-baseline"
+                            >
+                                Login
+                            </Button>
+                        </Link>
+                    </div>
+                </CardFooter>
+            </Card>
+        </div>
+    )
+}

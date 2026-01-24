@@ -15,6 +15,7 @@ import type { LocationState } from '@/models/location'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router'
+import { Link } from 'react-router-dom'
 import { z } from 'zod'
 
 type LoginForm = z.infer<typeof zLoginRequest>
@@ -101,7 +102,7 @@ export function Login() {
                         </div>
                     </form>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-3">
                     <Button
                         form="login-form"
                         className="w-full"
@@ -110,6 +111,17 @@ export function Login() {
                     >
                         {isSubmitting ? 'Logging in…' : 'Login'}
                     </Button>
+                    <div className="text-sm text-muted-foreground">
+                        Don&apos;t have an account?{' '}
+                        <Link to="/request-access">
+                            <Button
+                                variant="link"
+                                className="p-0 align-baseline"
+                            >
+                                Request Access
+                            </Button>
+                        </Link>
+                    </div>
                 </CardFooter>
             </Card>
         </div>

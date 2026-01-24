@@ -91,6 +91,7 @@ jobs:
                   echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
                   echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
 
+                  echo "GITHUB_BACKEND=${{ secrets.GITHUB_BACKEND }}" >> .env
                   echo "REPO_OWNER=${{ secrets.REPO_OWNER }}" >> .env
                   echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env
 

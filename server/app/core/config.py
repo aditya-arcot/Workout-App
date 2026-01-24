@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     CLIENT_URL: str
 
+    GITHUB_BACKEND: Literal["api", "console"]
     GITHUB_TOKEN: str
     REPO_OWNER: str
 

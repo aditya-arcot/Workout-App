@@ -37,6 +37,7 @@ jobs:
                   echo "LOG_LEVEL=DEBUG" >> .env
                   echo "CLIENT_URL=" >> .env
 
+                  echo "GITHUB_BACKEND=console" >> .env
                   echo "REPO_OWNER=" >> .env
                   echo "GITHUB_TOKEN=" >> .env
 

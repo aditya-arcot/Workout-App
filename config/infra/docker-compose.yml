@@ -69,6 +69,7 @@ services:
             - LOG_LEVEL=${LOG_LEVEL?}
             - CLIENT_URL=${CLIENT_URL?}
 
+            - GITHUB_BACKEND=${GITHUB_BACKEND?}
             - REPO_OWNER=${REPO_OWNER?}
             - GITHUB_TOKEN=${GITHUB_TOKEN?}
 
@@ -123,6 +124,7 @@ services:
             - LOG_LEVEL=${LOG_LEVEL?}
             - CLIENT_URL=${CLIENT_URL?}
 
+            - GITHUB_BACKEND=${GITHUB_BACKEND?}
             - REPO_OWNER=${REPO_OWNER?}
             - GITHUB_TOKEN=${GITHUB_TOKEN?}
 

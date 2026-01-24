@@ -37,8 +37,9 @@ jobs:
                   echo "LOG_LEVEL=DEBUG" >> .env
                   echo "CLIENT_URL=" >> .env
 
+                  echo "GH_BACKEND=console" >> .env
                   echo "REPO_OWNER=" >> .env
-                  echo "GITHUB_TOKEN=" >> .env
+                  echo "GH_TOKEN=" >> .env
 
                   echo "POSTGRES_HOST=" >> .env
                   echo "POSTGRES_PORT=0" >> .env

@@ -43,6 +43,7 @@ export function Login() {
             // TODO show error message
             return
         }
+        // TODO show success message
         await refresh()
         void navigate(from, { replace: true })
     }
@@ -67,6 +68,7 @@ export function Login() {
                             <Label htmlFor="username">Username</Label>
                             <Input
                                 id="username"
+                                autoComplete="username"
                                 aria-invalid={!!errors.username}
                                 className={
                                     errors.username ? 'border-destructive' : ''
@@ -84,6 +86,7 @@ export function Login() {
                             <Input
                                 id="password"
                                 type="password"
+                                autoComplete="current-password"
                                 aria-invalid={!!errors.password}
                                 className={
                                     errors.password ? 'border-destructive' : ''

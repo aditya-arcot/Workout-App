@@ -6,6 +6,7 @@ export function App({ children }: { children: React.ReactNode }) {
         <>
             {children}
             <Toaster
+                theme="light"
                 richColors
                 position="bottom-center"
                 visibleToasts={5}

@@ -58,6 +58,10 @@ jobs:
 
                   echo "GH__BACKEND=console" >> .env
 
+            - name: run type checks
+              working-directory: server
+              run: make check
+
             - name: run tests
               working-directory: server
               run: make test

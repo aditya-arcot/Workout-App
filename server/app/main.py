@@ -27,7 +27,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-title = "RepTrack"
+title = settings.repo_name
 if settings.env != "prod":
     title += f" ({settings.env})"
 

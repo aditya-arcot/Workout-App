@@ -10,13 +10,21 @@ from app.models.schemas.auth import (
     RequestAccessRequest,
     RequestAccessResponse,
 )
+from app.models.schemas.errors import ErrorResponseModel
 from app.services.auth import login, refresh, request_access
 from app.services.email import EmailService, get_email_service
 
 api_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@api_router.post("/request-access", operation_id="requestAccess")
+@api_router.post(
+    "/request-access",
+    operation_id="requestAccess",
+    responses={
+        status.HTTP_403_FORBIDDEN: ErrorResponseModel,
+        status.HTTP_409_CONFLICT: ErrorResponseModel,
+    },
+)
 async def request_access_endpoint(
     payload: RequestAccessRequest,
     background_tasks: BackgroundTasks,
@@ -49,6 +57,9 @@ async def request_access_endpoint(
     "/login",
     operation_id="login",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ErrorResponseModel,
+    },
 )
 async def login_endpoint(
     payload: LoginRequest,
@@ -78,6 +89,9 @@ async def login_endpoint(
     "/refresh-token",
     operation_id="refreshToken",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ErrorResponseModel,
+    },
 )
 async def refresh_token_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],

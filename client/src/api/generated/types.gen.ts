@@ -28,6 +28,20 @@ export type CreateFeedbackRequest = {
 };
 
 /**
+ * ErrorResponse
+ */
+export type ErrorResponse = {
+    /**
+     * Detail
+     */
+    detail: string;
+    /**
+     * Code
+     */
+    code: string;
+};
+
+/**
  * FeedbackType
  */
 export type FeedbackType = 'feedback' | 'feature';
@@ -143,6 +157,19 @@ export type GetAccessRequestsData = {
     url: '/api/admin/access-requests';
 };
 
+export type GetAccessRequestsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+};
+
+export type GetAccessRequestsError = GetAccessRequestsErrors[keyof GetAccessRequestsErrors];
+
 export type GetAccessRequestsResponses = {
     /**
      * Successful Response
@@ -158,6 +185,14 @@ export type RequestAccessData = {
 };
 
 export type RequestAccessErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
     /**
      * Validation Error
      */
@@ -184,6 +219,10 @@ export type LoginData = {
 
 export type LoginErrors = {
     /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -206,6 +245,15 @@ export type RefreshTokenData = {
     query?: never;
     url: '/api/auth/refresh-token';
 };
+
+export type RefreshTokenErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+};
+
+export type RefreshTokenError = RefreshTokenErrors[keyof RefreshTokenErrors];
 
 export type RefreshTokenResponses = {
     /**
@@ -240,6 +288,10 @@ export type CreateFeedbackData = {
 };
 
 export type CreateFeedbackErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
     /**
      * Validation Error
      */
@@ -279,6 +331,15 @@ export type GetCurrentUserData = {
     query?: never;
     url: '/api/users/current';
 };
+
+export type GetCurrentUserErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+};
+
+export type GetCurrentUserError = GetCurrentUserErrors[keyof GetCurrentUserErrors];
 
 export type GetCurrentUserResponses = {
     /**

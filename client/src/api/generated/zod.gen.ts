@@ -3,6 +3,14 @@
 import { z } from 'zod';
 
 /**
+ * ErrorResponse
+ */
+export const zErrorResponse = z.object({
+    detail: z.string(),
+    code: z.string()
+});
+
+/**
  * FeedbackType
  */
 export const zFeedbackType = z.enum(['feedback', 'feature']);

@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .api import api_router
 from .core.config import settings
@@ -32,9 +33,17 @@ if settings.env != "prod":
     title += f" ({settings.env})"
 
 if settings.is_prod:
-    app = FastAPI(title=title, lifespan=lifespan, docs_url=None, redoc_url=None)
+    app = FastAPI(
+        title=title,
+        lifespan=lifespan,
+        docs_url=None,
+        redoc_url=None,
+    )
 else:
-    app = FastAPI(title=title, lifespan=lifespan)
+    app = FastAPI(
+        title=title,
+        lifespan=lifespan,
+    )
 
 app.add_middleware(
     CORSMiddleware,  # ty:ignore[invalid-argument-type]
@@ -42,5 +51,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
 )
+app.add_exception_handler(StarletteHTTPException, exception_handler)
 app.add_exception_handler(Exception, exception_handler)
 app.include_router(api_router, prefix="/api")

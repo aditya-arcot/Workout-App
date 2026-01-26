@@ -43,6 +43,25 @@ export const CreateFeedbackRequestSchema = {
     title: 'CreateFeedbackRequest'
 } as const;
 
+export const ErrorResponseSchema = {
+    properties: {
+        detail: {
+            type: 'string',
+            title: 'Detail'
+        },
+        code: {
+            type: 'string',
+            title: 'Code'
+        }
+    },
+    type: 'object',
+    required: [
+        'detail',
+        'code'
+    ],
+    title: 'ErrorResponse'
+} as const;
+
 export const FeedbackTypeSchema = {
     type: 'string',
     enum: [

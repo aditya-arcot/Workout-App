@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFeedbackData, CreateFeedbackErrors, CreateFeedbackResponses, GetAccessRequestsData, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserResponses, GetHealthData, GetHealthResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses } from './types.gen';
+import type { CreateFeedbackData, CreateFeedbackErrors, CreateFeedbackResponses, GetAccessRequestsData, GetAccessRequestsErrors, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenErrors, RefreshTokenResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -23,7 +23,7 @@ export class AdminService {
      * Get Access Requests Endpoint
      */
     public static getAccessRequests<ThrowOnError extends boolean = false>(options?: Options<GetAccessRequestsData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetAccessRequestsResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).get<GetAccessRequestsResponses, GetAccessRequestsErrors, ThrowOnError>({
             responseType: 'json',
             security: [{
                     in: 'cookie',
@@ -70,7 +70,7 @@ export class AuthService {
      * Refresh Token Endpoint
      */
     public static refreshToken<ThrowOnError extends boolean = false>(options?: Options<RefreshTokenData, ThrowOnError>) {
-        return (options?.client ?? client).post<RefreshTokenResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).post<RefreshTokenResponses, RefreshTokenErrors, ThrowOnError>({
             security: [{
                     in: 'cookie',
                     name: 'access_token',
@@ -130,7 +130,7 @@ export class UserService {
      * Get Current User Endpoint
      */
     public static getCurrentUser<ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetCurrentUserResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).get<GetCurrentUserResponses, GetCurrentUserErrors, ThrowOnError>({
             responseType: 'json',
             security: [{
                     in: 'cookie',

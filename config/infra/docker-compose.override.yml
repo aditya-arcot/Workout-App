@@ -46,7 +46,7 @@ services:
             - ../../server/logs:/src/logs
         environment:
             - EMAIL__BACKEND=local
-            - GITHUB__BACKEND=console
+            - GH__BACKEND=console
 
         develop:
             watch:

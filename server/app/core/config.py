@@ -169,7 +169,7 @@ class Settings(BaseSettings):
     database: DatabaseSettings
     # discriminator with any caps does not work
     email: Annotated[EmailSettings, Field(discriminator="backend")]
-    github: Annotated[GitHubSettings, Field(discriminator="backend")]
+    gh: Annotated[GitHubSettings, Field(discriminator="backend")]
 
     @computed_field
     @property
@@ -225,7 +225,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def check_github_config(self):
-        if self.is_prod and self.github.backend != "api":
+        if self.is_prod and self.gh.backend != "api":
             raise ValueError("github.backend must be 'api' in production")
         return self
 

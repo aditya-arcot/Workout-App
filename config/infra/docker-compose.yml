@@ -93,9 +93,9 @@ services:
             - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
             - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 
-            - GITHUB__BACKEND=${GITHUB__BACKEND?}
-            - GITHUB__REPO_OWNER=${GITHUB__REPO_OWNER?}
-            - GITHUB__TOKEN=${GITHUB__TOKEN?}
+            - GH__BACKEND=${GH__BACKEND?}
+            - GH__REPO_OWNER=${GH__REPO_OWNER?}
+            - GH__TOKEN=${GH__TOKEN?}
 
         command: alembic upgrade head
 
@@ -146,9 +146,9 @@ services:
             - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
             - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 
-            - GITHUB__BACKEND=${GITHUB__BACKEND?}
-            - GITHUB__REPO_OWNER=${GITHUB__REPO_OWNER?}
-            - GITHUB__TOKEN=${GITHUB__TOKEN?}
+            - GH__BACKEND=${GH__BACKEND?}
+            - GH__REPO_OWNER=${GH__REPO_OWNER?}
+            - GH__TOKEN=${GH__TOKEN?}
 
         healthcheck:
             test:

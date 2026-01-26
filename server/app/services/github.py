@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_github_service() -> GitHubService:
-    match settings.github.backend:
+    match settings.gh.backend:
         case "api":
             return ApiGitHubService()
         case "console":
@@ -26,10 +26,12 @@ class GitHubService(ABC):
 
 
 class ApiGitHubService(GitHubService):
-    GITHUB_API_URL_REPO = f"https://api.github.com/repos/{settings.github.repo_owner}/{settings.repo_name}"
+    GITHUB_API_URL_REPO = (
+        f"https://api.github.com/repos/{settings.gh.repo_owner}/{settings.repo_name}"
+    )
 
     HEADERS = {
-        "Authorization": f"Bearer {settings.github.token}",
+        "Authorization": f"Bearer {settings.gh.token}",
         "Accept": "application/vnd.github+json",
     }
 
@@ -69,7 +71,7 @@ class ApiGitHubService(GitHubService):
         payload: dict[str, Any] = {
             "title": title,
             "body": body,
-            "assignees": [settings.github.repo_owner],
+            "assignees": [settings.gh.repo_owner],
         }
         async with httpx.AsyncClient() as client:
             resp = await client.post(url, headers=self.HEADERS, json=payload)

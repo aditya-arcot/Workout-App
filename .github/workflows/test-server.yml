@@ -56,7 +56,7 @@ jobs:
 
                   echo "EMAIL__BACKEND=console" >> .env
 
-                  echo "GITHUB__BACKEND=console" >> .env
+                  echo "GH__BACKEND=console" >> .env
 
             - name: run tests
               working-directory: server

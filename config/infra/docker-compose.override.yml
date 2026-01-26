@@ -9,6 +9,9 @@ services:
         ports:
             - 8081:80
 
+        environment:
+            - PGADMIN_CONFIG_SERVER_MODE=False
+
         labels:
             - traefik.http.routers.${PROJECT?}-${ENV?}-pg-admin.rule=Host(`db.${DOMAIN?}`)
             - traefik.http.routers.${PROJECT?}-${ENV?}-pg-admin.entrypoints=web

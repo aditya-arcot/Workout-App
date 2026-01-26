@@ -6,6 +6,7 @@ import { AppLayout } from '@/layout/AppLayout'
 import { Dashboard } from '@/pages/Dashboard'
 import { Docs } from '@/pages/Docs'
 import { Login } from '@/pages/Login'
+import { RequestAccess } from '@/pages/RequestAccess'
 import { Route, Routes } from 'react-router'
 
 export function AppRoutes() {
@@ -25,6 +26,14 @@ export function AppRoutes() {
                     <Route path=":slug" element={<Doc />} />
                 </Route>
             </Route>
+            <Route
+                path="/request-access"
+                element={
+                    <RequireGuest>
+                        <RequestAccess />
+                    </RequireGuest>
+                }
+            />
             <Route
                 path="/login"
                 element={

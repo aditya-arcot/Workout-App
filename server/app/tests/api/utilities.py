@@ -42,8 +42,8 @@ async def login_admin(
 ):
     return await login(
         client,
-        username=settings.ADMIN_USERNAME,
-        password=settings.ADMIN_PASSWORD,
+        username=settings.admin.username,
+        password=settings.admin.password,
     )
 
 

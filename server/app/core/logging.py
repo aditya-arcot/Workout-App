@@ -15,7 +15,7 @@ def setup_logging() -> None:
         },
     }
 
-    log_file = settings.LOG_DIR / f"reptrack_server_{settings.ENV}.log"
+    log_file = settings.log_dir / f"reptrack_server_{settings.env}.log"
     handlers["file"] = {
         "class": "logging.handlers.RotatingFileHandler",
         "formatter": "json",
@@ -42,7 +42,7 @@ def setup_logging() -> None:
             },
             "handlers": handlers,
             "root": {
-                "level": settings.LOG_LEVEL,
+                "level": settings.log_level.upper(),
                 "handlers": list(handlers.keys()),
             },
         }

@@ -3,6 +3,7 @@ import { useSession } from '@/auth/session'
 import { Feedback } from '@/components/Feedback'
 import { Button } from '@/components/ui/button'
 import { NavItem } from '@/lib/nav'
+import { notify } from '@/lib/notify'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 
 export function AppLayout() {
@@ -11,6 +12,8 @@ export function AppLayout() {
 
     const handleLogout = async () => {
         await AuthService.logout()
+        // TODO check status
+        notify.success('Logged out successfully')
         await refresh()
         void navigate('/login', { replace: true })
     }

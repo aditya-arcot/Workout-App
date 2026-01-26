@@ -2,12 +2,15 @@ services:
     database:
         restart: no
         ports:
-            - '${POSTGRES_PORT?}:5432'
+            - '${DATABASE__PORT?}:5432'
 
     pg-admin:
         restart: no
         ports:
             - 8081:80
+
+        environment:
+            - PGADMIN_CONFIG_SERVER_MODE=False
 
         labels:
             - traefik.http.routers.${PROJECT?}-${ENV?}-pg-admin.rule=Host(`db.${DOMAIN?}`)
@@ -19,7 +22,14 @@ services:
         restart: no
         ports:
             - '1080:1080' # web ui
-            - '1025:1025' # smtp
+            - '1026:1025' # smtp
+
+        labels:
+            - traefik.enable=true
+            - traefik.prod=${PROD?}
+            - traefik.http.routers.${PROJECT?}-${ENV?}-mailcatcher.rule=Host(`mail.${DOMAIN?}`)
+            - traefik.http.routers.${PROJECT?}-${ENV?}-mailcatcher.entrypoints=web
+            - traefik.http.services.${PROJECT?}-${ENV?}-mailcatcher.loadbalancer.server.port=1080
 
     server:
         pull_policy: build
@@ -34,6 +44,9 @@ services:
         volumes:
             - ../../server/data:/src/data
             - ../../server/logs:/src/logs
+        environment:
+            - EMAIL__BACKEND=local
+            - GH__BACKEND=console
 
         develop:
             watch:

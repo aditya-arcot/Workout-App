@@ -11,10 +11,12 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { notify } from '@/lib/notify'
 import type { LocationState } from '@/models/location'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router'
+import { Link } from 'react-router-dom'
 import { z } from 'zod'
 
 type LoginForm = z.infer<typeof zLoginRequest>
@@ -31,6 +33,7 @@ export function Login() {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
+        reset,
     } = useForm({
         resolver: zodResolver(zLoginRequest),
         mode: 'onSubmit',
@@ -38,7 +41,13 @@ export function Login() {
     })
 
     const onSubmit = async (data: LoginForm) => {
-        await AuthService.login({ body: data })
+        const res = await AuthService.login({ body: data })
+        if (res.status === 401) {
+            notify.error('Invalid username or password')
+            reset({ password: '' })
+            return
+        }
+        notify.success('Success logging in')
         await refresh()
         void navigate(from, { replace: true })
     }
@@ -63,6 +72,7 @@ export function Login() {
                             <Label htmlFor="username">Username</Label>
                             <Input
                                 id="username"
+                                autoComplete="username"
                                 aria-invalid={!!errors.username}
                                 className={
                                     errors.username ? 'border-destructive' : ''
@@ -80,6 +90,7 @@ export function Login() {
                             <Input
                                 id="password"
                                 type="password"
+                                autoComplete="current-password"
                                 aria-invalid={!!errors.password}
                                 className={
                                     errors.password ? 'border-destructive' : ''
@@ -94,7 +105,7 @@ export function Login() {
                         </div>
                     </form>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-3">
                     <Button
                         form="login-form"
                         className="w-full"
@@ -103,6 +114,17 @@ export function Login() {
                     >
                         {isSubmitting ? 'Logging in…' : 'Login'}
                     </Button>
+                    <div className="text-sm text-muted-foreground">
+                        Don&apos;t have an account?{' '}
+                        <Link to="/request-access">
+                            <Button
+                                variant="link"
+                                className="p-0 align-baseline"
+                            >
+                                Request Access
+                            </Button>
+                        </Link>
+                    </div>
                 </CardFooter>
             </Card>
         </div>

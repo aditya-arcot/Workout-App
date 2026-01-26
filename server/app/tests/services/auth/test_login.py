@@ -9,18 +9,18 @@ from app.services.auth import login
 
 async def test_login(session: AsyncSession):
     result = await login(
-        username=settings.ADMIN_USERNAME,
-        password=settings.ADMIN_PASSWORD,
+        username=settings.admin.username,
+        password=settings.admin.password,
         db=session,
     )
 
     payload = jwt.decode(
         result.access_token,
-        settings.JWT_SECRET_KEY,
-        algorithms=[settings.ALGORITHM],
+        settings.jwt.secret_key,
+        algorithms=[settings.jwt.algorithm],
     )
 
-    assert payload["sub"] == settings.ADMIN_USERNAME
+    assert payload["sub"] == settings.admin.username
     assert "exp" in payload
 
 
@@ -36,7 +36,7 @@ async def test_login_non_existent_user(session: AsyncSession):
 async def test_login_invalid_password(session: AsyncSession):
     with pytest.raises(InvalidCredentials):
         await login(
-            username=settings.ADMIN_USERNAME,
+            username=settings.admin.username,
             password="some_password",
             db=session,
         )

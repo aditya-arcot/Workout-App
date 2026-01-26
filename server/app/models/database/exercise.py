@@ -1,15 +1,9 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
 
 from sqlalchemy import TEXT, DateTime, ForeignKey, Index, String, UniqueConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from .muscle_group import MuscleGroup
-    from .user import User
-    from .workout_exercise import WorkoutExercise
 
 
 class Exercise(Base):
@@ -37,14 +31,4 @@ class Exercise(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
-    )
-
-    muscle_groups: Mapped[List[MuscleGroup]] = relationship(
-        secondary="exercise_muscle_groups",
-        back_populates="exercises",
-    )
-    user: Mapped[User | None] = relationship(back_populates="exercises")
-    workout_exercises: Mapped[List[WorkoutExercise]] = relationship(
-        back_populates="exercise",
-        passive_deletes=True,
     )

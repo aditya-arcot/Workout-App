@@ -23,8 +23,8 @@ async def test_get_current_user(client: AsyncClient):
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
     UserPublic.model_validate(body)
-    assert body["username"] == settings.ADMIN_USERNAME
-    assert body["email"] == settings.ADMIN_EMAIL
+    assert body["username"] == settings.admin.username
+    assert body["email"] == settings.admin.email
     assert body["is_admin"] is True
 
 
@@ -51,7 +51,7 @@ async def test_get_current_user_deleted_user(
 ):
     await login_admin(client)
 
-    await session.execute(delete(User).where(User.username == settings.ADMIN_USERNAME))
+    await session.execute(delete(User).where(User.username == settings.admin.username))
     await session.commit()
 
     resp = await make_request(client)

@@ -60,16 +60,16 @@ async def login_endpoint(
         key="access_token",
         value=result.access_token,
         httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite=settings.COOKIE_SAME_SITE,
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_same_site,
         max_age=60 * 60,  # 1 hour
     )
     response.set_cookie(
         key="refresh_token",
         value=result.refresh_token,
         httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite=settings.COOKIE_SAME_SITE,
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_same_site,
         max_age=60 * 60 * 24 * 365,  # 1 year
     )
 
@@ -89,8 +89,8 @@ async def refresh_token_endpoint(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite=settings.COOKIE_SAME_SITE,
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_same_site,
         max_age=60 * 60,  # 1 hour
     )
 
@@ -104,12 +104,12 @@ async def logout_endpoint(response: Response):
     response.delete_cookie(
         key="access_token",
         httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite=settings.COOKIE_SAME_SITE,
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_same_site,
     )
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite=settings.COOKIE_SAME_SITE,
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_same_site,
     )

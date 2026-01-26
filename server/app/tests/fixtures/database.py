@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncTransaction,
     create_async_engine,
 )
-from testcontainers.postgres import PostgresContainer  # type: ignore
+from testcontainers.postgres import PostgresContainer
 
 from app.core.database import Base
 
@@ -28,7 +28,7 @@ def run_migrations(connection: Connection) -> None:
     script = ScriptDirectory.from_config(config)
 
     def upgrade(rev: str, context: EnvironmentContext):
-        return script._upgrade_revs("head", rev)  # pyright: ignore[reportPrivateUsage]
+        return script._upgrade_revs("head", rev)
 
     with EnvironmentContext(
         config,

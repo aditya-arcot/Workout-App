@@ -1,4 +1,4 @@
-.PHONY: dev test check_migrations manual_migration auto_migration run_migrations
+.PHONY: dev test check check_migrations manual_migration auto_migration run_migrations
 
 dev:
 	uv run uvicorn app.main:app \
@@ -10,6 +10,9 @@ dev:
 
 test:
 	uv run pytest -v
+
+check:
+	uv run ty check
 
 check_migrations:
 	uv run alembic check

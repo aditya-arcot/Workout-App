@@ -3,6 +3,8 @@ FROM node:lts-alpine AS base
 
 WORKDIR /src
 
+RUN npm i -g npm@latest
+
 # optimize layer caching
 COPY package*.json ./
 RUN npm ci

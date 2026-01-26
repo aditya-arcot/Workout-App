@@ -1,5 +1,4 @@
 import logging
-from dataclasses import dataclass
 
 from fastapi import BackgroundTasks
 from sqlalchemy import select
@@ -11,6 +10,7 @@ from app.core.security import (
     create_refresh_token,
     verify_token,
 )
+from app.models.api import LoginResult, RequestAccessResult
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
 from app.models.database.user import User
 from app.models.errors import (
@@ -23,12 +23,6 @@ from app.models.errors import (
 from .email import EmailService
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class RequestAccessResult:
-    already_approved: bool
-    access_request: AccessRequest
 
 
 async def request_access(
@@ -90,12 +84,6 @@ async def request_access(
         already_approved=False,
         access_request=access_request,
     )
-
-
-@dataclass
-class LoginResult:
-    access_token: str
-    refresh_token: str
 
 
 async def login(username: str, password: str, db: AsyncSession) -> LoginResult:

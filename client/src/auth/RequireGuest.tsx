@@ -1,11 +1,17 @@
 import { useSession } from '@/auth/session'
 import { Loading } from '@/components/Loading'
+import type { LocationState } from '@/models/location'
 import type { JSX } from 'react'
-import { Navigate } from 'react-router'
+import { Navigate, useLocation } from 'react-router'
 
 export function RequireGuest({ children }: { children: JSX.Element }) {
     const { loading, authenticated } = useSession()
+    const location = useLocation()
+    const state = location.state as LocationState | null
     if (loading) return <Loading />
-    if (authenticated) return <Navigate to="/" replace />
+    if (authenticated) {
+        const to = state?.from?.pathname ?? '/'
+        return <Navigate to={to} replace />
+    }
     return children
 }

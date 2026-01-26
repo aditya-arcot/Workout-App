@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     TEXT,
@@ -11,15 +10,12 @@ from sqlalchemy import (
 from sqlalchemy import (
     Enum as SQLEnum,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 from app.models.schemas.feedback import FeedbackType
 from app.models.schemas.pydantic_json import PydanticJSON
 from app.models.schemas.storage import StoredFile
-
-if TYPE_CHECKING:
-    from .user import User
 
 
 class Feedback(Base):
@@ -63,5 +59,3 @@ class Feedback(Base):
         server_default=func.now(),
         nullable=False,
     )
-
-    user: Mapped[User | None] = relationship(back_populates="feedbacks")

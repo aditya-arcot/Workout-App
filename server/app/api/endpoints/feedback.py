@@ -7,6 +7,7 @@ from app.core.dependencies import get_current_user, get_db
 from app.models.schemas.feedback import CreateFeedbackRequest
 from app.models.schemas.user import UserPublic
 from app.services.feedback import create_feedback
+from app.services.github import GitHubService, get_github_service
 
 api_router = APIRouter(
     prefix="/feedback", tags=["Feedback"], dependencies=[Depends(get_current_user)]
@@ -20,6 +21,7 @@ def create_feedback_endpoint(
     user: Annotated[UserPublic, Depends(get_current_user)],
     background_tasks: BackgroundTasks,
     db: Annotated[AsyncSession, Depends(get_db)],
+    github_svc: Annotated[GitHubService, Depends(get_github_service)],
     payload: CreateFeedbackRequest = Form(..., media_type="multipart/form-data"),
 ):
     background_tasks.add_task(
@@ -27,4 +29,5 @@ def create_feedback_endpoint(
         user=user,
         payload=payload,
         db=db,
+        github_svc=github_svc,
     )

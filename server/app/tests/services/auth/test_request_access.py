@@ -34,7 +34,7 @@ async def test_request_access(session: AsyncSession, mock_email_svc: AsyncMock):
     assert len(background_tasks.tasks) == 1
     task = background_tasks.tasks[0]
     assert task.func == mock_email_svc.send_access_request_notification
-    assert task.args[0] == settings.ADMIN_EMAIL
+    assert task.args[0] == settings.admin.email
 
 
 async def test_request_access_approved(

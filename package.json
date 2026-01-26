@@ -18,7 +18,7 @@
         "*": "prettier --write --ignore-unknown --ignore-path .prettierignore"
     },
     "dependencies": {
-        "sort-package-json": "^3.6.0"
+        "sort-package-json": "^3.6.1"
     },
     "devDependencies": {
         "husky": "^9.1.7",

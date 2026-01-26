@@ -1,27 +1,30 @@
 import pytest
 
-from app.core.config import settings
+from app.core.config import (
+    EmailSettings,
+    settings,
+)
 from app.services.email import get_email_service
 
 
 @pytest.fixture(autouse=True)
 def override_env_test(monkeypatch: pytest.MonkeyPatch):
-    original_env = settings.ENV
+    original_env = settings.env
 
-    monkeypatch.setattr(settings, "ENV", "test")
+    monkeypatch.setattr(settings, "env", "test")
     yield
 
-    monkeypatch.setattr(settings, "ENV", original_env)
+    monkeypatch.setattr(settings, "env", original_env)
 
 
 @pytest.fixture
-def override_email_backend(monkeypatch: pytest.MonkeyPatch):
-    original_backend = settings.EMAIL_BACKEND
+def override_email(monkeypatch: pytest.MonkeyPatch):
+    original_email: EmailSettings = settings.email
 
-    def _override(backend: str):
-        monkeypatch.setattr(settings, "EMAIL_BACKEND", backend)
+    def _override(email: EmailSettings):
+        monkeypatch.setattr(settings, "email", email)
         return get_email_service()
 
     yield _override
 
-    monkeypatch.setattr(settings, "EMAIL_BACKEND", original_backend)
+    monkeypatch.setattr(settings, "email", original_email)

@@ -22,11 +22,11 @@ depends_on: Union[str, Sequence[str], None] = None
 
 load_dotenv("../config/env/.env")
 
-username = os.getenv("ADMIN_USERNAME")
-email = os.getenv("ADMIN_EMAIL")
-first_name = os.getenv("ADMIN_FIRST_NAME")
-last_name = os.getenv("ADMIN_LAST_NAME")
-password = os.getenv("ADMIN_PASSWORD")
+username = os.getenv("ADMIN__USERNAME")
+email = os.getenv("ADMIN__EMAIL")
+first_name = os.getenv("ADMIN__FIRST_NAME")
+last_name = os.getenv("ADMIN__LAST_NAME")
+password = os.getenv("ADMIN__PASSWORD")
 if not all([username, email, first_name, last_name, password]):
     raise ValueError("Admin user environment variables are not fully set")
 

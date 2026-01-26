@@ -1,4 +1,8 @@
-import { AuthService, type RefreshTokenData } from '@/api/generated'
+import {
+    AuthService,
+    type LoginData,
+    type RefreshTokenData,
+} from '@/api/generated'
 import { client } from '@/api/generated/client.gen'
 import { env } from '@/config/env'
 import axios, { AxiosError } from 'axios'
@@ -6,6 +10,10 @@ import axios, { AxiosError } from 'axios'
 // created for type safety
 const refreshUrl = client.buildUrl<RefreshTokenData>({
     url: '/api/auth/refresh-token',
+})
+const loginUrl = client.buildUrl<LoginData>({
+    body: { username: '_', password: '_' },
+    url: '/api/auth/login',
 })
 
 export function configureApiClient() {
@@ -37,7 +45,8 @@ export function configureApiClient() {
             if (
                 error.response?.status === 401 &&
                 !originalRequest._retry &&
-                !originalRequest.url?.endsWith(refreshUrl)
+                !originalRequest.url?.endsWith(refreshUrl) &&
+                !originalRequest.url?.endsWith(loginUrl)
             ) {
                 if (isRefreshing) {
                     // queue requests

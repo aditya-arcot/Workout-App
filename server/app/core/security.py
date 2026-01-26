@@ -34,21 +34,23 @@ def create_token(username: str, expires_delta: timedelta):
         "sub": username,
         "exp": datetime.now(timezone.utc) + expires_delta,
     }
-    token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.ALGORITHM)
+    token = jwt.encode(
+        payload, settings.jwt.secret_key, algorithm=settings.jwt.algorithm
+    )
     return str(token)
 
 
 def create_access_token(username: str):
     return create_token(
         username,
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+        expires_delta=timedelta(minutes=settings.jwt.access_token_expire_minutes),
     )
 
 
 def create_refresh_token(username: str):
     return create_token(
         username,
-        expires_delta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        expires_delta=timedelta(days=settings.jwt.refresh_token_expire_days),
     )
 
 
@@ -56,7 +58,7 @@ def verify_token(token: str) -> str:
     try:
         # checks expiration
         payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token, settings.jwt.secret_key, algorithms=[settings.jwt.algorithm]
         )
     except Exception as e:
         logger.error(f"JWT decode error: {e}")

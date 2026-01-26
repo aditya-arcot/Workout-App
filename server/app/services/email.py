@@ -14,15 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_email_service() -> EmailService:
-    match settings.EMAIL_BACKEND:
-        case "smtp":
+    match settings.email.backend:
+        case "smtp" | "local":
             return SmtpEmailService()
         case "console":
             return ConsoleEmailService()
         case "disabled":
             return DisabledEmailService()
-        case _:
-            raise RuntimeError(f"Unknown EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
 
 
 class EmailService(ABC):
@@ -41,7 +39,7 @@ class EmailService(ABC):
         """
         Notify an admin that a new access request has been submitted.
         """
-        subject = f"New Access Request - {settings.PROJECT_NAME}"
+        subject = f"New Access Request - {settings.project_name}"
         body = (
             f"User {access_request.first_name} {access_request.last_name} ({access_request.email}) "
             f"has requested access (request id {access_request.id})."
@@ -59,7 +57,7 @@ class EmailService(ABC):
         """
         Notify a user that their access request was approved and provide instructions.
         """
-        subject = "Access Request Approved - {settings.PROJECT_NAME}"
+        subject = f"Access Request Approved - {settings.project_name}"
         body = (
             f"Hello {access_request.first_name},\n\n"
             f"Your access request has been approved!\n"
@@ -74,6 +72,7 @@ class EmailService(ABC):
 
 
 class SmtpEmailService(EmailService):
+    use_tls = settings.email.backend == "smtp"
     tls_context = ssl.create_default_context()
     tls_context.check_hostname = False
     tls_context.verify_mode = ssl.CERT_NONE
@@ -89,7 +88,7 @@ class SmtpEmailService(EmailService):
         logger.info("Sending email to %s with subject %s (%s)", to, subject, now)
 
         message = EmailMessage()
-        message["From"] = settings.EMAIL_FROM
+        message["From"] = settings.email.email_from
         message["To"] = to
         message["Subject"] = subject
 
@@ -100,17 +99,16 @@ class SmtpEmailService(EmailService):
             message.set_content(text)
 
         kwargs = dict(
-            hostname=settings.SMTP_HOST,
-            port=settings.SMTP_PORT,
-            start_tls=settings.SMTP_USE_TLS,
+            hostname=settings.email.smtp_host,
+            port=settings.email.smtp_port,
+            start_tls=self.use_tls,
             timeout=10,
-            tls_context=self.tls_context if settings.SMTP_USE_TLS else None,
+            tls_context=self.tls_context if self.use_tls else None,
         )
 
-        # guard against including empty username/password
-        if settings.SMTP_USERNAME and settings.SMTP_PASSWORD:
-            kwargs["username"] = settings.SMTP_USERNAME
-            kwargs["password"] = settings.SMTP_PASSWORD
+        if settings.email.smtp_username and settings.email.smtp_password:
+            kwargs["username"] = settings.email.smtp_username
+            kwargs["password"] = settings.email.smtp_password
 
         resp = await aiosmtplib.send(message, **kwargs)  # type: ignore
         logger.info("Email sent to %s with subject %s (%s)", to, subject, now)

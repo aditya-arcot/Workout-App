@@ -40,6 +40,14 @@ export default defineConfig([
                                 'Use @/ path alias instead of relative path',
                         },
                     ],
+                    paths: [
+                        {
+                            name: 'sonner',
+                            importNames: ['toast'],
+                            message:
+                                'Use notify from @/lib/notify instead of toast directly',
+                        },
+                    ],
                 },
             ],
         },

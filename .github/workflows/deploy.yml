@@ -91,33 +91,31 @@ jobs:
                   echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
                   echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
 
-                  echo "REPO_OWNER=${{ secrets.REPO_OWNER }}" >> .env
-                  echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env
+                  echo "ADMIN__USERNAME=${{ secrets.ADMIN__USERNAME }}" >> .env
+                  echo "ADMIN__EMAIL=${{ secrets.ADMIN__EMAIL }}" >> .env
+                  echo "ADMIN__FIRST_NAME=${{ secrets.ADMIN__FIRST_NAME }}" >> .env
+                  echo "ADMIN__LAST_NAME=${{ secrets.ADMIN__LAST_NAME }}" >> .env
+                  echo "ADMIN__PASSWORD=${{ secrets.ADMIN__PASSWORD }}" >> .env
 
-                  echo "POSTGRES_HOST=" >> .env
-                  echo "POSTGRES_PORT=" >> .env
-                  echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-                  echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-                  echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+                  echo "JWT__SECRET_KEY=${{ secrets.JWT__SECRET_KEY }}" >> .env
+                  echo "JWT__ALGORITHM=${{ secrets.JWT__ALGORITHM }}" >> .env
+                  echo "JWT__ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.JWT__ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+                  echo "JWT__REFRESH_TOKEN_EXPIRE_DAYS=${{ secrets.JWT__REFRESH_TOKEN_EXPIRE_DAYS }}" >> .env
 
-                  echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> .env
-                  echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
-                  echo "ADMIN_FIRST_NAME=${{ secrets.ADMIN_FIRST_NAME }}" >> .env
-                  echo "ADMIN_LAST_NAME=${{ secrets.ADMIN_LAST_NAME }}" >> .env
-                  echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+                  # exclude host & port
+                  echo "DATABASE__NAME=${{ secrets.DATABASE__NAME }}" >> .env
+                  echo "DATABASE__USER=${{ secrets.DATABASE__USER }}" >> .env
+                  echo "DATABASE__PASSWORD=${{ secrets.DATABASE__PASSWORD }}" >> .env
 
-                  echo "EMAIL_BACKEND=smtp" >> .env
-                  echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
-                  echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
-                  echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
-                  echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
-                  echo "SMTP_USE_TLS=${{ secrets.SMTP_USE_TLS }}" >> .env
-                  echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+                  echo "EMAIL__BACKEND=smtp" >> .env
+                  echo "EMAIL__EMAIL_FROM=${{ secrets.EMAIL__EMAIL_FROM }}" >> .env
+                  # exclude host
+                  echo "EMAIL__SMTP_USERNAME=${{ secrets.EMAIL__SMTP_USERNAME }}" >> .env
+                  echo "EMAIL__SMTP_PASSWORD=${{ secrets.EMAIL__SMTP_PASSWORD }}" >> .env
 
-                  echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-                  echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
-                  echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
-                  echo "REFRESH_TOKEN_EXPIRE_DAYS=${{ secrets.REFRESH_TOKEN_EXPIRE_DAYS }}" >> .env
+                  echo "GH__BACKEND=api" >> .env
+                  echo "GH__REPO_OWNER=${{ secrets.GH__REPO_OWNER }}" >> .env
+                  echo "GH__TOKEN=${{ secrets.GH__TOKEN }}" >> .env
 
             - name: create pg admin config
               working-directory: scripts

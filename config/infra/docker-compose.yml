@@ -10,13 +10,13 @@ services:
             - pg-data:/var/lib/postgresql/data/pgdata
         environment:
             - PGDATA=/var/lib/postgresql/data/pgdata
-            - POSTGRES_DB=${POSTGRES_DB?}
-            - POSTGRES_USER=${POSTGRES_USER?}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+            - POSTGRES_DB=${DATABASE__NAME?}
+            - POSTGRES_USER=${DATABASE__USER?}
+            - POSTGRES_PASSWORD=${DATABASE__PASSWORD?}
 
         healthcheck:
             # pg_isready does not check user or db
-            test: "psql -U ${POSTGRES_USER?} -d ${POSTGRES_DB?} -c 'SELECT 1' || exit 1"
+            test: "psql -U ${DATABASE__USER?} -d ${DATABASE__NAME?} -c 'SELECT 1' || exit 1"
             start_period: 5s
             timeout: 5s
             retries: 3
@@ -69,34 +69,33 @@ services:
             - LOG_LEVEL=${LOG_LEVEL?}
             - CLIENT_URL=${CLIENT_URL?}
 
-            - REPO_OWNER=${REPO_OWNER?}
-            - GITHUB_TOKEN=${GITHUB_TOKEN?}
+            - ADMIN__USERNAME=${ADMIN__USERNAME?}
+            - ADMIN__EMAIL=${ADMIN__EMAIL?}
+            - ADMIN__FIRST_NAME=${ADMIN__FIRST_NAME?}
+            - ADMIN__LAST_NAME=${ADMIN__LAST_NAME?}
+            - ADMIN__PASSWORD=${ADMIN__PASSWORD?}
 
-            # use internal host & port
-            - POSTGRES_HOST=database
-            - POSTGRES_PORT=5432
-            - POSTGRES_DB=${POSTGRES_DB?}
-            - POSTGRES_USER=${POSTGRES_USER?}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+            - JWT__SECRET_KEY=${JWT__SECRET_KEY?}
+            - JWT__ALGORITHM=${JWT__ALGORITHM?}
+            - JWT__ACCESS_TOKEN_EXPIRE_MINUTES=${JWT__ACCESS_TOKEN_EXPIRE_MINUTES?}
+            - JWT__REFRESH_TOKEN_EXPIRE_DAYS=${JWT__REFRESH_TOKEN_EXPIRE_DAYS?}
 
-            - ADMIN_USERNAME=${ADMIN_USERNAME?}
-            - ADMIN_EMAIL=${ADMIN_EMAIL?}
-            - ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME?}
-            - ADMIN_LAST_NAME=${ADMIN_LAST_NAME?}
-            - ADMIN_PASSWORD=${ADMIN_PASSWORD?}
+            # internal host & port
+            - DATABASE__HOST=database
+            - DATABASE__PORT=5432
+            - DATABASE__NAME=${DATABASE__NAME?}
+            - DATABASE__USER=${DATABASE__USER?}
+            - DATABASE__PASSWORD=${DATABASE__PASSWORD?}
 
-            - EMAIL_BACKEND=smtp
-            - SMTP_HOST=host.docker.internal
-            - SMTP_PORT=1025
-            - SMTP_USERNAME=${SMTP_USERNAME?}
-            - SMTP_PASSWORD=${SMTP_PASSWORD?}
-            - SMTP_USE_TLS=${SMTP_USE_TLS?}
-            - EMAIL_FROM=${EMAIL_FROM?}
+            - EMAIL__BACKEND=${EMAIL__BACKEND?}
+            - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
+            - EMAIL__SMTP_HOST=host.docker.internal
+            - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
+            - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 
-            - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
-            - ALGORITHM=${ALGORITHM?}
-            - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES?}
-            - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS?}
+            - GH__BACKEND=${GH__BACKEND?}
+            - GH__REPO_OWNER=${GH__REPO_OWNER?}
+            - GH__TOKEN=${GH__TOKEN?}
 
         command: alembic upgrade head
 
@@ -123,34 +122,33 @@ services:
             - LOG_LEVEL=${LOG_LEVEL?}
             - CLIENT_URL=${CLIENT_URL?}
 
-            - REPO_OWNER=${REPO_OWNER?}
-            - GITHUB_TOKEN=${GITHUB_TOKEN?}
+            - ADMIN__USERNAME=${ADMIN__USERNAME?}
+            - ADMIN__EMAIL=${ADMIN__EMAIL?}
+            - ADMIN__FIRST_NAME=${ADMIN__FIRST_NAME?}
+            - ADMIN__LAST_NAME=${ADMIN__LAST_NAME?}
+            - ADMIN__PASSWORD=${ADMIN__PASSWORD?}
 
-            # use internal host & port
-            - POSTGRES_HOST=database
-            - POSTGRES_PORT=5432
-            - POSTGRES_DB=${POSTGRES_DB?}
-            - POSTGRES_USER=${POSTGRES_USER?}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+            - JWT__SECRET_KEY=${JWT__SECRET_KEY?}
+            - JWT__ALGORITHM=${JWT__ALGORITHM?}
+            - JWT__ACCESS_TOKEN_EXPIRE_MINUTES=${JWT__ACCESS_TOKEN_EXPIRE_MINUTES?}
+            - JWT__REFRESH_TOKEN_EXPIRE_DAYS=${JWT__REFRESH_TOKEN_EXPIRE_DAYS?}
 
-            - ADMIN_USERNAME=${ADMIN_USERNAME?}
-            - ADMIN_EMAIL=${ADMIN_EMAIL?}
-            - ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME?}
-            - ADMIN_LAST_NAME=${ADMIN_LAST_NAME?}
-            - ADMIN_PASSWORD=${ADMIN_PASSWORD?}
+            # internal host & port
+            - DATABASE__HOST=database
+            - DATABASE__PORT=5432
+            - DATABASE__NAME=${DATABASE__NAME?}
+            - DATABASE__USER=${DATABASE__USER?}
+            - DATABASE__PASSWORD=${DATABASE__PASSWORD?}
 
-            - EMAIL_BACKEND=smtp
-            - SMTP_HOST=host.docker.internal
-            - SMTP_PORT=1025
-            - SMTP_USERNAME=${SMTP_USERNAME?}
-            - SMTP_PASSWORD=${SMTP_PASSWORD?}
-            - SMTP_USE_TLS=${SMTP_USE_TLS?}
-            - EMAIL_FROM=${EMAIL_FROM?}
+            - EMAIL__BACKEND=${EMAIL__BACKEND?}
+            - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
+            - EMAIL__SMTP_HOST=host.docker.internal
+            - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
+            - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 
-            - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
-            - ALGORITHM=${ALGORITHM?}
-            - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES?}
-            - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS?}
+            - GH__BACKEND=${GH__BACKEND?}
+            - GH__REPO_OWNER=${GH__REPO_OWNER?}
+            - GH__TOKEN=${GH__TOKEN?}
 
         healthcheck:
             test:

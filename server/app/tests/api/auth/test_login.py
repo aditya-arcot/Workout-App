@@ -23,7 +23,7 @@ async def test_login_non_existent_user(client: AsyncClient):
 
 async def test_login_invalid_password(client: AsyncClient):
     resp = await login(
-        client, username=settings.ADMIN_USERNAME, password="some_password"
+        client, username=settings.admin.username, password="some_password"
     )
 
     assert resp.status_code == InvalidCredentials.status_code

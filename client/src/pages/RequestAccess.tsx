@@ -35,7 +35,6 @@ export function RequestAccess() {
         // TODO check status
         if (res.status !== 200) {
             notify.error('Error requesting access')
-            reset()
             return
         }
         notify.success('Success requesting access')

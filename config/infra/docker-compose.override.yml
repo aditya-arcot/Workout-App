@@ -2,7 +2,7 @@ services:
     database:
         restart: no
         ports:
-            - '${POSTGRES_PORT?}:5432'
+            - '${DATABASE__PORT?}:5432'
 
     pg-admin:
         restart: no
@@ -22,7 +22,7 @@ services:
         restart: no
         ports:
             - '1080:1080' # web ui
-            - '${SMTP_PORT?}:1025' # smtp
+            - '1026:1025' # smtp
 
         labels:
             - traefik.enable=true
@@ -44,6 +44,9 @@ services:
         volumes:
             - ../../server/data:/src/data
             - ../../server/logs:/src/logs
+        environment:
+            - EMAIL__BACKEND=local
+            - GITHUB__BACKEND=console
 
         develop:
             watch:

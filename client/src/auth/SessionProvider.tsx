@@ -1,5 +1,6 @@
 import { type UserPublic, UserService } from '@/api/generated'
 import { SessionContext } from '@/auth/session'
+import { logger } from '@/lib/logger'
 import { type ReactNode, useEffect, useState } from 'react'
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -14,6 +15,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 setUser(null)
                 return
             }
+            logger.info('Fetched current user', data)
             setUser(data)
         } finally {
             setLoading(false)

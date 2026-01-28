@@ -5,11 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.dependencies import get_db, refresh_token_cookie
-from app.models.schemas.auth import (
-    LoginRequest,
-    RequestAccessRequest,
-    RequestAccessResponse,
-)
+from app.models.schemas.auth import LoginRequest, RequestAccessRequest
 from app.models.schemas.errors import ErrorResponseModel
 from app.services.auth import login, refresh, request_access
 from app.services.email import EmailService, get_email_service
@@ -30,8 +26,8 @@ async def request_access_endpoint(
     background_tasks: BackgroundTasks,
     db: Annotated[AsyncSession, Depends(get_db)],
     email_svc: Annotated[EmailService, Depends(get_email_service)],
-) -> RequestAccessResponse:
-    result = await request_access(
+) -> str:
+    already_approved = await request_access(
         first_name=payload.first_name,
         last_name=payload.last_name,
         email_svc=email_svc,
@@ -39,18 +35,9 @@ async def request_access_endpoint(
         db=db,
         email=payload.email,
     )
-    already_approved, access_request = result.already_approved, result.access_request
-
-    detail = ""
     if already_approved:
-        detail = "Access already approved. Approval email resent"
-    else:
-        detail = "Requested access. Wait for admin approval"
-
-    return RequestAccessResponse(
-        detail=detail,
-        access_request_id=access_request.id,
-    )
+        return "Access already approved. Approval email resent"
+    return "Requested access. Wait for admin approval"
 
 
 @api_router.post(

@@ -89,20 +89,6 @@ export type RequestAccessRequest = {
 };
 
 /**
- * RequestAccessResponse
- */
-export type RequestAccessResponse = {
-    /**
-     * Detail
-     */
-    detail: string;
-    /**
-     * Access Request Id
-     */
-    access_request_id: number;
-};
-
-/**
  * UserPublic
  */
 export type UserPublic = {
@@ -203,12 +189,14 @@ export type RequestAccessError = RequestAccessErrors[keyof RequestAccessErrors];
 
 export type RequestAccessResponses = {
     /**
+     * Response Requestaccess
+     *
      * Successful Response
      */
-    200: RequestAccessResponse;
+    200: string;
 };
 
-export type RequestAccessResponse2 = RequestAccessResponses[keyof RequestAccessResponses];
+export type RequestAccessResponse = RequestAccessResponses[keyof RequestAccessResponses];
 
 export type LoginData = {
     body: LoginRequest;

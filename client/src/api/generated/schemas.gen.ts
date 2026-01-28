@@ -137,25 +137,6 @@ export const RequestAccessRequestSchema = {
     title: 'RequestAccessRequest'
 } as const;
 
-export const RequestAccessResponseSchema = {
-    properties: {
-        detail: {
-            type: 'string',
-            title: 'Detail'
-        },
-        access_request_id: {
-            type: 'integer',
-            title: 'Access Request Id'
-        }
-    },
-    type: 'object',
-    required: [
-        'detail',
-        'access_request_id'
-    ],
-    title: 'RequestAccessResponse'
-} as const;
-
 export const UserPublicSchema = {
     properties: {
         id: {

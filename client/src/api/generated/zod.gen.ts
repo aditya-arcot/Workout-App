@@ -44,14 +44,6 @@ export const zRequestAccessRequest = z.object({
 });
 
 /**
- * RequestAccessResponse
- */
-export const zRequestAccessResponse = z.object({
-    detail: z.string(),
-    access_request_id: z.int()
-});
-
-/**
  * UserPublic
  */
 export const zUserPublic = z.object({
@@ -92,9 +84,11 @@ export const zRequestAccessData = z.object({
 });
 
 /**
+ * Response Requestaccess
+ *
  * Successful Response
  */
-export const zRequestAccessResponse2 = zRequestAccessResponse;
+export const zRequestAccessResponse = z.string();
 
 export const zLoginData = z.object({
     body: zLoginRequest,

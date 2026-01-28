@@ -57,7 +57,7 @@ export function RequestAccess() {
             }
             return
         }
-        notify.success(data.detail)
+        notify.success(data)
         reset()
     }
 

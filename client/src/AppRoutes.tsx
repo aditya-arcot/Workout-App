@@ -16,7 +16,7 @@ export function AppRoutes() {
             <Route
                 path="/"
                 element={
-                    <RequireAuth>
+                    <RequireAuth requireAdmin={false}>
                         <AppLayout />
                     </RequireAuth>
                 }
@@ -26,7 +26,14 @@ export function AppRoutes() {
                     <Route index element={<DocsIndex />} />
                     <Route path=":slug" element={<Doc />} />
                 </Route>
-                <Route path="admin" element={<Admin />} />
+                <Route
+                    path="admin"
+                    element={
+                        <RequireAuth requireAdmin={true}>
+                            <Admin />
+                        </RequireAuth>
+                    }
+                />
             </Route>
             <Route
                 path="/request-access"

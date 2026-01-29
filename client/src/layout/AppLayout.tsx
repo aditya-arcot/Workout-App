@@ -7,7 +7,7 @@ import { notify } from '@/lib/notify'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 
 export function AppLayout() {
-    const { refresh } = useSession()
+    const { refresh, user } = useSession()
     const navigate = useNavigate()
 
     const handleLogout = async () => {
@@ -32,7 +32,9 @@ export function AppLayout() {
                         <nav className="flex items-center gap-4">
                             <NavItem to="/">Dashboard</NavItem>
                             <NavItem to="/docs">Docs</NavItem>
-                            <NavItem to="/admin">Admin</NavItem>
+                            {user?.is_admin && (
+                                <NavItem to="/admin">Admin</NavItem>
+                            )}
                         </nav>
                     </div>
                     <div className="flex items-center gap-2">

@@ -15,7 +15,8 @@ async def get_access_requests(db: AsyncSession) -> list[AccessRequestPublic]:
     result = await db.execute(
         select(AccessRequest)
         .order_by(status_priority)
-        .order_by(AccessRequest.created_at.desc())
+        .order_by(AccessRequest.updated_at.desc())
+        .order_by(AccessRequest.id.desc())
     )
     return [
         AccessRequestPublic.model_validate(ar, from_attributes=True)

@@ -144,6 +144,16 @@ export type ReviewerPublic = {
 };
 
 /**
+ * UpdateAccessRequestStatusRequest
+ */
+export type UpdateAccessRequestStatusRequest = {
+    /**
+     * Status
+     */
+    status: 'approved' | 'rejected';
+};
+
+/**
  * UserPublic
  */
 export type UserPublic = {
@@ -229,6 +239,52 @@ export type GetAccessRequestsResponses = {
 };
 
 export type GetAccessRequestsResponse = GetAccessRequestsResponses[keyof GetAccessRequestsResponses];
+
+export type UpdateAccessRequestStatusData = {
+    body: UpdateAccessRequestStatusRequest;
+    path: {
+        /**
+         * Access Request Id
+         */
+        access_request_id: number;
+    };
+    query?: never;
+    url: '/api/admin/access-requests/{access_request_id}';
+};
+
+export type UpdateAccessRequestStatusErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateAccessRequestStatusError = UpdateAccessRequestStatusErrors[keyof UpdateAccessRequestStatusErrors];
+
+export type UpdateAccessRequestStatusResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type UpdateAccessRequestStatusResponse = UpdateAccessRequestStatusResponses[keyof UpdateAccessRequestStatusResponses];
 
 export type GetUsersData = {
     body?: never;

@@ -82,6 +82,13 @@ export const zAccessRequestPublic = z.object({
 });
 
 /**
+ * UpdateAccessRequestStatusRequest
+ */
+export const zUpdateAccessRequestStatusRequest = z.object({
+    status: z.enum(['approved', 'rejected'])
+});
+
+/**
  * UserPublic
  */
 export const zUserPublic = z.object({
@@ -123,6 +130,19 @@ export const zGetAccessRequestsData = z.object({
  * Successful Response
  */
 export const zGetAccessRequestsResponse = z.array(zAccessRequestPublic);
+
+export const zUpdateAccessRequestStatusData = z.object({
+    body: zUpdateAccessRequestStatusRequest,
+    path: z.object({
+        access_request_id: z.int()
+    }),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zUpdateAccessRequestStatusResponse = z.void();
 
 export const zGetUsersData = z.object({
     body: z.optional(z.never()),

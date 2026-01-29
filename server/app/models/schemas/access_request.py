@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -20,3 +21,7 @@ class AccessRequestPublic(BaseModel):
     reviewer: ReviewerPublic | None
     created_at: datetime
     updated_at: datetime
+
+
+class UpdateAccessRequestStatusRequest(BaseModel):
+    status: Literal[AccessRequestStatus.APPROVED, AccessRequestStatus.REJECTED]

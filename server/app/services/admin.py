@@ -1,11 +1,15 @@
 import logging
+from typing import Literal
 
 from sqlalchemy import case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import func
 
 from app.models.database.access_request import AccessRequest
 from app.models.database.user import User
+from app.models.enums import AccessRequestStatus
+from app.models.errors import AccessRequestStatusError, NotFound
 from app.models.schemas.access_request import AccessRequestPublic
 from app.models.schemas.user import UserPublic
 
@@ -33,6 +37,35 @@ async def get_access_requests(db: AsyncSession) -> list[AccessRequestPublic]:
         AccessRequestPublic.model_validate(ar, from_attributes=True)
         for ar in result.scalars().all()
     ]
+
+
+async def update_access_request_status(
+    access_request_id: int,
+    status: Literal[AccessRequestStatus.APPROVED, AccessRequestStatus.REJECTED],
+    db: AsyncSession,
+    user: UserPublic,
+) -> None:
+    logger.info(f"Updating access request {access_request_id} to status {status}")
+
+    access_request = (
+        await db.execute(
+            select(AccessRequest).where(AccessRequest.id == access_request_id)
+        )
+    ).scalar_one_or_none()
+
+    if not access_request:
+        logger.error(f"Access request {access_request_id} not found")
+        raise NotFound()
+
+    if access_request.status != AccessRequestStatus.PENDING:
+        raise AccessRequestStatusError()
+
+    access_request.status = status
+    access_request.reviewed_at = func.now()
+    access_request.reviewed_by = user.id
+    await db.commit()
+
+    # TODO send email
 
 
 async def get_users(db: AsyncSession) -> list[UserPublic]:

@@ -235,6 +235,24 @@ export const ReviewerPublicSchema = {
     title: 'ReviewerPublic'
 } as const;
 
+export const UpdateAccessRequestStatusRequestSchema = {
+    properties: {
+        status: {
+            type: 'string',
+            enum: [
+                'approved',
+                'rejected'
+            ],
+            title: 'Status'
+        }
+    },
+    type: 'object',
+    required: [
+        'status'
+    ],
+    title: 'UpdateAccessRequestStatusRequest'
+} as const;
+
 export const UserPublicSchema = {
     properties: {
         id: {

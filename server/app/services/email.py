@@ -36,9 +36,10 @@ class EmailService(ABC):
     async def send_access_request_notification(
         self, admin_email: str, access_request: AccessRequest
     ) -> None:
-        """
-        Notify an admin that a new access request has been submitted.
-        """
+        logger.info(
+            f"Sending access request notification to {admin_email} for request id {access_request.id}"
+        )
+
         subject = f"New Access Request - {settings.project_name}"
         body = (
             f"User {access_request.first_name} {access_request.last_name} ({access_request.email}) "
@@ -54,9 +55,8 @@ class EmailService(ABC):
     async def send_access_request_approved_email(
         self, access_request: AccessRequest
     ) -> None:
-        """
-        Notify a user that their access request was approved and provide instructions.
-        """
+        logger.info(f"Sending access request approved email to {access_request.email}")
+
         subject = f"Access Request Approved - {settings.project_name}"
         body = (
             f"Hello {access_request.first_name},\n\n"

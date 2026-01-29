@@ -20,7 +20,7 @@ async def create_feedback(
     db: AsyncSession,
     github_svc: GitHubService,
 ):
-    logger.info(f"Received feedback from user {user.username} with title: {req.title}")
+    logger.info(f"Creating feedback from user {user.username} with title: {req.title}")
 
     stored_files = await store_files(req.files, FEEDBACK_DIR)
     feedback = Feedback(

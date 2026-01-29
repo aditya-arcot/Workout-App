@@ -34,7 +34,7 @@ async def request_access(
     email_svc: EmailService,
 ) -> bool:
     """Returns True if access was already approved, False otherwise"""
-    logger.info(f"Received access request for email: {email}")
+    logger.info(f"Requesting access for email: {email}")
 
     existing_user = (
         await db.execute(select(User).where(User.email == email))
@@ -82,7 +82,7 @@ async def request_access(
 
 
 async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
-    logger.info(f"Received login attempt for user: {username}")
+    logger.info(f"Logging in for user: {username}")
 
     user = await authenticate_user(username, password, db)
     if not user:
@@ -98,7 +98,7 @@ async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
 
 
 async def refresh(db: AsyncSession, token: str) -> str:
-    logger.info("Received token refresh request")
+    logger.info("Refreshing access token")
 
     username = verify_token(token)
     user = (

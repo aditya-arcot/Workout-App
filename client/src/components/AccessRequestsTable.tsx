@@ -11,12 +11,26 @@ import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHe
 import { DataTableInlineRowActions } from '@/components/data-table/DataTableInlineRowActions'
 import { createSelectColumn } from '@/components/data-table/DataTableSelectColumn'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
 import { isHttpError, isHttpValidationError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import {
-    blueBadgeClassName,
-    greenBadgeClassName,
-    redBadgeClassName,
+    blueText,
+    greenBackground,
+    greenBackgroundHover,
+    greenText,
+    lightBlueBackground,
+    lightGreenBackground,
+    lightRedBackground,
+    redBackground,
+    redBackgroundHover,
+    redText,
 } from '@/lib/styles'
 import type {
     DataTableRowActionsConfig,
@@ -26,6 +40,12 @@ import type {
 import type { ColumnDef } from '@tanstack/react-table'
 import { Check, X } from 'lucide-react'
 import { useState } from 'react'
+
+const blueBadgeClassName = `${lightBlueBackground} ${blueText}`
+const greenBadgeClassName = `${lightGreenBackground} ${greenText}`
+const redBadgeClassName = `${lightRedBackground} ${redText}`
+const greenButtonClassName = `${greenBackground} ${greenBackgroundHover}`
+const redButtonClassName = `${redBackground} ${redBackgroundHover}`
 
 function StatusBadge({ status }: { status: AccessRequestStatus }) {
     switch (status) {
@@ -60,6 +80,32 @@ export function AccessRequestsTable({
     const [loadingRequestIds, setLoadingRequestIds] = useState<Set<number>>(
         new Set()
     )
+    const [confirmDialog, setConfirmDialog] = useState<{
+        isOpen: boolean
+        request: AccessRequestPublic | null
+        action: 'approved' | 'rejected' | null
+    }>({
+        isOpen: false,
+        request: null,
+        action: null,
+    })
+
+    const handleConfirmAction = () => {
+        if (confirmDialog.request && confirmDialog.action)
+            void handleUpdateStatus(confirmDialog.request, confirmDialog.action)
+        setConfirmDialog({ isOpen: false, request: null, action: null })
+    }
+
+    const handleShowConfirmDialog = (
+        request: AccessRequestPublic,
+        action: 'approved' | 'rejected'
+    ) => {
+        setConfirmDialog({
+            isOpen: true,
+            request,
+            action,
+        })
+    }
 
     const handleUpdateStatus = async (
         request: AccessRequestPublic,
@@ -109,7 +155,6 @@ export function AccessRequestsTable({
         menuItems: (row) => {
             if (row.status !== 'pending') return []
 
-            // TODO confirm approve/reject
             const isRowLoading = loadingRequestIds.has(row.id)
             return [
                 {
@@ -117,7 +162,9 @@ export function AccessRequestsTable({
                     label: 'Approve',
                     className: 'text-green-700',
                     icon: Check,
-                    onSelect: () => handleUpdateStatus(row, 'approved'),
+                    onSelect: () => {
+                        handleShowConfirmDialog(row, 'approved')
+                    },
                     disabled: isRowLoading,
                 },
                 {
@@ -125,7 +172,9 @@ export function AccessRequestsTable({
                     className: 'text-red-700',
                     label: 'Reject',
                     icon: X,
-                    onSelect: () => handleUpdateStatus(row, 'rejected'),
+                    onSelect: () => {
+                        handleShowConfirmDialog(row, 'rejected')
+                    },
                     disabled: isRowLoading,
                 },
             ]
@@ -235,12 +284,70 @@ export function AccessRequestsTable({
     }
 
     return (
-        <DataTable
-            data={requests}
-            columns={columns}
-            pageSize={5}
-            isLoading={isLoading}
-            toolbarConfig={toolbarConfig}
-        />
+        <>
+            <DataTable
+                data={requests}
+                columns={columns}
+                pageSize={5}
+                isLoading={isLoading}
+                toolbarConfig={toolbarConfig}
+            />
+            <Dialog
+                open={confirmDialog.isOpen}
+                onOpenChange={(isOpen) => {
+                    setConfirmDialog({ ...confirmDialog, isOpen })
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {confirmDialog.action === 'approved'
+                                ? 'Approve Request'
+                                : 'Reject Request'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="text-sm">
+                        Are you sure you want to{' '}
+                        <span className="font-semibold">
+                            {confirmDialog.action === 'approved'
+                                ? 'approve'
+                                : 'reject'}
+                        </span>{' '}
+                        this access request for{' '}
+                        <span className="font-semibold">
+                            {confirmDialog.request?.first_name}{' '}
+                            {confirmDialog.request?.last_name}
+                        </span>
+                        ?
+                        <div className="mt-2">This action is irreversible.</div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setConfirmDialog({
+                                    ...confirmDialog,
+                                    isOpen: false,
+                                })
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmAction}
+                            className={
+                                confirmDialog.action === 'approved'
+                                    ? greenButtonClassName
+                                    : redButtonClassName
+                            }
+                        >
+                            {confirmDialog.action === 'approved'
+                                ? 'Approve'
+                                : 'Reject'}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
     )
 }

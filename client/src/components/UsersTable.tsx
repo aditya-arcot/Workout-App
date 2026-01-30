@@ -3,9 +3,17 @@ import { DataTable } from '@/components/data-table/DataTable'
 import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHeader'
 import { createSelectColumn } from '@/components/data-table/DataTableSelectColumn'
 import { Badge } from '@/components/ui/badge'
-import { blueBadgeClassName, greenBadgeClassName } from '@/lib/styles'
+import {
+    blueText,
+    greenText,
+    lightBlueBackground,
+    lightGreenBackground,
+} from '@/lib/styles'
 import type { DataTableToolbarConfig, FilterOption } from '@/models/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
+
+const blueBadgeClassName = `${lightBlueBackground} ${blueText}`
+const greenBadgeClassName = `${lightGreenBackground} ${greenText}`
 
 function RoleBadge({ isAdmin }: { isAdmin: boolean }) {
     if (isAdmin) {

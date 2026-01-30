@@ -9,7 +9,6 @@ from app.models.errors import (
     AccessRequestRejected,
     EmailAlreadyRegistered,
 )
-from app.models.schemas.auth import RequestAccessResponse
 from app.tests.api.utilities import HttpMethod, make_http_request
 
 
@@ -35,9 +34,7 @@ async def test_request_access(client: AsyncClient):
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    RequestAccessResponse.model_validate(body)
-    assert body["detail"] == "Access request created. Please wait for admin approval."
-    assert body["access_request_id"] is not None
+    assert body == "Requested access. Wait for admin approval"
 
 
 async def test_request_access_approved(client: AsyncClient, session: AsyncSession):
@@ -57,9 +54,7 @@ async def test_request_access_approved(client: AsyncClient, session: AsyncSessio
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    RequestAccessResponse.model_validate(body)
-    assert body["detail"] == "Access request already approved. Approval email resent."
-    assert body["access_request_id"] is not None
+    assert body == "Access already approved. Approval email resent"
 
 
 async def test_request_access_existing_user(client: AsyncClient, session: AsyncSession):

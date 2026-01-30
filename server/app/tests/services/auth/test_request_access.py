@@ -16,25 +16,23 @@ from app.services.auth import request_access
 
 
 async def test_request_access(session: AsyncSession, mock_email_svc: AsyncMock):
+    new_email = "newuser@example.com"
     background_tasks = BackgroundTasks()
-    result = await request_access(
-        email="newuser@example.com",
+    already_approved = await request_access(
+        email=new_email,
         first_name="New",
         last_name="User",
         background_tasks=background_tasks,
         db=session,
         email_svc=mock_email_svc,
     )
-    already_approved, access_request = result.already_approved, result.access_request
-
     assert already_approved is False
-    assert access_request.id is not None
-    assert access_request.status == AccessRequestStatus.PENDING
 
     assert len(background_tasks.tasks) == 1
     task = background_tasks.tasks[0]
     assert task.func == mock_email_svc.send_access_request_notification
     assert task.args[0] == settings.admin.email
+    assert task.args[1].email == new_email
 
 
 async def test_request_access_approved(
@@ -51,7 +49,7 @@ async def test_request_access_approved(
     await session.commit()
 
     background_tasks = BackgroundTasks()
-    result = await request_access(
+    already_approved = await request_access(
         email=approved_email,
         first_name="Test",
         last_name="User",
@@ -59,16 +57,13 @@ async def test_request_access_approved(
         db=session,
         email_svc=mock_email_svc,
     )
-    already_approved, access_request = result.already_approved, result.access_request
 
     assert already_approved is True
-    assert access_request.id == req.id
-    assert access_request.status == AccessRequestStatus.APPROVED
 
     assert len(background_tasks.tasks) == 1
     task = background_tasks.tasks[0]
     assert task.func == mock_email_svc.send_access_request_approved_email
-    assert task.args[0] == access_request
+    assert task.args[0].email == approved_email
 
 
 async def test_request_access_existing_user(

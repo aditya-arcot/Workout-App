@@ -168,7 +168,7 @@ export function AccessRequestsTable({
                 {
                     type: 'action',
                     label: 'Approve',
-                    className: 'text-green-700',
+                    className: greenText,
                     icon: Check,
                     onSelect: () => {
                         handleShowConfirmDialog(row, 'approved')
@@ -177,7 +177,7 @@ export function AccessRequestsTable({
                 },
                 {
                     type: 'action',
-                    className: 'text-red-700',
+                    className: redText,
                     label: 'Reject',
                     icon: X,
                     onSelect: () => {
@@ -224,6 +224,28 @@ export function AccessRequestsTable({
             enableHiding: false,
         },
         {
+            id: 'actions',
+            header: ({ column }) => (
+                <DataTableColumnHeader
+                    column={column}
+                    title="Actions"
+                    className="justify-center"
+                />
+            ),
+            cell: ({ row }) => {
+                const menuItems = rowActionsConfig.menuItems(row.original)
+                return menuItems.length > 0 ? (
+                    <DataTableInlineRowActions
+                        row={row}
+                        config={rowActionsConfig}
+                    />
+                ) : (
+                    <div className="text-center">—</div>
+                )
+            },
+            enableHiding: false,
+        },
+        {
             accessorKey: 'reviewer.username',
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title="Reviewed By" />
@@ -250,28 +272,6 @@ export function AccessRequestsTable({
             ),
             cell: ({ row }) =>
                 new Date(row.original.updated_at).toLocaleString(),
-            enableHiding: false,
-        },
-        {
-            id: 'actions',
-            header: ({ column }) => (
-                <DataTableColumnHeader
-                    column={column}
-                    title="Actions"
-                    className="justify-center"
-                />
-            ),
-            cell: ({ row }) => {
-                const menuItems = rowActionsConfig.menuItems(row.original)
-                return menuItems.length > 0 ? (
-                    <DataTableInlineRowActions
-                        row={row}
-                        config={rowActionsConfig}
-                    />
-                ) : (
-                    <div className="text-center">—</div>
-                )
-            },
             enableHiding: false,
         },
     ]

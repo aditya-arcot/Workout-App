@@ -5,6 +5,7 @@ import type {
     AccessRequestStatus,
 } from '@/api/generated/types.gen'
 import { zAccessRequestPublic } from '@/api/generated/zod.gen'
+import { useSession } from '@/auth/session'
 import { DataTable } from '@/components/data-table/DataTable'
 import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHeader'
 import { DataTableInlineRowActions } from '@/components/data-table/DataTableInlineRowActions'
@@ -55,6 +56,7 @@ export function AccessRequestsTable({
     isLoading,
     onRequestUpdated,
 }: AccessRequestsTableProps) {
+    const { user } = useSession()
     const [loadingRequestIds, setLoadingRequestIds] = useState<Set<number>>(
         new Set()
     )
@@ -87,7 +89,11 @@ export function AccessRequestsTable({
                 return
             }
             notify.success('Access request status updated')
+            const date = new Date().toISOString()
             request.status = status
+            request.reviewed_at = date
+            request.reviewer = user
+            request.updated_at = date
             onRequestUpdated(request)
         } finally {
             setLoadingRequestIds((prev) => {

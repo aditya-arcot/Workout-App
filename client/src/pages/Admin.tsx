@@ -37,6 +37,12 @@ export function Admin() {
         }
     }
 
+    const handleRequestUpdated = (request: AccessRequestPublic) => {
+        setRequests((prev) =>
+            prev.map((req) => (req.id === request.id ? request : req))
+        )
+    }
+
     const loadUsers = async () => {
         setLoadingUsers(true)
         try {
@@ -74,6 +80,7 @@ export function Admin() {
                     <AccessRequestsTable
                         requests={requests}
                         isLoading={loadingRequests}
+                        onRequestUpdated={handleRequestUpdated}
                     />
                 </CardContent>
             </Card>

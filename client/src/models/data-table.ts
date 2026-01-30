@@ -44,6 +44,7 @@ interface MenuItemConfig {
     className?: string
     icon?: ComponentType<{ className?: string }>
     onSelect?: (rowData: unknown) => void | Promise<void>
+    disabled?: boolean
 }
 
 export interface DataTableRowActionsConfig<TData = unknown> {

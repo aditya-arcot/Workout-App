@@ -29,6 +29,7 @@ import { useState } from 'react'
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    pageSize?: number
     isLoading: boolean
     toolbarConfig?: DataTableToolbarConfig
 }
@@ -36,6 +37,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
     data,
     columns,
+    pageSize = 10,
     isLoading,
     toolbarConfig,
 }: DataTableProps<TData, TValue>) {
@@ -58,7 +60,7 @@ export function DataTable<TData, TValue>({
         },
         initialState: {
             pagination: {
-                pageSize: 10,
+                pageSize,
             },
         },
         enableRowSelection: true,
@@ -76,16 +78,13 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="flex flex-col gap-4">
+            {toolbarConfig && (
+                <DataTableToolbar table={table} config={toolbarConfig} />
+            )}
             {isLoading ? (
                 <DataTableSkeleton columnCount={columns.length} />
             ) : (
-                <>
-                    {toolbarConfig && (
-                        <DataTableToolbar
-                            table={table}
-                            config={toolbarConfig}
-                        />
-                    )}
+                <div className="overflow-hidden rounded-md border">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -140,9 +139,9 @@ export function DataTable<TData, TValue>({
                             )}
                         </TableBody>
                     </Table>
-                    <DataTablePagination table={table} />
-                </>
+                </div>
             )}
+            <DataTablePagination table={table} />
         </div>
     )
 }

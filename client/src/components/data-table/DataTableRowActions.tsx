@@ -79,6 +79,7 @@ export function DataTableRowActions<TData>({
                             key={index}
                             className={item.className}
                             onSelect={() => void item.onSelect?.(rowData)}
+                            disabled={item.disabled}
                         >
                             {item.icon && <item.icon className="mr-2 size-4" />}
                             {item.label}

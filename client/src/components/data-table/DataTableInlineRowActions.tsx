@@ -32,6 +32,7 @@ export function DataTableInlineRowActions<TData>({
                         variant="outline"
                         className={item.className}
                         onClick={() => void item.onSelect?.(rowData)}
+                        disabled={item.disabled}
                     >
                         {item.icon && <item.icon className="size-4" />}
                         {item.label}

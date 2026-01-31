@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFeedbackData, CreateFeedbackErrors, CreateFeedbackResponses, GetAccessRequestsData, GetAccessRequestsErrors, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetUsersData, GetUsersErrors, GetUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenErrors, RefreshTokenResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses, UpdateAccessRequestStatusData, UpdateAccessRequestStatusErrors, UpdateAccessRequestStatusResponses } from './types.gen';
+import type { CreateFeedbackData, CreateFeedbackErrors, CreateFeedbackResponses, GetAccessRequestsData, GetAccessRequestsErrors, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetUsersData, GetUsersErrors, GetUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenErrors, RefreshTokenResponses, RegisterData, RegisterErrors, RegisterResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses, UpdateAccessRequestStatusData, UpdateAccessRequestStatusErrors, UpdateAccessRequestStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -79,6 +79,20 @@ export class AuthService {
         return (options.client ?? client).post<RequestAccessResponses, RequestAccessErrors, ThrowOnError>({
             responseType: 'json',
             url: '/api/auth/request-access',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Register Endpoint
+     */
+    public static register<ThrowOnError extends boolean = false>(options: Options<RegisterData, ThrowOnError>) {
+        return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
+            url: '/api/auth/register',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

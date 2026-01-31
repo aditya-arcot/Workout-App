@@ -13,10 +13,10 @@ from app.models.enums import AccessRequestStatus
 from app.models.errors import AccessRequestStatusError, NotFound
 from app.models.schemas.access_request import AccessRequestPublic
 from app.models.schemas.user import UserPublic
+from app.services.auth import create_registration_token
 from app.services.email import EmailService
 
 logger = logging.getLogger(__name__)
-
 
 status_priority = case(
     (AccessRequest.status == AccessRequestStatus.PENDING, 1),
@@ -67,11 +67,14 @@ async def update_access_request_status(
     access_request.status = status
     access_request.reviewed_at = func.now()
     access_request.reviewed_by = user.id
+
+    token_str, token = create_registration_token(access_request)
+    db.add(token)
     await db.commit()
 
     if status == AccessRequestStatus.APPROVED:
         background_tasks.add_task(
-            email_svc.send_access_request_approved_email, access_request
+            email_svc.send_access_request_approved_email, access_request, token_str
         )
     else:
         background_tasks.add_task(

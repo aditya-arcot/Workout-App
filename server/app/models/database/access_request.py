@@ -69,5 +69,4 @@ class AccessRequest(Base):
 
     reviewer: Mapped[User | None] = relationship(
         "User",
-        foreign_keys=[reviewed_by],
     )

@@ -112,6 +112,24 @@ export type LoginRequest = {
 };
 
 /**
+ * RegisterRequest
+ */
+export type RegisterRequest = {
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * Password
+     */
+    password: string;
+};
+
+/**
  * RequestAccessRequest
  */
 export type RequestAccessRequest = {
@@ -351,6 +369,39 @@ export type RequestAccessResponses = {
 };
 
 export type RequestAccessResponse = RequestAccessResponses[keyof RequestAccessResponses];
+
+export type RegisterData = {
+    body: RegisterRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/register';
+};
+
+export type RegisterErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RegisterError = RegisterErrors[keyof RegisterErrors];
+
+export type RegisterResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
 
 export type LoginData = {
     body: LoginRequest;

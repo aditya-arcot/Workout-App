@@ -145,7 +145,7 @@ export function RequestAccess() {
                     </Button>
                     <div className="flex flex-col items-center gap-1 text-sm">
                         <div className="text-muted-foreground">
-                            Have an access code?{' '}
+                            Have a registration token?{' '}
                             <Link to="/register">
                                 <Button
                                     variant="link"

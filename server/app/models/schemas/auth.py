@@ -7,6 +7,12 @@ class RequestAccessRequest(BaseModel):
     last_name: str = Field(min_length=1, max_length=50)
 
 
+class RegisterRequest(BaseModel):
+    token: str = Field(min_length=1, max_length=64)
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=8, max_length=64)
+
+
 class LoginRequest(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     password: str = Field(min_length=8, max_length=64)

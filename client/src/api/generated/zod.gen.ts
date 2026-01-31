@@ -44,6 +44,15 @@ export const zLoginRequest = z.object({
 });
 
 /**
+ * RegisterRequest
+ */
+export const zRegisterRequest = z.object({
+    token: z.string().min(1).max(64),
+    username: z.string().min(3).max(50),
+    password: z.string().min(8).max(64)
+});
+
+/**
  * RequestAccessRequest
  */
 export const zRequestAccessRequest = z.object({
@@ -169,6 +178,17 @@ export const zRequestAccessData = z.object({
  * Successful Response
  */
 export const zRequestAccessResponse = z.string();
+
+export const zRegisterData = z.object({
+    body: zRegisterRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zRegisterResponse = z.void();
 
 export const zLoginData = z.object({
     body: zLoginRequest,

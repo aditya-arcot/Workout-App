@@ -25,6 +25,12 @@ class NotFound(HTTPError):
     detail = "Resource not found"
 
 
+class UsernameAlreadyRegistered(HTTPError):
+    status_code = status.HTTP_409_CONFLICT
+    code = "username_already_registered"
+    detail = "Username already registered. Choose a different username"
+
+
 class EmailAlreadyRegistered(HTTPError):
     status_code = status.HTTP_409_CONFLICT
     code = "email_already_registered"
@@ -47,6 +53,12 @@ class AccessRequestStatusError(HTTPError):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "access_request_status_error"
     detail = "Access request is not pending"
+
+
+class InvalidToken(HTTPError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = "invalid_token"
+    detail = "Invalid or expired token"
 
 
 class InvalidCredentials(HTTPError):

@@ -187,6 +187,36 @@ export const LoginRequestSchema = {
     title: 'LoginRequest'
 } as const;
 
+export const RegisterRequestSchema = {
+    properties: {
+        token: {
+            type: 'string',
+            maxLength: 64,
+            minLength: 1,
+            title: 'Token'
+        },
+        username: {
+            type: 'string',
+            maxLength: 50,
+            minLength: 3,
+            title: 'Username'
+        },
+        password: {
+            type: 'string',
+            maxLength: 64,
+            minLength: 8,
+            title: 'Password'
+        }
+    },
+    type: 'object',
+    required: [
+        'token',
+        'username',
+        'password'
+    ],
+    title: 'RegisterRequest'
+} as const;
+
 export const RequestAccessRequestSchema = {
     properties: {
         email: {

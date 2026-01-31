@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.dependencies import get_db, refresh_token_cookie
-from app.models.schemas.auth import LoginRequest, RequestAccessRequest
+from app.models.schemas.auth import LoginRequest, RegisterRequest, RequestAccessRequest
 from app.models.schemas.errors import ErrorResponseModel
-from app.services.auth import login, refresh, request_access
+from app.services.auth import login, refresh, register, request_access
 from app.services.email import EmailService, get_email_service
 
 api_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -38,6 +38,27 @@ async def request_access_endpoint(
     if already_approved:
         return "Access already approved. Approval email resent"
     return "Requested access. Wait for admin approval"
+
+
+@api_router.post(
+    "/register",
+    operation_id="register",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponseModel,
+        status.HTTP_409_CONFLICT: ErrorResponseModel,
+    },
+)
+async def register_endpoint(
+    req: RegisterRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await register(
+        token_str=req.token,
+        username=req.username,
+        password=req.password,
+        db=db,
+    )
 
 
 @api_router.post(

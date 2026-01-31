@@ -1,4 +1,4 @@
-import { Mermaid } from '@/components/Mermaid'
+import { Mermaid } from '@/components/docs/Mermaid'
 import { getDoc } from '@/lib/docs'
 import Markdown from 'react-markdown'
 import { useParams } from 'react-router'

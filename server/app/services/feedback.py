@@ -16,21 +16,19 @@ FEEDBACK_DIR = settings.data_dir / "feedback"
 
 async def create_feedback(
     user: UserPublic,
-    payload: CreateFeedbackRequest,
+    req: CreateFeedbackRequest,
     db: AsyncSession,
     github_svc: GitHubService,
 ):
-    logger.info(
-        f"Received feedback from user {user.username} with title: {payload.title}"
-    )
+    logger.info(f"Creating feedback from user {user.username} with title: {req.title}")
 
-    stored_files = await store_files(payload.files, FEEDBACK_DIR)
+    stored_files = await store_files(req.files, FEEDBACK_DIR)
     feedback = Feedback(
         user_id=user.id,
-        type=payload.type,
-        url=payload.url,
-        title=payload.title,
-        description=payload.description,
+        type=req.type,
+        url=req.url,
+        title=req.title,
+        description=req.description,
         files=stored_files,
     )
 

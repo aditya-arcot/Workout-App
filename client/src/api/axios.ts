@@ -5,6 +5,7 @@ import {
 } from '@/api/generated'
 import { client } from '@/api/generated/client.gen'
 import { env } from '@/config/env'
+import { logger } from '@/lib/logger'
 import axios, { AxiosError } from 'axios'
 
 // created for type safety
@@ -37,10 +38,20 @@ export function configureApiClient() {
     }
 
     axiosInstance.interceptors.response.use(
-        (res) => res,
+        (res) => {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
+            logger.debug(`API response: ${res.request?.responseURL}`, res)
+            return res
+        },
         async (error: AxiosError) => {
             const originalRequest = error.config
             if (!originalRequest) return Promise.reject(error)
+
+            logger.debug(
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                `API error response: ${originalRequest.url}`,
+                error.response
+            )
 
             if (
                 error.response?.status === 401 &&
@@ -59,12 +70,17 @@ export function configureApiClient() {
                 isRefreshing = true
 
                 try {
-                    await AuthService.refreshToken()
-                    processQueue(null, true)
-                    return await axiosInstance(originalRequest)
-                } catch (err) {
-                    processQueue(err, false)
-                    throw err
+                    const { error } = await AuthService.refreshToken()
+                    if (!error) {
+                        logger.info('Success refreshing token')
+                        processQueue(null, true)
+                        return await axiosInstance(originalRequest)
+                    }
+                    const refreshError = new Error('Failed to refresh token', {
+                        cause: error,
+                    })
+                    processQueue(refreshError, false)
+                    throw refreshError
                 } finally {
                     isRefreshing = false
                 }

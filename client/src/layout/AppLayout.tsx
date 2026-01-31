@@ -7,19 +7,22 @@ import { notify } from '@/lib/notify'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 
 export function AppLayout() {
-    const { refresh } = useSession()
+    const { refresh, user } = useSession()
     const navigate = useNavigate()
 
     const handleLogout = async () => {
-        await AuthService.logout()
-        // TODO check status
-        notify.success('Logged out successfully')
+        const { error } = await AuthService.logout()
+        if (error) {
+            notify.error('Failed to log out')
+            return
+        }
+        notify.success('Logged out')
         await refresh()
         void navigate('/login', { replace: true })
     }
 
     return (
-        <div className="flex h-dvh flex-col bg-muted">
+        <div className="flex min-h-screen flex-col bg-muted">
             <header className="border-b bg-background">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
                     <div className="flex items-baseline gap-4">
@@ -29,6 +32,9 @@ export function AppLayout() {
                         <nav className="flex items-center gap-4">
                             <NavItem to="/">Dashboard</NavItem>
                             <NavItem to="/docs">Docs</NavItem>
+                            {user?.is_admin && (
+                                <NavItem to="/admin">Admin</NavItem>
+                            )}
                         </nav>
                     </div>
                     <div className="flex items-center gap-2">

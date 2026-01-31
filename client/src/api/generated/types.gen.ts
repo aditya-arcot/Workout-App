@@ -5,6 +5,47 @@ export type ClientOptions = {
 };
 
 /**
+ * AccessRequestPublic
+ */
+export type AccessRequestPublic = {
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * First Name
+     */
+    first_name: string;
+    /**
+     * Last Name
+     */
+    last_name: string;
+    status: AccessRequestStatus;
+    /**
+     * Reviewed At
+     */
+    reviewed_at: string | null;
+    reviewer: ReviewerPublic | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+};
+
+/**
+ * AccessRequestStatus
+ */
+export type AccessRequestStatus = 'pending' | 'approved' | 'rejected';
+
+/**
  * CreateFeedbackRequest
  */
 export type CreateFeedbackRequest = {
@@ -25,6 +66,20 @@ export type CreateFeedbackRequest = {
      * Files
      */
     files?: Array<Blob | File>;
+};
+
+/**
+ * ErrorResponse
+ */
+export type ErrorResponse = {
+    /**
+     * Detail
+     */
+    detail: string;
+    /**
+     * Code
+     */
+    code: string;
 };
 
 /**
@@ -57,6 +112,24 @@ export type LoginRequest = {
 };
 
 /**
+ * RegisterRequest
+ */
+export type RegisterRequest = {
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * Password
+     */
+    password: string;
+};
+
+/**
  * RequestAccessRequest
  */
 export type RequestAccessRequest = {
@@ -75,17 +148,27 @@ export type RequestAccessRequest = {
 };
 
 /**
- * RequestAccessResponse
+ * ReviewerPublic
  */
-export type RequestAccessResponse = {
+export type ReviewerPublic = {
     /**
-     * Detail
+     * Id
      */
-    detail: string;
+    id: number;
     /**
-     * Access Request Id
+     * Username
      */
-    access_request_id: number;
+    username: string;
+};
+
+/**
+ * UpdateAccessRequestStatusRequest
+ */
+export type UpdateAccessRequestStatusRequest = {
+    /**
+     * Status
+     */
+    status: 'approved' | 'rejected';
 };
 
 /**
@@ -116,6 +199,14 @@ export type UserPublic = {
      * Is Admin
      */
     is_admin: boolean;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
 };
 
 /**
@@ -143,12 +234,106 @@ export type GetAccessRequestsData = {
     url: '/api/admin/access-requests';
 };
 
+export type GetAccessRequestsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+};
+
+export type GetAccessRequestsError = GetAccessRequestsErrors[keyof GetAccessRequestsErrors];
+
 export type GetAccessRequestsResponses = {
+    /**
+     * Response Getaccessrequests
+     *
+     * Successful Response
+     */
+    200: Array<AccessRequestPublic>;
+};
+
+export type GetAccessRequestsResponse = GetAccessRequestsResponses[keyof GetAccessRequestsResponses];
+
+export type UpdateAccessRequestStatusData = {
+    body: UpdateAccessRequestStatusRequest;
+    path: {
+        /**
+         * Access Request Id
+         */
+        access_request_id: number;
+    };
+    query?: never;
+    url: '/api/admin/access-requests/{access_request_id}';
+};
+
+export type UpdateAccessRequestStatusErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateAccessRequestStatusError = UpdateAccessRequestStatusErrors[keyof UpdateAccessRequestStatusErrors];
+
+export type UpdateAccessRequestStatusResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    204: void;
 };
+
+export type UpdateAccessRequestStatusResponse = UpdateAccessRequestStatusResponses[keyof UpdateAccessRequestStatusResponses];
+
+export type GetUsersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/admin/users';
+};
+
+export type GetUsersErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+};
+
+export type GetUsersError = GetUsersErrors[keyof GetUsersErrors];
+
+export type GetUsersResponses = {
+    /**
+     * Response Getusers
+     *
+     * Successful Response
+     */
+    200: Array<UserPublic>;
+};
+
+export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
 
 export type RequestAccessData = {
     body: RequestAccessRequest;
@@ -159,6 +344,14 @@ export type RequestAccessData = {
 
 export type RequestAccessErrors = {
     /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -168,12 +361,47 @@ export type RequestAccessError = RequestAccessErrors[keyof RequestAccessErrors];
 
 export type RequestAccessResponses = {
     /**
+     * Response Requestaccess
+     *
      * Successful Response
      */
-    200: RequestAccessResponse;
+    200: string;
 };
 
-export type RequestAccessResponse2 = RequestAccessResponses[keyof RequestAccessResponses];
+export type RequestAccessResponse = RequestAccessResponses[keyof RequestAccessResponses];
+
+export type RegisterData = {
+    body: RegisterRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/register';
+};
+
+export type RegisterErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RegisterError = RegisterErrors[keyof RegisterErrors];
+
+export type RegisterResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
 
 export type LoginData = {
     body: LoginRequest;
@@ -183,6 +411,10 @@ export type LoginData = {
 };
 
 export type LoginErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
     /**
      * Validation Error
      */
@@ -206,6 +438,15 @@ export type RefreshTokenData = {
     query?: never;
     url: '/api/auth/refresh-token';
 };
+
+export type RefreshTokenErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+};
+
+export type RefreshTokenError = RefreshTokenErrors[keyof RefreshTokenErrors];
 
 export type RefreshTokenResponses = {
     /**
@@ -240,6 +481,10 @@ export type CreateFeedbackData = {
 };
 
 export type CreateFeedbackErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
     /**
      * Validation Error
      */
@@ -279,6 +524,15 @@ export type GetCurrentUserData = {
     query?: never;
     url: '/api/users/current';
 };
+
+export type GetCurrentUserErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+};
+
+export type GetCurrentUserError = GetCurrentUserErrors[keyof GetCurrentUserErrors];
 
 export type GetCurrentUserResponses = {
     /**

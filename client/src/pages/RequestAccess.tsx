@@ -10,15 +10,18 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { isHttpError, isHttpValidationError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 type RequestAccessForm = z.infer<typeof zRequestAccessRequest>
 
 export function RequestAccess() {
+    const navigate = useNavigate()
+
     const {
         register,
         handleSubmit,
@@ -30,14 +33,32 @@ export function RequestAccess() {
         reValidateMode: 'onChange',
     })
 
-    const onSubmit = async (data: RequestAccessForm) => {
-        const res = await AuthService.requestAccess({ body: data })
-        // TODO check status
-        if (res.status !== 200) {
-            notify.error('Error requesting access')
+    const onSubmit = async (form: RequestAccessForm) => {
+        const { data, error } = await AuthService.requestAccess({ body: form })
+        if (error) {
+            if (isHttpError(error)) {
+                if (error.code === 'email_already_registered') {
+                    notify.error(error.detail)
+                    void navigate('/login', { replace: true })
+                } else if (
+                    error.code === 'access_request_pending' ||
+                    error.code === 'access_request_rejected'
+                ) {
+                    notify.error(error.detail)
+                    reset()
+                } else {
+                    notify.error('Failed to request access')
+                }
+            } else if (isHttpValidationError(error)) {
+                error.detail?.forEach((detail) => {
+                    notify.error(`Validation error: ${detail.msg}`)
+                })
+            } else {
+                notify.error('Failed to request access')
+            }
             return
         }
-        notify.success('Success requesting access')
+        notify.success(data)
         reset()
     }
 
@@ -120,18 +141,31 @@ export function RequestAccess() {
                         disabled={isSubmitting}
                         type="submit"
                     >
-                        {isSubmitting ? 'Submitting…' : 'Request Access'}
+                        {isSubmitting ? 'Submitting...' : 'Request Access'}
                     </Button>
-                    <div className="text-sm text-muted-foreground">
-                        Already have an account?{' '}
-                        <Link to="/login">
-                            <Button
-                                variant="link"
-                                className="p-0 align-baseline"
-                            >
-                                Login
-                            </Button>
-                        </Link>
+                    <div className="flex flex-col items-center gap-1 text-sm">
+                        <div className="text-muted-foreground">
+                            Have a registration token?{' '}
+                            <Link to="/register">
+                                <Button
+                                    variant="link"
+                                    className="h-auto p-0 align-baseline"
+                                >
+                                    Register
+                                </Button>
+                            </Link>
+                        </div>
+                        <div className="text-muted-foreground">
+                            Already have an account?{' '}
+                            <Link to="/login">
+                                <Button
+                                    variant="link"
+                                    className="h-auto p-0 align-baseline"
+                                >
+                                    Log In
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </CardFooter>
             </Card>

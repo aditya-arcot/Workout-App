@@ -3,6 +3,23 @@
 import { z } from 'zod';
 
 /**
+ * AccessRequestStatus
+ */
+export const zAccessRequestStatus = z.enum([
+    'pending',
+    'approved',
+    'rejected'
+]);
+
+/**
+ * ErrorResponse
+ */
+export const zErrorResponse = z.object({
+    detail: z.string(),
+    code: z.string()
+});
+
+/**
  * FeedbackType
  */
 export const zFeedbackType = z.enum(['feedback', 'feature']);
@@ -27,6 +44,15 @@ export const zLoginRequest = z.object({
 });
 
 /**
+ * RegisterRequest
+ */
+export const zRegisterRequest = z.object({
+    token: z.string().min(1).max(64),
+    username: z.string().min(3).max(50),
+    password: z.string().min(8).max(64)
+});
+
+/**
  * RequestAccessRequest
  */
 export const zRequestAccessRequest = z.object({
@@ -36,11 +62,39 @@ export const zRequestAccessRequest = z.object({
 });
 
 /**
- * RequestAccessResponse
+ * ReviewerPublic
  */
-export const zRequestAccessResponse = z.object({
-    detail: z.string(),
-    access_request_id: z.int()
+export const zReviewerPublic = z.object({
+    id: z.int(),
+    username: z.string()
+});
+
+/**
+ * AccessRequestPublic
+ */
+export const zAccessRequestPublic = z.object({
+    id: z.int(),
+    email: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
+    status: zAccessRequestStatus,
+    reviewed_at: z.union([
+        z.iso.datetime(),
+        z.null()
+    ]),
+    reviewer: z.union([
+        zReviewerPublic,
+        z.null()
+    ]),
+    created_at: z.iso.datetime(),
+    updated_at: z.iso.datetime()
+});
+
+/**
+ * UpdateAccessRequestStatusRequest
+ */
+export const zUpdateAccessRequestStatusRequest = z.object({
+    status: z.enum(['approved', 'rejected'])
 });
 
 /**
@@ -52,7 +106,9 @@ export const zUserPublic = z.object({
     email: z.string(),
     first_name: z.string(),
     last_name: z.string(),
-    is_admin: z.boolean()
+    is_admin: z.boolean(),
+    created_at: z.iso.datetime(),
+    updated_at: z.iso.datetime()
 });
 
 /**
@@ -77,6 +133,39 @@ export const zGetAccessRequestsData = z.object({
     query: z.optional(z.never())
 });
 
+/**
+ * Response Getaccessrequests
+ *
+ * Successful Response
+ */
+export const zGetAccessRequestsResponse = z.array(zAccessRequestPublic);
+
+export const zUpdateAccessRequestStatusData = z.object({
+    body: zUpdateAccessRequestStatusRequest,
+    path: z.object({
+        access_request_id: z.int()
+    }),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zUpdateAccessRequestStatusResponse = z.void();
+
+export const zGetUsersData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Response Getusers
+ *
+ * Successful Response
+ */
+export const zGetUsersResponse = z.array(zUserPublic);
+
 export const zRequestAccessData = z.object({
     body: zRequestAccessRequest,
     path: z.optional(z.never()),
@@ -84,9 +173,22 @@ export const zRequestAccessData = z.object({
 });
 
 /**
+ * Response Requestaccess
+ *
  * Successful Response
  */
-export const zRequestAccessResponse2 = zRequestAccessResponse;
+export const zRequestAccessResponse = z.string();
+
+export const zRegisterData = z.object({
+    body: zRegisterRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zRegisterResponse = z.void();
 
 export const zLoginData = z.object({
     body: zLoginRequest,

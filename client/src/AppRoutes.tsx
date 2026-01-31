@@ -1,13 +1,15 @@
 import { RequireAuth } from '@/auth/RequireAuth'
 import { RequireGuest } from '@/auth/RequireGuest'
-import { Doc } from '@/components/Doc'
-import { DocsIndex } from '@/components/DocsIndex'
+import { Doc } from '@/components/docs/Doc'
+import { DocsIndex } from '@/components/docs/DocsIndex'
 import { AppLayout } from '@/layout/AppLayout'
+import { Admin } from '@/pages/Admin'
 import { Dashboard } from '@/pages/Dashboard'
 import { Docs } from '@/pages/Docs'
 import { Login } from '@/pages/Login'
+import { Register } from '@/pages/Register'
 import { RequestAccess } from '@/pages/RequestAccess'
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 
 export function AppRoutes() {
     return (
@@ -15,7 +17,7 @@ export function AppRoutes() {
             <Route
                 path="/"
                 element={
-                    <RequireAuth>
+                    <RequireAuth requireAdmin={false}>
                         <AppLayout />
                     </RequireAuth>
                 }
@@ -25,12 +27,28 @@ export function AppRoutes() {
                     <Route index element={<DocsIndex />} />
                     <Route path=":slug" element={<Doc />} />
                 </Route>
+                <Route
+                    path="admin"
+                    element={
+                        <RequireAuth requireAdmin={true}>
+                            <Admin />
+                        </RequireAuth>
+                    }
+                />
             </Route>
             <Route
                 path="/request-access"
                 element={
                     <RequireGuest>
                         <RequestAccess />
+                    </RequireGuest>
+                }
+            />
+            <Route
+                path="/register"
+                element={
+                    <RequireGuest>
+                        <Register />
                     </RequireGuest>
                 }
             />
@@ -42,6 +60,7 @@ export function AppRoutes() {
                     </RequireGuest>
                 }
             />
+            <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
     )
 }

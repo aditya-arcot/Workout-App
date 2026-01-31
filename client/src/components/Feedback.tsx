@@ -1,5 +1,3 @@
-'use-no-memo'
-
 import { FeedbackService } from '@/api/generated'
 import { zCreateFeedbackRequest } from '@/api/generated/zod.gen'
 import { Button } from '@/components/ui/button'
@@ -14,10 +12,11 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { isHttpError, isHttpValidationError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Label } from '@radix-ui/react-label'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -53,16 +52,27 @@ export function Feedback() {
     // eslint-disable-next-line react-hooks/incompatible-library
     const type = watch('type')
 
-    const onSubmit = async (data: FeedbackForm) => {
-        await FeedbackService.createFeedback({
+    const onSubmit = async (form: FeedbackForm) => {
+        const { error } = await FeedbackService.createFeedback({
             body: {
-                ...data,
+                ...form,
                 url: window.location.href,
                 files: files,
             },
         })
-        // TODO check status
-        notify.success('Success submitting feedback')
+        if (error) {
+            if (isHttpError(error)) {
+                notify.error(error.detail)
+            } else if (isHttpValidationError(error)) {
+                error.detail?.forEach((detail) => {
+                    notify.error(`Validation error: ${detail.msg}`)
+                })
+            } else {
+                notify.error('Failed to submit feedback')
+            }
+            return
+        }
+        notify.success('Feedback submitted')
         reset()
         setFiles([])
         setOpen(false)
@@ -201,7 +211,7 @@ export function Feedback() {
                             isSubmitting || !(isDirty || files.length > 0)
                         }
                     >
-                        {isSubmitting ? 'Submitting…' : 'Submit'}
+                        {isSubmitting ? 'Submitting...' : 'Submit'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

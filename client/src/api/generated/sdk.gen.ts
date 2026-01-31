@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFeedbackData, CreateFeedbackErrors, CreateFeedbackResponses, GetAccessRequestsData, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserResponses, GetHealthData, GetHealthResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses } from './types.gen';
+import type { CreateFeedbackData, CreateFeedbackErrors, CreateFeedbackResponses, GetAccessRequestsData, GetAccessRequestsErrors, GetAccessRequestsResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetUsersData, GetUsersErrors, GetUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, RefreshTokenData, RefreshTokenErrors, RefreshTokenResponses, RegisterData, RegisterErrors, RegisterResponses, RequestAccessData, RequestAccessErrors, RequestAccessResponses, UpdateAccessRequestStatusData, UpdateAccessRequestStatusErrors, UpdateAccessRequestStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -23,7 +23,7 @@ export class AdminService {
      * Get Access Requests Endpoint
      */
     public static getAccessRequests<ThrowOnError extends boolean = false>(options?: Options<GetAccessRequestsData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetAccessRequestsResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).get<GetAccessRequestsResponses, GetAccessRequestsErrors, ThrowOnError>({
             responseType: 'json',
             security: [{
                     in: 'cookie',
@@ -31,6 +31,41 @@ export class AdminService {
                     type: 'apiKey'
                 }],
             url: '/api/admin/access-requests',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Access Request Status Endpoint
+     */
+    public static updateAccessRequestStatus<ThrowOnError extends boolean = false>(options: Options<UpdateAccessRequestStatusData, ThrowOnError>) {
+        return (options.client ?? client).patch<UpdateAccessRequestStatusResponses, UpdateAccessRequestStatusErrors, ThrowOnError>({
+            security: [{
+                    in: 'cookie',
+                    name: 'access_token',
+                    type: 'apiKey'
+                }],
+            url: '/api/admin/access-requests/{access_request_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Get Users Endpoint
+     */
+    public static getUsers<ThrowOnError extends boolean = false>(options?: Options<GetUsersData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetUsersResponses, GetUsersErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{
+                    in: 'cookie',
+                    name: 'access_token',
+                    type: 'apiKey'
+                }],
+            url: '/api/admin/users',
             ...options
         });
     }
@@ -44,6 +79,20 @@ export class AuthService {
         return (options.client ?? client).post<RequestAccessResponses, RequestAccessErrors, ThrowOnError>({
             responseType: 'json',
             url: '/api/auth/request-access',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Register Endpoint
+     */
+    public static register<ThrowOnError extends boolean = false>(options: Options<RegisterData, ThrowOnError>) {
+        return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
+            url: '/api/auth/register',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
@@ -70,7 +119,7 @@ export class AuthService {
      * Refresh Token Endpoint
      */
     public static refreshToken<ThrowOnError extends boolean = false>(options?: Options<RefreshTokenData, ThrowOnError>) {
-        return (options?.client ?? client).post<RefreshTokenResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).post<RefreshTokenResponses, RefreshTokenErrors, ThrowOnError>({
             security: [{
                     in: 'cookie',
                     name: 'access_token',
@@ -130,7 +179,7 @@ export class UserService {
      * Get Current User Endpoint
      */
     public static getCurrentUser<ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetCurrentUserResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).get<GetCurrentUserResponses, GetCurrentUserErrors, ThrowOnError>({
             responseType: 'json',
             security: [{
                     in: 'cookie',

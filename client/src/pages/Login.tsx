@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { isHttpError, isHttpValidationError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import type { LocationState } from '@/models/location'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -40,14 +41,22 @@ export function Login() {
         reValidateMode: 'onChange',
     })
 
-    const onSubmit = async (data: LoginForm) => {
-        const res = await AuthService.login({ body: data })
-        if (res.status === 401) {
-            notify.error('Invalid username or password')
+    const onSubmit = async (form: LoginForm) => {
+        const { error } = await AuthService.login({ body: form })
+        if (error) {
+            if (isHttpError(error)) {
+                notify.error(error.detail)
+            } else if (isHttpValidationError(error)) {
+                error.detail?.forEach((detail) => {
+                    notify.error(`Validation error: ${detail.msg}`)
+                })
+            } else {
+                notify.error('Failed to log in')
+            }
             reset({ password: '' })
             return
         }
-        notify.success('Success logging in')
+        notify.success('Logged in')
         await refresh()
         void navigate(from, { replace: true })
     }
@@ -112,18 +121,31 @@ export function Login() {
                         disabled={isSubmitting}
                         type="submit"
                     >
-                        {isSubmitting ? 'Logging in…' : 'Login'}
+                        {isSubmitting ? 'Logging in...' : 'Login'}
                     </Button>
-                    <div className="text-sm text-muted-foreground">
-                        Don&apos;t have an account?{' '}
-                        <Link to="/request-access">
-                            <Button
-                                variant="link"
-                                className="p-0 align-baseline"
-                            >
-                                Request Access
-                            </Button>
-                        </Link>
+                    <div className="flex flex-col items-center gap-1 text-sm">
+                        <div className="text-muted-foreground">
+                            Don&apos;t have an account?{' '}
+                        </div>
+                        <div>
+                            <Link to="/request-access">
+                                <Button
+                                    variant="link"
+                                    className="h-auto p-0 align-baseline"
+                                >
+                                    Request Access
+                                </Button>
+                            </Link>
+                            <span className="text-muted-foreground"> or </span>
+                            <Link to="/register">
+                                <Button
+                                    variant="link"
+                                    className="h-auto p-0 align-baseline"
+                                >
+                                    Register
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </CardFooter>
             </Card>

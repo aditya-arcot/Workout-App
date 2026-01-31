@@ -22,7 +22,7 @@ export default defineConfig([
             reactRefresh.configs.vite,
         ],
         languageOptions: {
-            ecmaVersion: 2020,
+            ecmaVersion: 2022,
             globals: globals.browser,
             parserOptions: {
                 project: 'tsconfig.app.json',
@@ -39,6 +39,11 @@ export default defineConfig([
                             message:
                                 'Use @/ path alias instead of relative path',
                         },
+                        {
+                            group: ['@radix-ui/*'],
+                            message:
+                                'Use components from @/components/ui instead of radix-ui directly',
+                        },
                     ],
                     paths: [
                         {
@@ -53,7 +58,7 @@ export default defineConfig([
         },
     },
     {
-        files: ['*.{js, ts}'],
+        files: ['*.{js,ts}'],
         ignores: ['vite.config.ts'],
         extends: [js.configs.recommended],
     },

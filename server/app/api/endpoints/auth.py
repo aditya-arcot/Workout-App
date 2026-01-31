@@ -5,43 +5,59 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.dependencies import get_db, refresh_token_cookie
-from app.models.schemas.auth import (
-    LoginRequest,
-    RequestAccessRequest,
-    RequestAccessResponse,
-)
-from app.services.auth import login, refresh, request_access
+from app.models.schemas.auth import LoginRequest, RegisterRequest, RequestAccessRequest
+from app.models.schemas.errors import ErrorResponseModel
+from app.services.auth import login, refresh, register, request_access
 from app.services.email import EmailService, get_email_service
 
 api_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@api_router.post("/request-access", operation_id="requestAccess")
+@api_router.post(
+    "/request-access",
+    operation_id="requestAccess",
+    responses={
+        status.HTTP_403_FORBIDDEN: ErrorResponseModel,
+        status.HTTP_409_CONFLICT: ErrorResponseModel,
+    },
+)
 async def request_access_endpoint(
-    payload: RequestAccessRequest,
+    req: RequestAccessRequest,
     background_tasks: BackgroundTasks,
     db: Annotated[AsyncSession, Depends(get_db)],
     email_svc: Annotated[EmailService, Depends(get_email_service)],
-) -> RequestAccessResponse:
-    result = await request_access(
-        first_name=payload.first_name,
-        last_name=payload.last_name,
+) -> str:
+    already_approved = await request_access(
+        first_name=req.first_name,
+        last_name=req.last_name,
         email_svc=email_svc,
         background_tasks=background_tasks,
         db=db,
-        email=payload.email,
+        email=req.email,
     )
-    already_approved, access_request = result.already_approved, result.access_request
-
-    detail = ""
     if already_approved:
-        detail = "Access request already approved. Approval email resent."
-    else:
-        detail = "Access request created. Please wait for admin approval."
+        return "Access already approved. Approval email resent"
+    return "Requested access. Wait for admin approval"
 
-    return RequestAccessResponse(
-        detail=detail,
-        access_request_id=access_request.id,
+
+@api_router.post(
+    "/register",
+    operation_id="register",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponseModel,
+        status.HTTP_409_CONFLICT: ErrorResponseModel,
+    },
+)
+async def register_endpoint(
+    req: RegisterRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await register(
+        token_str=req.token,
+        username=req.username,
+        password=req.password,
+        db=db,
     )
 
 
@@ -49,14 +65,17 @@ async def request_access_endpoint(
     "/login",
     operation_id="login",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ErrorResponseModel,
+    },
 )
 async def login_endpoint(
-    payload: LoginRequest,
+    req: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    response: Response,
+    res: Response,
 ):
-    result = await login(username=payload.username, password=payload.password, db=db)
-    response.set_cookie(
+    result = await login(username=req.username, password=req.password, db=db)
+    res.set_cookie(
         key="access_token",
         value=result.access_token,
         httponly=True,
@@ -64,7 +83,7 @@ async def login_endpoint(
         samesite=settings.cookie_same_site,
         max_age=60 * 60,  # 1 hour
     )
-    response.set_cookie(
+    res.set_cookie(
         key="refresh_token",
         value=result.refresh_token,
         httponly=True,
@@ -78,14 +97,17 @@ async def login_endpoint(
     "/refresh-token",
     operation_id="refreshToken",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ErrorResponseModel,
+    },
 )
 async def refresh_token_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
     refresh_token: Annotated[str, Depends(refresh_token_cookie)],
-    response: Response,
+    res: Response,
 ):
     access_token = await refresh(db=db, token=refresh_token)
-    response.set_cookie(
+    res.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
@@ -100,14 +122,14 @@ async def refresh_token_endpoint(
     operation_id="logout",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def logout_endpoint(response: Response):
-    response.delete_cookie(
+async def logout_endpoint(res: Response):
+    res.delete_cookie(
         key="access_token",
         httponly=True,
         secure=settings.cookie_secure,
         samesite=settings.cookie_same_site,
     )
-    response.delete_cookie(
+    res.delete_cookie(
         key="refresh_token",
         httponly=True,
         secure=settings.cookie_secure,

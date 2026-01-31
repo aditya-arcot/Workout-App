@@ -7,6 +7,7 @@ import { Admin } from '@/pages/Admin'
 import { Dashboard } from '@/pages/Dashboard'
 import { Docs } from '@/pages/Docs'
 import { Login } from '@/pages/Login'
+import { Register } from '@/pages/Register'
 import { RequestAccess } from '@/pages/RequestAccess'
 import { Navigate, Route, Routes } from 'react-router'
 
@@ -40,6 +41,14 @@ export function AppRoutes() {
                 element={
                     <RequireGuest>
                         <RequestAccess />
+                    </RequireGuest>
+                }
+            />
+            <Route
+                path="/register"
+                element={
+                    <RequireGuest>
+                        <Register />
                     </RequireGuest>
                 }
             />

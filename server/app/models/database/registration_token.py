@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     DateTime,
@@ -6,35 +7,38 @@ from sqlalchemy import (
     Index,
     String,
 )
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func, text
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.database.access_request import AccessRequest
 
 
 class RegistrationToken(Base):
     __tablename__ = "registration_tokens"
     __table_args__ = (
-        Index("ix_registration_tokens_email", "email"),
         Index("ix_registration_tokens_access_request_id", "access_request_id"),
         Index("ix_registration_tokens_token_hash", "token_hash"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    email: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-    access_request_id: Mapped[int | None] = mapped_column(
+    access_request_id: Mapped[int] = mapped_column(
         ForeignKey(
             "access_requests.id",
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
-        nullable=True,
+        nullable=False,
     )
     token_hash: Mapped[str] = mapped_column(
         String(255),
         unique=True,
+        nullable=False,
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now() + interval '7 days'"),
         nullable=False,
     )
     used_at: Mapped[datetime | None] = mapped_column(
@@ -52,6 +56,6 @@ class RegistrationToken(Base):
         nullable=False,
     )
 
-    @property
-    def is_used(self) -> bool:
-        return self.used_at is not None
+    access_request: Mapped[AccessRequest] = relationship(
+        "AccessRequest",
+    )

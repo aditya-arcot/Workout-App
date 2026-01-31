@@ -42,7 +42,7 @@ class EmailService(ABC):
 
         subject = f"New Access Request - {settings.project_name}"
         body = (
-            f"User {access_request.first_name} {access_request.last_name} ({access_request.email}) "
+            f"{access_request.first_name} {access_request.last_name} ({access_request.email}) "
             f"has requested access (request id {access_request.id})."
         )
         try:
@@ -53,19 +53,26 @@ class EmailService(ABC):
             )
 
     async def send_access_request_approved_email(
-        self, access_request: AccessRequest
+        self, access_request: AccessRequest, token: str
     ) -> None:
         logger.info(f"Sending access request approved email to {access_request.email}")
 
         subject = f"Access Request Approved - {settings.project_name}"
-        body = (
-            f"Hello {access_request.first_name},\n\n"
-            f"Your access request has been approved!\n"
-            f"Please register to access the application."
-            # TODO add registration link
+        url = f"{settings.client_url}/register?token={token}"
+        text = (
+            "Your access request has been approved!\n"
+            f"Please register to access the application: {url}\n"
+            "This link will expire in 7 days."
+        )
+        html = (
+            "Your access request has been approved!"
+            f'<br>Please <a href="{url}">register</a> to access the application.'
+            "<br>This link will expire in 7 days."
         )
         try:
-            await self.send(to=access_request.email, subject=subject, text=body)
+            await self.send(
+                to=access_request.email, subject=subject, text=text, html=html
+            )
         except Exception as e:
             logger.error(
                 f"Failed to send access request approved email to {access_request.email}: {e}"
@@ -78,9 +85,8 @@ class EmailService(ABC):
 
         subject = f"Access Request Rejected - {settings.project_name}"
         body = (
-            f"Hello {access_request.first_name},\n\n"
-            f"Your access request has been rejected.\n"
-            f"If you believe this is a mistake, please contact an admin."
+            "Your access request has been rejected.\n"
+            "If you believe this is a mistake, please contact an admin."
         )
         try:
             await self.send(to=access_request.email, subject=subject, text=body)

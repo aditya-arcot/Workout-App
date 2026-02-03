@@ -2,8 +2,8 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.cors import CORSMiddleware
 
 from .api import api_router
 from .core.config import settings
@@ -33,24 +33,27 @@ if settings.env != "prod":
     title += f" ({settings.env})"
 
 if settings.is_prod:
-    app = FastAPI(
+    fastapi_app = FastAPI(
         title=title,
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,
     )
 else:
-    app = FastAPI(
+    fastapi_app = FastAPI(
         title=title,
         lifespan=lifespan,
     )
 
-app.add_middleware(
-    CORSMiddleware,  # ty:ignore[invalid-argument-type]
+fastapi_app.add_exception_handler(StarletteHTTPException, exception_handler)
+fastapi_app.add_exception_handler(Exception, exception_handler)
+fastapi_app.include_router(api_router, prefix="/api")
+
+# CORS headers are not included in error responses when using add_middleware for CORSMiddleware
+# https://github.com/fastapi/fastapi/discussions/8027#discussioncomment-5146484
+app = CORSMiddleware(
+    app=fastapi_app,
     allow_origins=settings.cors_urls,
     allow_credentials=True,
     allow_methods=["*"],
 )
-app.add_exception_handler(StarletteHTTPException, exception_handler)
-app.add_exception_handler(Exception, exception_handler)
-app.include_router(api_router, prefix="/api")

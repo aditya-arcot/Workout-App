@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.core.dependencies import get_db
-from app.main import app
+from app.main import fastapi_app
 from app.services.email import EmailService, get_email_service
 
 
@@ -32,9 +32,9 @@ async def client(
         async with async_session:
             yield async_session
 
-    app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[get_email_service] = lambda: mock_email_svc
-    yield AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
-    del app.dependency_overrides[get_db]
+    fastapi_app.dependency_overrides[get_db] = override_get_db
+    fastapi_app.dependency_overrides[get_email_service] = lambda: mock_email_svc
+    yield AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test")
+    del fastapi_app.dependency_overrides[get_db]
 
     await transaction.rollback()

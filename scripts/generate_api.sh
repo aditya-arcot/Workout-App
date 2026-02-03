@@ -25,9 +25,9 @@ tmpfile="$(mktemp)"
 
 python3 << EOF
 import json
-import app.main
+from app.main import fastapi_app
 
-spec = app.main.app.openapi()
+spec = fastapi_app.openapi()
 with open("$tmpfile", "w") as f:
     json.dump(spec, f, indent=4)
 EOF

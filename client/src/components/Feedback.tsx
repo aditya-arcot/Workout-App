@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
@@ -61,15 +61,9 @@ export function Feedback() {
             },
         })
         if (error) {
-            if (isHttpError(error)) {
-                notify.error(error.detail)
-            } else if (isHttpValidationError(error)) {
-                error.detail?.forEach((detail) => {
-                    notify.error(`Validation error: ${detail.msg}`)
-                })
-            } else {
-                notify.error('Failed to submit feedback')
-            }
+            await handleApiError(error, {
+                fallbackMessage: 'Failed to submit feedback',
+            })
             return
         }
         notify.success('Feedback submitted')

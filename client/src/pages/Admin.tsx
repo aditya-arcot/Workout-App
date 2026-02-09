@@ -6,9 +6,8 @@ import {
 import { AccessRequestsTable } from '@/components/AccessRequestsTable'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UsersTable } from '@/components/UsersTable'
-import { isHttpError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { logger } from '@/lib/logger'
-import { notify } from '@/lib/notify'
 import { useEffect, useState } from 'react'
 
 export function Admin() {
@@ -22,11 +21,9 @@ export function Admin() {
         try {
             const { data, error } = await AdminService.getAccessRequests()
             if (error) {
-                if (isHttpError(error)) {
-                    notify.error(error.detail)
-                } else {
-                    notify.error('Failed to fetch access requests')
-                }
+                await handleApiError(error, {
+                    fallbackMessage: 'Failed to fetch access requests',
+                })
                 setRequests([])
                 return
             }
@@ -50,11 +47,9 @@ export function Admin() {
         try {
             const { data, error } = await AdminService.getUsers()
             if (error) {
-                if (isHttpError(error)) {
-                    notify.error(error.detail)
-                } else {
-                    notify.error('Failed to fetch users')
-                }
+                await handleApiError(error, {
+                    fallbackMessage: 'Failed to fetch users',
+                })
                 setUsers([])
                 return
             }

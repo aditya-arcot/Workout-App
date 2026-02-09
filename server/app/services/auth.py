@@ -6,6 +6,7 @@ from typing import Tuple
 from fastapi import BackgroundTasks
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.security import (
@@ -17,6 +18,7 @@ from app.core.security import (
 )
 from app.models.api import LoginResult
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
+from app.models.database.password_reset_token import PasswordResetToken
 from app.models.database.registration_token import RegistrationToken
 from app.models.database.user import User
 from app.models.errors import (
@@ -41,6 +43,7 @@ async def get_registration_token(
         (
             await db.execute(
                 select(RegistrationToken)
+                .options(selectinload(RegistrationToken.access_request))
                 .where(RegistrationToken.used_at.is_(None))
                 .where(RegistrationToken.expires_at > func.now())
                 .order_by(RegistrationToken.created_at.desc())
@@ -54,7 +57,7 @@ async def get_registration_token(
             return token
 
 
-async def expire_existing_tokens(
+async def expire_existing_registration_tokens(
     access_request_id: int,
     db: AsyncSession,
 ) -> None:
@@ -74,17 +77,17 @@ async def expire_existing_tokens(
 
 
 def create_registration_token(
-    access_request: AccessRequest,
+    access_request_id: int,
 ) -> Tuple[str, RegistrationToken]:
     logger.info(
-        f"Creating new registration token for access request {access_request.id}"
+        f"Creating new registration token for access request {access_request_id}"
     )
 
     token_str = secrets.token_urlsafe(32)
     token_hash = password_hash.hash(token_str)
 
     token = RegistrationToken(
-        access_request_id=access_request.id,
+        access_request_id=access_request_id,
         token_hash=token_hash,
     )
     return token_str, token
@@ -125,9 +128,9 @@ async def request_access(
             case AccessRequestStatus.REJECTED:
                 raise AccessRequestRejected()
             case AccessRequestStatus.APPROVED:
-                await expire_existing_tokens(existing_request.id, db)
+                await expire_existing_registration_tokens(existing_request.id, db)
 
-                token_str, token = create_registration_token(existing_request)
+                token_str, token = create_registration_token(existing_request.id)
                 db.add(token)
                 await db.commit()
 
@@ -186,7 +189,7 @@ async def register(
         raise UsernameAlreadyRegistered()
 
     token.used_at = datetime.now(timezone.utc)
-    await expire_existing_tokens(access_request.id, db)
+    await expire_existing_registration_tokens(access_request.id, db)
 
     user = User(
         username=username,
@@ -196,6 +199,111 @@ async def register(
         password_hash=password_hash.hash(password),
     )
     db.add(user)
+    await db.commit()
+
+
+async def get_password_reset_token(
+    token_str: str,
+    db: AsyncSession,
+) -> PasswordResetToken | None:
+    tokens = (
+        (
+            await db.execute(
+                select(PasswordResetToken)
+                .options(selectinload(PasswordResetToken.user))
+                .where(PasswordResetToken.used_at.is_(None))
+                .where(PasswordResetToken.expires_at > func.now())
+                .order_by(PasswordResetToken.created_at.desc())
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for token in tokens:
+        if password_hash.verify(token_str, token.token_hash):
+            return token
+
+
+async def expire_existing_password_reset_tokens(
+    user_id: int,
+    db: AsyncSession,
+) -> None:
+    logger.info(f"Expiring existing password reset tokens for user {user_id}")
+
+    now = datetime.now(timezone.utc)
+    await db.execute(
+        update(PasswordResetToken)
+        .where(
+            PasswordResetToken.user_id == user_id,
+            PasswordResetToken.expires_at > now,
+        )
+        .values(expires_at=now)
+    )
+
+
+def create_password_reset_token(
+    user_id: int,
+) -> Tuple[str, PasswordResetToken]:
+    logger.info(f"Creating new password reset token for user {user_id}")
+
+    token_str = secrets.token_urlsafe(32)
+    token_hash = password_hash.hash(token_str)
+
+    token = PasswordResetToken(
+        user_id=user_id,
+        token_hash=token_hash,
+    )
+    return token_str, token
+
+
+async def request_password_reset(
+    email: str,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession,
+    email_svc: EmailService,
+) -> None:
+    logger.info(f"Requesting password reset for email: {email}")
+
+    user = (
+        await db.execute(select(User).where(User.email == email))
+    ).scalar_one_or_none()
+    if not user:
+        logger.info(f"Password reset requested for unregistered email: {email}")
+        return
+
+    await expire_existing_password_reset_tokens(user.id, db)
+
+    token_str, token = create_password_reset_token(user.id)
+    db.add(token)
+    await db.commit()
+
+    if settings.env == "test":
+        await db.refresh(user)
+        await db.refresh(token)
+
+    background_tasks.add_task(
+        email_svc.send_password_reset_email,
+        user.email,
+        token_str,
+    )
+
+
+async def reset_password(
+    token_str: str,
+    password: str,
+    db: AsyncSession,
+) -> None:
+    logger.info("Resetting password")
+
+    token = await get_password_reset_token(token_str, db)
+    if not token or token.is_used() or token.is_expired():
+        raise InvalidToken()
+
+    user = token.user
+    token.used_at = datetime.now(timezone.utc)
+    await expire_existing_password_reset_tokens(user.id, db)
+
+    user.password_hash = password_hash.hash(password)
     await db.commit()
 
 

@@ -6,9 +6,11 @@ import { AppLayout } from '@/layout/AppLayout'
 import { Admin } from '@/pages/Admin'
 import { Dashboard } from '@/pages/Dashboard'
 import { Docs } from '@/pages/Docs'
+import { ForgotPassword } from '@/pages/ForgotPassword'
 import { Login } from '@/pages/Login'
 import { Register } from '@/pages/Register'
 import { RequestAccess } from '@/pages/RequestAccess'
+import { ResetPassword } from '@/pages/ResetPassword'
 import { Navigate, Route, Routes } from 'react-router'
 
 export function AppRoutes() {
@@ -49,6 +51,22 @@ export function AppRoutes() {
                 element={
                     <RequireGuest>
                         <Register />
+                    </RequireGuest>
+                }
+            />
+            <Route
+                path="/forgot-password"
+                element={
+                    <RequireGuest>
+                        <ForgotPassword />
+                    </RequireGuest>
+                }
+            />
+            <Route
+                path="/reset-password"
+                element={
+                    <RequireGuest>
+                        <ResetPassword />
                     </RequireGuest>
                 }
             />

@@ -5,9 +5,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.dependencies import get_db, refresh_token_cookie
-from app.models.schemas.auth import LoginRequest, RegisterRequest, RequestAccessRequest
+from app.models.schemas.auth import (
+    ForgotPasswordRequest,
+    LoginRequest,
+    RegisterRequest,
+    RequestAccessRequest,
+    ResetPasswordRequest,
+)
 from app.models.schemas.errors import ErrorResponseModel
-from app.services.auth import login, refresh, register, request_access
+from app.services.auth import (
+    login,
+    refresh,
+    register,
+    request_access,
+    request_password_reset,
+    reset_password,
+)
 from app.services.email import EmailService, get_email_service
 
 api_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -56,6 +69,44 @@ async def register_endpoint(
     await register(
         token_str=req.token,
         username=req.username,
+        password=req.password,
+        db=db,
+    )
+
+
+@api_router.post(
+    "/forgot-password",
+    operation_id="forgotPassword",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def forgot_password_endpoint(
+    req: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    email_svc: Annotated[EmailService, Depends(get_email_service)],
+):
+    await request_password_reset(
+        email=req.email,
+        background_tasks=background_tasks,
+        db=db,
+        email_svc=email_svc,
+    )
+
+
+@api_router.post(
+    "/reset-password",
+    operation_id="resetPassword",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponseModel,
+    },
+)
+async def reset_password_endpoint(
+    req: ResetPasswordRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await reset_password(
+        token_str=req.token,
         password=req.password,
         db=db,
     )

@@ -80,11 +80,10 @@ async def _expire_existing_tokens(
     where_clause: list,
     db: AsyncSession,
 ) -> None:
-    now = datetime.now(timezone.utc)
     await db.execute(
         update(model)
-        .where(*where_clause, model.expires_at > now)
-        .values(expires_at=now)
+        .where(*where_clause, model.expires_at > func.now())
+        .values(expires_at=func.now())
     )
 
 

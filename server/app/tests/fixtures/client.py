@@ -35,7 +35,9 @@ async def client(
     fastapi_app.dependency_overrides[get_db] = override_get_db
     fastapi_app.dependency_overrides[get_email_service] = lambda: mock_email_svc
     try:
-        yield AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test")
+        yield AsyncClient(
+            transport=ASGITransport(app=fastapi_app), base_url="http://test"
+        )
     finally:
         del fastapi_app.dependency_overrides[get_db]
         del fastapi_app.dependency_overrides[get_email_service]

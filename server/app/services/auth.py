@@ -39,6 +39,9 @@ async def get_registration_token(
     token_str: str,
     db: AsyncSession,
 ) -> RegistrationToken | None:
+    # Extract prefix from token for efficient lookup
+    token_prefix = token_str[:12]
+    
     tokens = (
         (
             await db.execute(
@@ -46,6 +49,7 @@ async def get_registration_token(
                 .options(selectinload(RegistrationToken.access_request))
                 .where(RegistrationToken.used_at.is_(None))
                 .where(RegistrationToken.expires_at > func.now())
+                .where(RegistrationToken.token_prefix == token_prefix)
                 .order_by(RegistrationToken.created_at.desc())
             )
         )
@@ -85,10 +89,12 @@ def create_registration_token(
 
     token_str = secrets.token_urlsafe(32)
     token_hash = password_hash.hash(token_str)
+    token_prefix = token_str[:12]  # Store first 12 chars as lookup key
 
     token = RegistrationToken(
         access_request_id=access_request_id,
         token_hash=token_hash,
+        token_prefix=token_prefix,
     )
     return token_str, token
 
@@ -206,6 +212,9 @@ async def get_password_reset_token(
     token_str: str,
     db: AsyncSession,
 ) -> PasswordResetToken | None:
+    # Extract prefix from token for efficient lookup
+    token_prefix = token_str[:12]
+    
     tokens = (
         (
             await db.execute(
@@ -213,6 +222,7 @@ async def get_password_reset_token(
                 .options(selectinload(PasswordResetToken.user))
                 .where(PasswordResetToken.used_at.is_(None))
                 .where(PasswordResetToken.expires_at > func.now())
+                .where(PasswordResetToken.token_prefix == token_prefix)
                 .order_by(PasswordResetToken.created_at.desc())
             )
         )
@@ -248,10 +258,12 @@ def create_password_reset_token(
 
     token_str = secrets.token_urlsafe(32)
     token_hash = password_hash.hash(token_str)
+    token_prefix = token_str[:12]  # Store first 12 chars as lookup key
 
     token = PasswordResetToken(
         user_id=user_id,
         token_hash=token_hash,
+        token_prefix=token_prefix,
     )
     return token_str, token
 

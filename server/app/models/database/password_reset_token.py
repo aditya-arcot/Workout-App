@@ -16,6 +16,7 @@ class PasswordResetToken(Base):
     __table_args__ = (
         Index("ix_password_reset_tokens_user_id", "user_id"),
         Index("ix_password_reset_tokens_token_hash", "token_hash"),
+        Index("ix_password_reset_tokens_token_prefix", "token_prefix"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -30,6 +31,10 @@ class PasswordResetToken(Base):
         String(255),
         unique=True,
         nullable=False,
+    )
+    token_prefix: Mapped[str | None] = mapped_column(
+        String(12),
+        nullable=True,
     )
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

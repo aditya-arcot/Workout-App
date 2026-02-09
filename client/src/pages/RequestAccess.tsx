@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -36,26 +36,23 @@ export function RequestAccess() {
     const onSubmit = async (form: RequestAccessForm) => {
         const { data, error } = await AuthService.requestAccess({ body: form })
         if (error) {
-            if (isHttpError(error)) {
-                if (error.code === 'email_already_registered') {
-                    notify.error(error.detail)
-                    void navigate('/login', { replace: true })
-                } else if (
-                    error.code === 'access_request_pending' ||
-                    error.code === 'access_request_rejected'
-                ) {
-                    notify.error(error.detail)
-                    reset()
-                } else {
-                    notify.error(error.detail)
-                }
-            } else if (isHttpValidationError(error)) {
-                error.detail?.forEach((detail) => {
-                    notify.error(`Validation error: ${detail.msg}`)
-                })
-            } else {
-                notify.error('Failed to request access')
-            }
+            await handleApiError(error, {
+                httpErrorHandlers: {
+                    email_already_registered: (err) => {
+                        notify.error(err.detail)
+                        void navigate('/login', { replace: true })
+                    },
+                    access_request_pending: (err) => {
+                        notify.error(err.detail)
+                        reset()
+                    },
+                    access_request_rejected: (err) => {
+                        notify.error(err.detail)
+                        reset()
+                    },
+                },
+                fallbackMessage: 'Failed to request access',
+            })
             return
         }
         notify.success(data)

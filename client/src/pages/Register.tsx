@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -54,25 +54,21 @@ export function Register() {
             body: form,
         })
         if (error) {
-            if (isHttpError(error)) {
-                if (error.code === 'invalid_token') {
-                    notify.error(error.detail)
-                    notify.info('If token is expired, request access again')
-                    reset({ token: '', confirmPassword: '' })
-                    setSearchParams({})
-                } else if (error.code === 'username_already_registered') {
-                    notify.error(error.detail)
-                    reset({ username: '', confirmPassword: '' })
-                } else {
-                    notify.error(error.detail)
-                }
-            } else if (isHttpValidationError(error)) {
-                error.detail?.forEach((detail) => {
-                    notify.error(`Validation error: ${detail.msg}`)
-                })
-            } else {
-                notify.error('Failed to register')
-            }
+            await handleApiError(error, {
+                httpErrorHandlers: {
+                    invalid_token: (err) => {
+                        notify.error(err.detail)
+                        notify.info('If token is expired, request access again')
+                        reset({ token: '', confirmPassword: '' })
+                        setSearchParams({})
+                    },
+                    username_already_registered: (err) => {
+                        notify.error(err.detail)
+                        reset({ username: '', confirmPassword: '' })
+                    },
+                },
+                fallbackMessage: 'Failed to register',
+            })
             return
         }
         notify.success('Registered successfully. You can now log in')

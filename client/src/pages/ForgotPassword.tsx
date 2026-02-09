@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -34,13 +34,9 @@ export function ForgotPassword() {
     const onSubmit = async (form: ForgotPasswordForm) => {
         const { error } = await AuthService.forgotPassword({ body: form })
         if (error) {
-            if (isHttpValidationError(error)) {
-                error.detail?.forEach((detail) => {
-                    notify.error(`Validation error: ${detail.msg}`)
-                })
-            } else {
-                notify.error('Failed to request password reset')
-            }
+            await handleApiError(error, {
+                fallbackMessage: 'Failed to request password reset',
+            })
             return
         }
         notify.success(

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import type { LocationState } from '@/models/location'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -44,15 +44,9 @@ export function Login() {
     const onSubmit = async (form: LoginForm) => {
         const { error } = await AuthService.login({ body: form })
         if (error) {
-            if (isHttpError(error)) {
-                notify.error(error.detail)
-            } else if (isHttpValidationError(error)) {
-                error.detail?.forEach((detail) => {
-                    notify.error(`Validation error: ${detail.msg}`)
-                })
-            } else {
-                notify.error('Failed to log in')
-            }
+            await handleApiError(error, {
+                fallbackMessage: 'Failed to log in',
+            })
             reset({ password: '' })
             return
         }

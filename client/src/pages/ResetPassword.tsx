@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -54,21 +54,16 @@ export function ResetPassword() {
             body: form,
         })
         if (error) {
-            if (isHttpError(error)) {
-                if (error.code === 'invalid_token') {
-                    notify.error(error.detail)
-                    reset({ token: '', confirmPassword: '' })
-                    setSearchParams({})
-                } else {
-                    notify.error(error.detail)
-                }
-            } else if (isHttpValidationError(error)) {
-                error.detail?.forEach((detail) => {
-                    notify.error(`Validation error: ${detail.msg}`)
-                })
-            } else {
-                notify.error('Failed to reset password')
-            }
+            await handleApiError(error, {
+                httpErrorHandlers: {
+                    invalid_token: (err) => {
+                        notify.error(err.detail)
+                        reset({ token: '', confirmPassword: '' })
+                        setSearchParams({})
+                    },
+                },
+                fallbackMessage: 'Failed to reset password',
+            })
             return
         }
         notify.success('Password reset. You can now log in')

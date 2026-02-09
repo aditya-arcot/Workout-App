@@ -18,7 +18,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { handleApiError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import {
     blueText,
@@ -124,22 +124,17 @@ export function AccessRequestsTable({
                 },
             })
             if (error) {
-                if (isHttpError(error)) {
-                    if (error.code === 'access_request_status_error') {
-                        notify.warning(
-                            'This access request has already been reviewed. Reloading the latest data'
-                        )
-                        await onReloadRequests()
-                    } else {
-                        notify.error(error.detail)
-                    }
-                } else if (isHttpValidationError(error)) {
-                    error.detail?.forEach((detail) => {
-                        notify.error(`Validation error: ${detail.msg}`)
-                    })
-                } else {
-                    notify.error('Failed to update access request status')
-                }
+                await handleApiError(error, {
+                    httpErrorHandlers: {
+                        access_request_status_error: async () => {
+                            notify.warning(
+                                'This access request has already been reviewed. Reloading the latest data'
+                            )
+                            await onReloadRequests()
+                        },
+                    },
+                    fallbackMessage: 'Failed to update access request status',
+                })
                 return
             }
             notify.success('Access request status updated')

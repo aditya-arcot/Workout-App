@@ -1,25 +1,26 @@
 import logging
-import secrets
 from datetime import datetime, timezone
-from typing import Tuple
 
 from fastapi import BackgroundTasks
-from sqlalchemy import func, select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.security import (
+    PASSWORD_HASH,
     authenticate_user,
-    create_access_token,
-    create_refresh_token,
-    password_hash,
-    verify_token,
+    create_access_jwt,
+    create_password_reset_token,
+    create_refresh_jwt,
+    create_registration_token,
+    expire_existing_password_reset_tokens,
+    expire_existing_registration_tokens,
+    get_password_reset_token,
+    get_registration_token,
+    verify_jwt,
 )
 from app.models.api import LoginResult
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
-from app.models.database.password_reset_token import PasswordResetToken
-from app.models.database.registration_token import RegistrationToken
 from app.models.database.user import User
 from app.models.errors import (
     AccessRequestPending,
@@ -33,68 +34,6 @@ from app.models.errors import (
 from .email import EmailService
 
 logger = logging.getLogger(__name__)
-
-
-async def get_registration_token(
-    token_str: str,
-    db: AsyncSession,
-) -> RegistrationToken | None:
-    token_prefix = token_str[:12]
-    tokens = (
-        (
-            await db.execute(
-                select(RegistrationToken)
-                .options(selectinload(RegistrationToken.access_request))
-                .where(RegistrationToken.token_prefix == token_prefix)
-                .where(RegistrationToken.used_at.is_(None))
-                .where(RegistrationToken.expires_at > func.now())
-                .order_by(RegistrationToken.created_at.desc())
-            )
-        )
-        .scalars()
-        .all()
-    )
-    for token in tokens:
-        if password_hash.verify(token_str, token.token_hash):
-            return token
-
-
-async def expire_existing_registration_tokens(
-    access_request_id: int,
-    db: AsyncSession,
-) -> None:
-    logger.info(
-        f"Expiring existing registration tokens for access request {access_request_id}"
-    )
-
-    now = datetime.now(timezone.utc)
-    await db.execute(
-        update(RegistrationToken)
-        .where(
-            RegistrationToken.access_request_id == access_request_id,
-            RegistrationToken.expires_at > now,
-        )
-        .values(expires_at=now)
-    )
-
-
-def create_registration_token(
-    access_request_id: int,
-) -> Tuple[str, RegistrationToken]:
-    logger.info(
-        f"Creating new registration token for access request {access_request_id}"
-    )
-
-    token_str = secrets.token_urlsafe(32)
-    token_prefix = token_str[:12]
-    token_hash = password_hash.hash(token_str)
-
-    token = RegistrationToken(
-        access_request_id=access_request_id,
-        token_prefix=token_prefix,
-        token_hash=token_hash,
-    )
-    return token_str, token
 
 
 async def request_access(
@@ -200,68 +139,10 @@ async def register(
         email=access_request.email,
         first_name=access_request.first_name,
         last_name=access_request.last_name,
-        password_hash=password_hash.hash(password),
+        password_hash=PASSWORD_HASH.hash(password),
     )
     db.add(user)
     await db.commit()
-
-
-async def get_password_reset_token(
-    token_str: str,
-    db: AsyncSession,
-) -> PasswordResetToken | None:
-    token_prefix = token_str[:12]
-    tokens = (
-        (
-            await db.execute(
-                select(PasswordResetToken)
-                .options(selectinload(PasswordResetToken.user))
-                .where(PasswordResetToken.token_prefix == token_prefix)
-                .where(PasswordResetToken.used_at.is_(None))
-                .where(PasswordResetToken.expires_at > func.now())
-                .order_by(PasswordResetToken.created_at.desc())
-            )
-        )
-        .scalars()
-        .all()
-    )
-    for token in tokens:
-        if password_hash.verify(token_str, token.token_hash):
-            return token
-
-
-async def expire_existing_password_reset_tokens(
-    user_id: int,
-    db: AsyncSession,
-) -> None:
-    logger.info(f"Expiring existing password reset tokens for user {user_id}")
-
-    now = datetime.now(timezone.utc)
-    await db.execute(
-        update(PasswordResetToken)
-        .where(
-            PasswordResetToken.user_id == user_id,
-            PasswordResetToken.expires_at > now,
-        )
-        .values(expires_at=now)
-    )
-
-
-def create_password_reset_token(
-    user_id: int,
-) -> Tuple[str, PasswordResetToken]:
-    logger.info(f"Creating new password reset token for user {user_id}")
-
-    token_str = secrets.token_urlsafe(32)
-    token_prefix = token_str[:12]
-    token_hash = password_hash.hash(token_str)
-
-    token = PasswordResetToken(
-        user_id=user_id,
-        token_prefix=token_prefix,
-        token_hash=token_hash,
-    )
-    return token_str, token
 
 
 async def request_password_reset(
@@ -311,7 +192,7 @@ async def reset_password(
     token.used_at = datetime.now(timezone.utc)
     await expire_existing_password_reset_tokens(user.id, db)
 
-    user.password_hash = password_hash.hash(password)
+    user.password_hash = PASSWORD_HASH.hash(password)
     await db.commit()
 
 
@@ -322,8 +203,8 @@ async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
     if not user:
         raise InvalidCredentials()
 
-    access_token = create_access_token(user.username)
-    refresh_token = create_refresh_token(user.username)
+    access_token = create_access_jwt(user.username)
+    refresh_token = create_refresh_jwt(user.username)
 
     return LoginResult(
         access_token=access_token,
@@ -334,11 +215,11 @@ async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
 async def refresh(db: AsyncSession, token: str) -> str:
     logger.info("Refreshing access token")
 
-    username = verify_token(token)
+    username = verify_jwt(token)
     user = (
         await db.execute(select(User).where(User.username == username))
     ).scalar_one_or_none()
     if not user:
         raise InvalidCredentials()
 
-    return create_access_token(user.username)
+    return create_access_jwt(user.username)

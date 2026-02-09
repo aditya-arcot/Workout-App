@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.dependencies import get_db, refresh_token_cookie
+from app.core.security import ACCESS_JWT_KEY, REFRESH_JWT_KEY
 from app.models.schemas.auth import (
     ForgotPasswordRequest,
     LoginRequest,
@@ -127,7 +128,7 @@ async def login_endpoint(
 ):
     result = await login(username=req.username, password=req.password, db=db)
     res.set_cookie(
-        key="access_token",
+        key=ACCESS_JWT_KEY,
         value=result.access_token,
         httponly=True,
         secure=settings.cookie_secure,
@@ -135,7 +136,7 @@ async def login_endpoint(
         max_age=60 * 60,  # 1 hour
     )
     res.set_cookie(
-        key="refresh_token",
+        key=REFRESH_JWT_KEY,
         value=result.refresh_token,
         httponly=True,
         secure=settings.cookie_secure,
@@ -159,7 +160,7 @@ async def refresh_token_endpoint(
 ):
     access_token = await refresh(db=db, token=refresh_token)
     res.set_cookie(
-        key="access_token",
+        key=ACCESS_JWT_KEY,
         value=access_token,
         httponly=True,
         secure=settings.cookie_secure,
@@ -175,13 +176,13 @@ async def refresh_token_endpoint(
 )
 async def logout_endpoint(res: Response):
     res.delete_cookie(
-        key="access_token",
+        key=ACCESS_JWT_KEY,
         httponly=True,
         secure=settings.cookie_secure,
         samesite=settings.cookie_same_site,
     )
     res.delete_cookie(
-        key="refresh_token",
+        key=REFRESH_JWT_KEY,
         httponly=True,
         secure=settings.cookie_secure,
         samesite=settings.cookie_same_site,

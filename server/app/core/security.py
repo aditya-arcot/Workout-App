@@ -47,7 +47,7 @@ async def _get_token(
         .all()
     )
     for token in tokens:
-        if token.verify(token_str):
+        if PASSWORD_HASH.verify(token_str, token.token_hash):
             return token
 
 

@@ -36,7 +36,7 @@ async def exception_handler(request: Request, exc: Exception):
 
     detail = "Internal Server Error"
     if not settings.is_prod:
-        detail = str(exc)
+        detail = str(exc) or detail
 
     return JSONResponse(
         status_code=500,

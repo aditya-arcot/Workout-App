@@ -15,6 +15,7 @@ class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"
     __table_args__ = (
         Index("ix_password_reset_tokens_user_id", "user_id"),
+        Index("ix_password_reset_tokens_token_prefix", "token_prefix"),
         Index("ix_password_reset_tokens_token_hash", "token_hash"),
     )
 
@@ -24,6 +25,10 @@ class PasswordResetToken(Base):
             "users.id",
             ondelete="CASCADE",
         ),
+        nullable=False,
+    )
+    token_prefix: Mapped[str] = mapped_column(
+        String(12),
         nullable=False,
     )
     token_hash: Mapped[str] = mapped_column(

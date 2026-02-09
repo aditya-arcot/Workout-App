@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from typing_extensions import Annotated
 
 from app.core.config import settings
-from app.core.security import verify_token
+from app.core.security import ACCESS_JWT_KEY, REFRESH_JWT_KEY, verify_jwt
 from app.models.database.user import User
 from app.models.errors import InsufficientPermissions, InvalidCredentials
 from app.models.schemas.user import UserPublic
@@ -32,11 +32,11 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 access_token_cookie = APIKeyCookie(
-    name="access_token",
+    name=ACCESS_JWT_KEY,
 )
 
 refresh_token_cookie = APIKeyCookie(
-    name="refresh_token",
+    name=REFRESH_JWT_KEY,
 )
 
 
@@ -44,9 +44,9 @@ async def get_current_user(
     token: Annotated[str, Depends(access_token_cookie)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserPublic:
-    logger.info("Getting current user using token")
+    logger.info("Getting current user using jwt")
 
-    username = verify_token(token)
+    username = verify_jwt(token)
     user = (
         await db.execute(select(User).where(User.username == username))
     ).scalar_one_or_none()

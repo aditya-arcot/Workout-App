@@ -4,6 +4,7 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.security import ACCESS_JWT_KEY
 from app.models.database.user import User
 from app.models.errors import InvalidCredentials
 from app.models.schemas.user import UserPublic
@@ -38,7 +39,7 @@ async def test_get_current_user_not_logged_in(client: AsyncClient):
 
 async def test_get_current_user_invalid_cookie(client: AsyncClient):
     await login_admin(client)
-    client.cookies.set("access_token", "invalid_token")
+    client.cookies.set(ACCESS_JWT_KEY, "invalid_token")
     resp = await make_request(client)
 
     assert resp.status_code == InvalidCredentials.status_code

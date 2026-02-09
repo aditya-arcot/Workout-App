@@ -20,6 +20,7 @@ class RegistrationToken(Base):
     __tablename__ = "registration_tokens"
     __table_args__ = (
         Index("ix_registration_tokens_access_request_id", "access_request_id"),
+        Index("ix_registration_tokens_token_prefix", "token_prefix"),
         Index("ix_registration_tokens_token_hash", "token_hash"),
     )
 
@@ -29,6 +30,10 @@ class RegistrationToken(Base):
             "access_requests.id",
             ondelete="CASCADE",
         ),
+        nullable=False,
+    )
+    token_prefix: Mapped[str] = mapped_column(
+        String(12),
         nullable=False,
     )
     token_hash: Mapped[str] = mapped_column(

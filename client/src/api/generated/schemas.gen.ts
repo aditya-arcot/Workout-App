@@ -150,6 +150,21 @@ export const FeedbackTypeSchema = {
     title: 'FeedbackType'
 } as const;
 
+export const ForgotPasswordRequestSchema = {
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email',
+            title: 'Email'
+        }
+    },
+    type: 'object',
+    required: [
+        'email'
+    ],
+    title: 'ForgotPasswordRequest'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -244,6 +259,29 @@ export const RequestAccessRequestSchema = {
         'last_name'
     ],
     title: 'RequestAccessRequest'
+} as const;
+
+export const ResetPasswordRequestSchema = {
+    properties: {
+        token: {
+            type: 'string',
+            maxLength: 64,
+            minLength: 1,
+            title: 'Token'
+        },
+        password: {
+            type: 'string',
+            maxLength: 64,
+            minLength: 8,
+            title: 'Password'
+        }
+    },
+    type: 'object',
+    required: [
+        'token',
+        'password'
+    ],
+    title: 'ResetPasswordRequest'
 } as const;
 
 export const ReviewerPublicSchema = {

@@ -1,23 +1,26 @@
 import logging
-import secrets
 from datetime import datetime, timezone
-from typing import Tuple
 
 from fastapi import BackgroundTasks
-from sqlalchemy import func, select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.security import (
+    PASSWORD_HASH,
     authenticate_user,
-    create_access_token,
-    create_refresh_token,
-    password_hash,
-    verify_token,
+    create_access_jwt,
+    create_password_reset_token,
+    create_refresh_jwt,
+    create_registration_token,
+    expire_existing_password_reset_tokens,
+    expire_existing_registration_tokens,
+    get_password_reset_token,
+    get_registration_token,
+    verify_jwt,
 )
 from app.models.api import LoginResult
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
-from app.models.database.registration_token import RegistrationToken
 from app.models.database.user import User
 from app.models.errors import (
     AccessRequestPending,
@@ -31,63 +34,6 @@ from app.models.errors import (
 from .email import EmailService
 
 logger = logging.getLogger(__name__)
-
-
-async def get_registration_token(
-    token_str: str,
-    db: AsyncSession,
-) -> RegistrationToken | None:
-    tokens = (
-        (
-            await db.execute(
-                select(RegistrationToken)
-                .where(RegistrationToken.used_at.is_(None))
-                .where(RegistrationToken.expires_at > func.now())
-                .order_by(RegistrationToken.created_at.desc())
-            )
-        )
-        .scalars()
-        .all()
-    )
-    for token in tokens:
-        if password_hash.verify(token_str, token.token_hash):
-            return token
-
-
-async def expire_existing_tokens(
-    access_request_id: int,
-    db: AsyncSession,
-) -> None:
-    logger.info(
-        f"Expiring existing registration tokens for access request {access_request_id}"
-    )
-
-    now = datetime.now(timezone.utc)
-    await db.execute(
-        update(RegistrationToken)
-        .where(
-            RegistrationToken.access_request_id == access_request_id,
-            RegistrationToken.expires_at > now,
-        )
-        .values(expires_at=now)
-    )
-
-
-def create_registration_token(
-    access_request: AccessRequest,
-) -> Tuple[str, RegistrationToken]:
-    logger.info(
-        f"Creating new registration token for access request {access_request.id}"
-    )
-
-    token_str = secrets.token_urlsafe(32)
-    token_hash = password_hash.hash(token_str)
-
-    token = RegistrationToken(
-        access_request_id=access_request.id,
-        token_hash=token_hash,
-    )
-    return token_str, token
 
 
 async def request_access(
@@ -125,9 +71,9 @@ async def request_access(
             case AccessRequestStatus.REJECTED:
                 raise AccessRequestRejected()
             case AccessRequestStatus.APPROVED:
-                await expire_existing_tokens(existing_request.id, db)
+                await expire_existing_registration_tokens(existing_request.id, db)
 
-                token_str, token = create_registration_token(existing_request)
+                token_str, token = create_registration_token(existing_request.id)
                 db.add(token)
                 await db.commit()
 
@@ -186,16 +132,67 @@ async def register(
         raise UsernameAlreadyRegistered()
 
     token.used_at = datetime.now(timezone.utc)
-    await expire_existing_tokens(access_request.id, db)
+    await expire_existing_registration_tokens(access_request.id, db)
 
     user = User(
         username=username,
         email=access_request.email,
         first_name=access_request.first_name,
         last_name=access_request.last_name,
-        password_hash=password_hash.hash(password),
+        password_hash=PASSWORD_HASH.hash(password),
     )
     db.add(user)
+    await db.commit()
+
+
+async def request_password_reset(
+    email: str,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession,
+    email_svc: EmailService,
+) -> None:
+    logger.info(f"Requesting password reset for email: {email}")
+
+    user = (
+        await db.execute(select(User).where(User.email == email))
+    ).scalar_one_or_none()
+    if not user:
+        logger.info(f"Password reset requested for unregistered email: {email}")
+        return
+
+    await expire_existing_password_reset_tokens(user.id, db)
+
+    token_str, token = create_password_reset_token(user.id)
+    db.add(token)
+    await db.commit()
+
+    if settings.env == "test":
+        await db.refresh(user)
+        await db.refresh(token)
+
+    background_tasks.add_task(
+        email_svc.send_password_reset_email,
+        user.email,
+        token_str,
+    )
+
+
+async def reset_password(
+    token_str: str,
+    password: str,
+    db: AsyncSession,
+) -> None:
+    logger.info("Resetting password")
+
+    token = await get_password_reset_token(token_str, db)
+    if not token or token.is_used() or token.is_expired():
+        raise InvalidToken()
+
+    user = token.user
+    token.used_at = datetime.now(timezone.utc)
+    await expire_existing_password_reset_tokens(user.id, db)
+
+    user.password_hash = PASSWORD_HASH.hash(password)
     await db.commit()
 
 
@@ -206,8 +203,8 @@ async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
     if not user:
         raise InvalidCredentials()
 
-    access_token = create_access_token(user.username)
-    refresh_token = create_refresh_token(user.username)
+    access_token = create_access_jwt(user.username)
+    refresh_token = create_refresh_jwt(user.username)
 
     return LoginResult(
         access_token=access_token,
@@ -218,11 +215,11 @@ async def login(username: str, password: str, db: AsyncSession) -> LoginResult:
 async def refresh(db: AsyncSession, token: str) -> str:
     logger.info("Refreshing access token")
 
-    username = verify_token(token)
+    username = verify_jwt(token)
     user = (
         await db.execute(select(User).where(User.username == username))
     ).scalar_one_or_none()
     if not user:
         raise InvalidCredentials()
 
-    return create_access_token(user.username)
+    return create_access_jwt(user.username)

@@ -36,8 +36,7 @@ export function DataTableToolbar<TData>({
                                 ?.setFilterValue(event.target.value)
                         }
                         className={
-                            config.search.className ??
-                            'h-8 w-[150px] lg:w-[250px]'
+                            config.search.className ?? 'h-8 w-37.5 lg:w-62.5'
                         }
                     />
                 )}

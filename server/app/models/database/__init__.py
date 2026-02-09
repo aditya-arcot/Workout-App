@@ -3,6 +3,7 @@ from . import exercise as exercise
 from . import exercise_muscle_group as exercise_muscle_group
 from . import feedback as feedback
 from . import muscle_group as muscle_group
+from . import password_reset_token as password_reset_token
 from . import registration_token as registration_token
 from . import set as set
 from . import user as user

@@ -1,33 +1,28 @@
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from sqlalchemy import (
-    DateTime,
-    ForeignKey,
-    Index,
-    String,
-)
+from sqlalchemy import DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func, text
 
 from app.core.database import Base
 
 if TYPE_CHECKING:
-    from app.models.database.access_request import AccessRequest
+    from app.models.database.user import User
 
 
-class RegistrationToken(Base):
-    __tablename__ = "registration_tokens"
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
     __table_args__ = (
-        Index("ix_registration_tokens_access_request_id", "access_request_id"),
-        Index("ix_registration_tokens_token_prefix", "token_prefix"),
-        Index("ix_registration_tokens_token_hash", "token_hash"),
+        Index("ix_password_reset_tokens_user_id", "user_id"),
+        Index("ix_password_reset_tokens_token_prefix", "token_prefix"),
+        Index("ix_password_reset_tokens_token_hash", "token_hash"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    access_request_id: Mapped[int] = mapped_column(
+    user_id: Mapped[int] = mapped_column(
         ForeignKey(
-            "access_requests.id",
+            "users.id",
             ondelete="CASCADE",
         ),
         nullable=False,
@@ -43,7 +38,7 @@ class RegistrationToken(Base):
     )
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=text("now() + interval '7 days'"),
+        server_default=text("now() + interval '1 hour'"),
         nullable=False,
     )
     used_at: Mapped[datetime | None] = mapped_column(
@@ -61,8 +56,8 @@ class RegistrationToken(Base):
         nullable=False,
     )
 
-    access_request: Mapped[AccessRequest] = relationship(
-        "AccessRequest",
+    user: Mapped[User] = relationship(
+        "User",
     )
 
     def is_used(self) -> bool:

@@ -95,6 +95,26 @@ class EmailService(ABC):
                 f"Failed to send access request rejected email to {access_request.email}: {e}"
             )
 
+    async def send_password_reset_email(self, email: str, token: str) -> None:
+        logger.info(f"Sending password reset email to {email}")
+
+        subject = f"Password Reset - {settings.project_name}"
+        url = f"{settings.client_url}/reset-password?token={token}"
+        text = (
+            "A request was made to reset your password.\n"
+            f"Reset your password here: {url}\n"
+            "This link will expire in 1 hour."
+        )
+        html = (
+            "A request was made to reset your password."
+            f'<br>Reset your password <a href="{url}">here</a>.'
+            "<br>This link will expire in 1 hour."
+        )
+        try:
+            await self.send(to=email, subject=subject, text=text, html=html)
+        except Exception as e:
+            logger.error(f"Failed to send password reset email to {email}: {e}")
+
 
 class SmtpEmailService(EmailService):
     use_tls = settings.email.backend == "smtp"
@@ -110,7 +130,7 @@ class SmtpEmailService(EmailService):
         html: str | None = None,
     ) -> None:
         now = get_utc_timestamp_str(datetime.now(timezone.utc))
-        logger.info("Sending email to %s with subject %s (%s)", to, subject, now)
+        logger.info(f"Sending email to {to} with subject {subject} ({now})")
 
         message = EmailMessage()
         message["From"] = settings.email.email_from
@@ -136,8 +156,8 @@ class SmtpEmailService(EmailService):
             kwargs["password"] = settings.email.smtp_password
 
         resp = await aiosmtplib.send(message, **kwargs)  # type: ignore
-        logger.info("Email sent to %s with subject %s (%s)", to, subject, now)
-        logger.debug("SMTP response: %s", resp)
+        logger.info(f"Email sent to {to} with subject {subject} ({now})")
+        logger.debug(f"SMTP response: {resp}")
 
 
 class ConsoleEmailService(EmailService):
@@ -148,12 +168,7 @@ class ConsoleEmailService(EmailService):
         text: str,
         html: str | None = None,
     ) -> None:
-        logger.info(
-            "EMAIL (console)\nTo: %s\nSubject: %s\n\n%s",
-            to,
-            subject,
-            text,
-        )
+        logger.info(f"EMAIL (console)\nTo: {to}\nSubject: {subject}\n\n{text}")
 
 
 class DisabledEmailService(EmailService):
@@ -164,4 +179,4 @@ class DisabledEmailService(EmailService):
         text: str,
         html: str | None = None,
     ) -> None:
-        logger.debug("Email disabled; skipping send to %s", to)
+        logger.debug(f"Email disabled; skipping send to {to}")

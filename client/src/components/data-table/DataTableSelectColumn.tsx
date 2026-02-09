@@ -14,7 +14,7 @@ export function createSelectColumn<TData>(): ColumnDef<TData> {
                     table.toggleAllPageRowsSelected(!!value)
                 }}
                 aria-label="Select all"
-                className="me-2 translate-y-[2px]"
+                className="me-2 translate-y-0.5"
             />
         ),
         cell: ({ row }) => (
@@ -24,7 +24,7 @@ export function createSelectColumn<TData>(): ColumnDef<TData> {
                     row.toggleSelected(!!value)
                 }}
                 aria-label="Select row"
-                className="translate-y-[2px]"
+                className="translate-y-0.5"
             />
         ),
     }

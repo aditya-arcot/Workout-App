@@ -41,7 +41,7 @@ export function DataTableRowActions<TData>({
                     <span className="sr-only">Open menu</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuContent align="end" className="w-40">
                 {menuItems.map((item, index) => {
                     if (item.type === 'separator')
                         return <DropdownMenuSeparator key={index} />

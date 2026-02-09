@@ -35,8 +35,8 @@ async def exception_handler(request: Request, exc: Exception):
     logger.exception(f"Unhandled error: {exc}")
 
     detail = "Internal Server Error"
-    if (not settings.is_prod) and exc.args and exc.args[0]:
-        detail = exc.args[0]
+    if not settings.is_prod:
+        detail = str(exc) or detail
 
     return JSONResponse(
         status_code=500,

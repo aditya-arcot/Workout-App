@@ -42,6 +42,7 @@ async def get_registration_token(
     # Extract prefix from token for efficient lookup
     token_prefix = token_str[:12]
     
+    # First try: lookup by token_prefix (O(1) operation)
     tokens = (
         (
             await db.execute(
@@ -57,6 +58,26 @@ async def get_registration_token(
         .all()
     )
     for token in tokens:
+        if password_hash.verify(token_str, token.token_hash):
+            return token
+    
+    # Fallback: check tokens with null prefix (legacy tokens, O(n) operation)
+    # This handles backward compatibility for tokens created before the optimization
+    legacy_tokens = (
+        (
+            await db.execute(
+                select(RegistrationToken)
+                .options(selectinload(RegistrationToken.access_request))
+                .where(RegistrationToken.used_at.is_(None))
+                .where(RegistrationToken.expires_at > func.now())
+                .where(RegistrationToken.token_prefix.is_(None))
+                .order_by(RegistrationToken.created_at.desc())
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for token in legacy_tokens:
         if password_hash.verify(token_str, token.token_hash):
             return token
 
@@ -215,6 +236,7 @@ async def get_password_reset_token(
     # Extract prefix from token for efficient lookup
     token_prefix = token_str[:12]
     
+    # First try: lookup by token_prefix (O(1) operation)
     tokens = (
         (
             await db.execute(
@@ -230,6 +252,26 @@ async def get_password_reset_token(
         .all()
     )
     for token in tokens:
+        if password_hash.verify(token_str, token.token_hash):
+            return token
+    
+    # Fallback: check tokens with null prefix (legacy tokens, O(n) operation)
+    # This handles backward compatibility for tokens created before the optimization
+    legacy_tokens = (
+        (
+            await db.execute(
+                select(PasswordResetToken)
+                .options(selectinload(PasswordResetToken.user))
+                .where(PasswordResetToken.used_at.is_(None))
+                .where(PasswordResetToken.expires_at > func.now())
+                .where(PasswordResetToken.token_prefix.is_(None))
+                .order_by(PasswordResetToken.created_at.desc())
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for token in legacy_tokens:
         if password_hash.verify(token_str, token.token_hash):
             return token
 

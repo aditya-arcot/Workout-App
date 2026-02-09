@@ -23,7 +23,7 @@ async def lifespan(_: FastAPI):
     create_directories()
     setup_logging()
     logger.debug("Initialized logging")
-    logger.debug("Loaded settings: %s", settings.model_dump())
+    logger.debug(f"Loaded settings: {settings.model_dump()}")
     logger.info("Starting app...")
     yield
 

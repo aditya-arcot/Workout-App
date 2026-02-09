@@ -123,6 +123,16 @@ export function Login() {
                     >
                         {isSubmitting ? 'Logging in...' : 'Login'}
                     </Button>
+                    <div className="text-sm">
+                        <Link to="/forgot-password">
+                            <Button
+                                variant="link"
+                                className="h-auto p-0 align-baseline"
+                            >
+                                Forgot password?
+                            </Button>
+                        </Link>
+                    </div>
                     <div className="flex flex-col items-center gap-1 text-sm">
                         <div className="text-muted-foreground">
                             Don&apos;t have an account?{' '}

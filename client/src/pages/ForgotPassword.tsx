@@ -1,5 +1,5 @@
 import { AuthService } from '@/api/generated'
-import { zRequestAccessRequest } from '@/api/generated/zod.gen'
+import { zForgotPasswordRequest } from '@/api/generated/zod.gen'
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -10,55 +10,42 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isHttpError, isHttpValidationError } from '@/lib/http'
+import { isHttpValidationError } from '@/lib/http'
 import { notify } from '@/lib/notify'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { z } from 'zod'
 
-type RequestAccessForm = z.infer<typeof zRequestAccessRequest>
+type ForgotPasswordForm = z.infer<typeof zForgotPasswordRequest>
 
-export function RequestAccess() {
-    const navigate = useNavigate()
-
+export function ForgotPassword() {
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
         reset,
-    } = useForm<RequestAccessForm>({
-        resolver: zodResolver(zRequestAccessRequest),
+    } = useForm<ForgotPasswordForm>({
+        resolver: zodResolver(zForgotPasswordRequest),
         mode: 'onSubmit',
         reValidateMode: 'onChange',
     })
 
-    const onSubmit = async (form: RequestAccessForm) => {
-        const { data, error } = await AuthService.requestAccess({ body: form })
+    const onSubmit = async (form: ForgotPasswordForm) => {
+        const { error } = await AuthService.forgotPassword({ body: form })
         if (error) {
-            if (isHttpError(error)) {
-                if (error.code === 'email_already_registered') {
-                    notify.error(error.detail)
-                    void navigate('/login', { replace: true })
-                } else if (
-                    error.code === 'access_request_pending' ||
-                    error.code === 'access_request_rejected'
-                ) {
-                    notify.error(error.detail)
-                    reset()
-                } else {
-                    notify.error(error.detail)
-                }
-            } else if (isHttpValidationError(error)) {
+            if (isHttpValidationError(error)) {
                 error.detail?.forEach((detail) => {
                     notify.error(`Validation error: ${detail.msg}`)
                 })
             } else {
-                notify.error('Failed to request access')
+                notify.error('Failed to request password reset')
             }
             return
         }
-        notify.success(data)
+        notify.success(
+            'If that email is registered, a reset link has been sent'
+        )
         reset()
     }
 
@@ -67,53 +54,17 @@ export function RequestAccess() {
             <Card className="w-full max-w-sm shadow-md">
                 <CardHeader className="-mb-4">
                     <CardTitle className="p-0 text-center text-2xl">
-                        Request Access
+                        Forgot Password
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form
-                        id="request-access-form"
+                        id="forgot-password-form"
                         className="space-y-4"
                         onSubmit={(e) => {
                             void handleSubmit(onSubmit)(e)
                         }}
                     >
-                        <div className="space-y-1">
-                            <Label htmlFor="first_name">First name</Label>
-                            <Input
-                                id="first_name"
-                                autoComplete="given-name"
-                                aria-invalid={!!errors.first_name}
-                                className={
-                                    errors.first_name
-                                        ? 'border-destructive'
-                                        : ''
-                                }
-                                {...register('first_name')}
-                            />
-                            {errors.first_name && (
-                                <p className="text-sm text-destructive">
-                                    {errors.first_name.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="last_name">Last name</Label>
-                            <Input
-                                id="last_name"
-                                autoComplete="family-name"
-                                aria-invalid={!!errors.last_name}
-                                className={
-                                    errors.last_name ? 'border-destructive' : ''
-                                }
-                                {...register('last_name')}
-                            />
-                            {errors.last_name && (
-                                <p className="text-sm text-destructive">
-                                    {errors.last_name.message}
-                                </p>
-                            )}
-                        </div>
                         <div className="space-y-1">
                             <Label htmlFor="email">Email</Label>
                             <Input
@@ -136,33 +87,33 @@ export function RequestAccess() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-3">
                     <Button
-                        form="request-access-form"
+                        form="forgot-password-form"
                         className="w-full"
                         disabled={isSubmitting}
                         type="submit"
                     >
-                        {isSubmitting ? 'Submitting...' : 'Request Access'}
+                        {isSubmitting ? 'Sending...' : 'Send Reset Link'}
                     </Button>
                     <div className="flex flex-col items-center gap-1 text-sm">
                         <div className="text-muted-foreground">
-                            Already have a token?{' '}
-                            <Link to="/register">
-                                <Button
-                                    variant="link"
-                                    className="h-auto p-0 align-baseline"
-                                >
-                                    Register
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className="text-muted-foreground">
-                            Already have an account?{' '}
+                            Know your password?{' '}
                             <Link to="/login">
                                 <Button
                                     variant="link"
                                     className="h-auto p-0 align-baseline"
                                 >
                                     Log In
+                                </Button>
+                            </Link>
+                        </div>
+                        <div className="text-muted-foreground">
+                            Need access?{' '}
+                            <Link to="/request-access">
+                                <Button
+                                    variant="link"
+                                    className="h-auto p-0 align-baseline"
+                                >
+                                    Request Access
                                 </Button>
                             </Link>
                         </div>

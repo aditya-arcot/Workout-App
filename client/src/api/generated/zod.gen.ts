@@ -36,6 +36,13 @@ export const zCreateFeedbackRequest = z.object({
 });
 
 /**
+ * ForgotPasswordRequest
+ */
+export const zForgotPasswordRequest = z.object({
+    email: z.email()
+});
+
+/**
  * LoginRequest
  */
 export const zLoginRequest = z.object({
@@ -59,6 +66,14 @@ export const zRequestAccessRequest = z.object({
     email: z.email(),
     first_name: z.string().min(1).max(50),
     last_name: z.string().min(1).max(50)
+});
+
+/**
+ * ResetPasswordRequest
+ */
+export const zResetPasswordRequest = z.object({
+    token: z.string().min(1).max(64),
+    password: z.string().min(8).max(64)
 });
 
 /**
@@ -189,6 +204,28 @@ export const zRegisterData = z.object({
  * Successful Response
  */
 export const zRegisterResponse = z.void();
+
+export const zForgotPasswordData = z.object({
+    body: zForgotPasswordRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zForgotPasswordResponse = z.void();
+
+export const zResetPasswordData = z.object({
+    body: zResetPasswordRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Successful Response
+ */
+export const zResetPasswordResponse = z.void();
 
 export const zLoginData = z.object({
     body: zLoginRequest,

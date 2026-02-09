@@ -1,5 +1,5 @@
 import { AuthService } from '@/api/generated'
-import { zRegisterRequest } from '@/api/generated/zod.gen'
+import { zResetPasswordRequest } from '@/api/generated/zod.gen'
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -17,18 +17,18 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 
-const zRegisterFormSchema = zRegisterRequest
+const zResetPasswordFormSchema = zResetPasswordRequest
     .extend({
-        confirmPassword: zRegisterRequest.shape.password,
+        confirmPassword: zResetPasswordRequest.shape.password,
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: 'Passwords do not match',
         path: ['confirmPassword'],
     })
 
-type RegisterForm = z.infer<typeof zRegisterFormSchema>
+type ResetPasswordForm = z.infer<typeof zResetPasswordFormSchema>
 
-export function Register() {
+export function ResetPassword() {
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
 
@@ -40,8 +40,8 @@ export function Register() {
         handleSubmit,
         formState: { errors, isSubmitting },
         reset,
-    } = useForm<RegisterForm>({
-        resolver: zodResolver(zRegisterFormSchema),
+    } = useForm<ResetPasswordForm>({
+        resolver: zodResolver(zResetPasswordFormSchema),
         mode: 'onSubmit',
         reValidateMode: 'onChange',
         defaultValues: {
@@ -49,20 +49,16 @@ export function Register() {
         },
     })
 
-    const onSubmit = async (form: RegisterForm) => {
-        const { error } = await AuthService.register({
+    const onSubmit = async (form: ResetPasswordForm) => {
+        const { error } = await AuthService.resetPassword({
             body: form,
         })
         if (error) {
             if (isHttpError(error)) {
                 if (error.code === 'invalid_token') {
                     notify.error(error.detail)
-                    notify.info('If token is expired, request access again')
                     reset({ token: '', confirmPassword: '' })
                     setSearchParams({})
-                } else if (error.code === 'username_already_registered') {
-                    notify.error(error.detail)
-                    reset({ username: '', confirmPassword: '' })
                 } else {
                     notify.error(error.detail)
                 }
@@ -71,11 +67,11 @@ export function Register() {
                     notify.error(`Validation error: ${detail.msg}`)
                 })
             } else {
-                notify.error('Failed to register')
+                notify.error('Failed to reset password')
             }
             return
         }
-        notify.success('Registered successfully. You can now log in')
+        notify.success('Password reset. You can now log in')
         void navigate('/login', { replace: true })
     }
 
@@ -84,12 +80,12 @@ export function Register() {
             <Card className="w-full max-w-sm shadow-md">
                 <CardHeader className="-mb-4">
                     <CardTitle className="p-0 text-center text-2xl">
-                        Register
+                        Reset Password
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form
-                        id="register-form"
+                        id="reset-password-form"
                         className="space-y-4"
                         onSubmit={(e) => {
                             void handleSubmit(onSubmit)(e)
@@ -99,6 +95,7 @@ export function Register() {
                             <Label htmlFor="token">Token</Label>
                             <Input
                                 id="token"
+                                autoComplete="off"
                                 disabled={tokenSet}
                                 aria-invalid={!!errors.token}
                                 className={
@@ -113,24 +110,7 @@ export function Register() {
                             )}
                         </div>
                         <div className="space-y-1">
-                            <Label htmlFor="username">Username</Label>
-                            <Input
-                                id="username"
-                                autoComplete="username"
-                                aria-invalid={!!errors.username}
-                                className={
-                                    errors.username ? 'border-destructive' : ''
-                                }
-                                {...register('username')}
-                            />
-                            {errors.username && (
-                                <p className="text-sm text-destructive">
-                                    {errors.username.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">New Password</Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -173,27 +153,16 @@ export function Register() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-3">
                     <Button
-                        form="register-form"
+                        form="reset-password-form"
                         className="w-full"
                         disabled={isSubmitting}
                         type="submit"
                     >
-                        {isSubmitting ? 'Registering...' : 'Register'}
+                        {isSubmitting ? 'Resetting...' : 'Reset password'}
                     </Button>
                     <div className="flex flex-col items-center gap-1 text-sm">
                         <div className="text-muted-foreground">
-                            Don&apos;t have a token?{' '}
-                            <Link to="/request-access">
-                                <Button
-                                    variant="link"
-                                    className="h-auto p-0 align-baseline"
-                                >
-                                    Request Access
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className="text-muted-foreground">
-                            Already have an account?{' '}
+                            Know your password?{' '}
                             <Link to="/login">
                                 <Button
                                     variant="link"

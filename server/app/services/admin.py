@@ -68,7 +68,7 @@ async def update_access_request_status(
     access_request.reviewed_at = func.now()
     access_request.reviewed_by = user.id
 
-    token_str, token = create_registration_token(access_request)
+    token_str, token = create_registration_token(access_request.id)
     db.add(token)
     await db.commit()
 

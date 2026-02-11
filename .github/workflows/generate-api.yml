@@ -1,22 +1,24 @@
-name: Format & Lint Code on PR Merge
+name: Generate API Client on PR Merge
 
 on:
-    workflow_run:
-        workflows: ['Generate API Client on PR Merge']
+    pull_request:
+        branches:
+            - stage
         types:
-            - completed
+            - closed
 
 permissions:
     contents: write
 
 jobs:
-    format-and-lint:
+    generate-api:
+        if: github.event.pull_request.merged == true
         runs-on: self-hosted
         steps:
             - name: checkout
               uses: actions/checkout@v6
               with:
-                  ref: stage
+                  ref: ${{ github.event.pull_request.base.ref }}
 
             - name: setup node
               uses: actions/setup-node@v6
@@ -27,25 +29,29 @@ jobs:
             - name: update npm
               run: npm i -g npm@latest
 
-            - name: install deps - base
-              run: |
-                  npm config ls
-                  npm ci --ignore-scripts --cache .npm
-
             - name: install deps - client
               working-directory: client
               run: |
                   npm config ls
-                  npm ci --cache ../.npm
+                  npm ci --cache .npm
 
             - name: install deps - server
               working-directory: server
               run: uv sync
 
-            - name: format & lint
+            - name: generate api client
+              working-directory: scripts
+              run: ./generate_api.sh -f
+
+            - name: build client using docker
+              working-directory: client
               run: |
-                  npm run format
-                  npm run lint
+                  docker build \
+                      --target build \
+                      --build-arg VITE_ENV=ci \
+                      --build-arg VITE_IMAGE_TAG=ci-tag \
+                      --build-arg VITE_API_URL=https://api.example.com \
+                      .
 
             - name: commit & push
               run: |
@@ -55,13 +61,14 @@ jobs:
 
                     git add .
                     git status
-                    git commit -m "chore: format & lint code after PR merge"
+                    git commit -m "chore: update generated API client after PR merge"
                     git status
                     git push
                   else
-                    echo "No formatting changes to commit"
+                    echo "No changes to commit"
                   fi
 
             - name: remove cache folder
               if: always()
+              working-directory: client
               run: rm -rf .npm

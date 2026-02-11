@@ -1,1 +1,1 @@
-database:5432:*:${DATABASE__USER}:${DATABASE__PASSWORD}
+database:5432:*:${DB__USER}:${DB__PASSWORD}

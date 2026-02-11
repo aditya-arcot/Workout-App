@@ -10,13 +10,13 @@ services:
             - pg-data:/var/lib/postgresql/data/pgdata
         environment:
             - PGDATA=/var/lib/postgresql/data/pgdata
-            - POSTGRES_DB=${DATABASE__NAME?}
-            - POSTGRES_USER=${DATABASE__USER?}
-            - POSTGRES_PASSWORD=${DATABASE__PASSWORD?}
+            - POSTGRES_DB=${DB__NAME?}
+            - POSTGRES_USER=${DB__USER?}
+            - POSTGRES_PASSWORD=${DB__PASSWORD?}
 
         healthcheck:
             # pg_isready does not check user or db
-            test: "psql -U ${DATABASE__USER?} -d ${DATABASE__NAME?} -c 'SELECT 1' || exit 1"
+            test: "psql -U ${DB__USER?} -d ${DB__NAME?} -c 'SELECT 1' || exit 1"
             start_period: 5s
             timeout: 5s
             retries: 3
@@ -81,11 +81,11 @@ services:
             - JWT__REFRESH_TOKEN_EXPIRE_DAYS=${JWT__REFRESH_TOKEN_EXPIRE_DAYS?}
 
             # internal host & port
-            - DATABASE__HOST=database
-            - DATABASE__PORT=5432
-            - DATABASE__NAME=${DATABASE__NAME?}
-            - DATABASE__USER=${DATABASE__USER?}
-            - DATABASE__PASSWORD=${DATABASE__PASSWORD?}
+            - DB__HOST=database
+            - DB__PORT=5432
+            - DB__NAME=${DB__NAME?}
+            - DB__USER=${DB__USER?}
+            - DB__PASSWORD=${DB__PASSWORD?}
 
             - EMAIL__BACKEND=${EMAIL__BACKEND?}
             - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
@@ -134,11 +134,11 @@ services:
             - JWT__REFRESH_TOKEN_EXPIRE_DAYS=${JWT__REFRESH_TOKEN_EXPIRE_DAYS?}
 
             # internal host & port
-            - DATABASE__HOST=database
-            - DATABASE__PORT=5432
-            - DATABASE__NAME=${DATABASE__NAME?}
-            - DATABASE__USER=${DATABASE__USER?}
-            - DATABASE__PASSWORD=${DATABASE__PASSWORD?}
+            - DB__HOST=database
+            - DB__PORT=5432
+            - DB__NAME=${DB__NAME?}
+            - DB__USER=${DB__USER?}
+            - DB__PASSWORD=${DB__PASSWORD?}
 
             - EMAIL__BACKEND=${EMAIL__BACKEND?}
             - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}

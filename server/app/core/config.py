@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     admin: AdminSettings
     jwt: JWTSettings
-    database: DatabaseSettings
+    db: DatabaseSettings
     # discriminator with any caps does not work
     email: Annotated[EmailSettings, Field(discriminator="backend")]
     gh: Annotated[GitHubSettings, Field(discriminator="backend")]

@@ -48,11 +48,11 @@ jobs:
                   echo "JWT__ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.JWT__ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
                   echo "JWT__REFRESH_TOKEN_EXPIRE_DAYS=${{ secrets.JWT__REFRESH_TOKEN_EXPIRE_DAYS }}" >> .env
 
-                  echo "DATABASE__HOST=" >> .env
-                  echo "DATABASE__PORT=0" >> .env
-                  echo "DATABASE__NAME=" >> .env
-                  echo "DATABASE__USER=" >> .env
-                  echo "DATABASE__PASSWORD=" >> .env
+                  echo "DB__HOST=" >> .env
+                  echo "DB__PORT=0" >> .env
+                  echo "DB__NAME=" >> .env
+                  echo "DB__USER=" >> .env
+                  echo "DB__PASSWORD=" >> .env
 
                   echo "EMAIL__BACKEND=console" >> .env
 

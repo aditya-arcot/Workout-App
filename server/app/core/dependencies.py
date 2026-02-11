@@ -16,7 +16,7 @@ from app.models.schemas.user import UserPublic
 logger = logging.getLogger(__name__)
 
 async_engine = create_async_engine(
-    settings.database.url,
+    settings.db.url,
     echo=not settings.is_prod,
 )
 

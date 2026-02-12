@@ -41,5 +41,5 @@ jobs:
                   context: server
                   push: true
                   tags: ${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:${{ inputs.tag }}
-                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache
-                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache,mode=max
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-server:buildkit
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-server:buildkit,mode=max

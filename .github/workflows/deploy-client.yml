@@ -45,5 +45,5 @@ jobs:
                       VITE_ENV=${{ vars.ENV }}
                       VITE_IMAGE_TAG=${{ inputs.tag }}
                       VITE_API_URL=${{ secrets.VITE_API_URL }}
-                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache
-                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache,mode=max
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-client:buildkit
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-client:buildkit,mode=max

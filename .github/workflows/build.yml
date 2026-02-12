@@ -35,13 +35,13 @@ jobs:
                       VITE_ENV=ci
                       VITE_IMAGE_TAG=ci-tag
                       VITE_API_URL=https://api.example.com
-                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache
-                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache,mode=max
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-client:buildkit
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-client:buildkit,mode=max
 
             - name: build server image
               uses: docker/build-push-action@v6
               with:
                   context: server
                   target: base
-                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache
-                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache,mode=max
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-server:buildkit
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-server:buildkit,mode=max

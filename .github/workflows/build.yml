@@ -1,0 +1,47 @@
+name: Build Client & Server
+
+on:
+    workflow_dispatch:
+    pull_request_target:
+        branches:
+            - stage
+            - main
+
+permissions:
+    contents: none
+
+jobs:
+    build-client:
+        runs-on: self-hosted
+        environment: ${{ github.base_ref == 'main' && 'prod' || github.base_ref }}
+        steps:
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
+            - name: checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
+
+            - name: set up docker buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: build client image
+              uses: docker/build-push-action@v6
+              with:
+                  context: client
+                  target: build
+                  build-args: |
+                      VITE_ENV=ci
+                      VITE_IMAGE_TAG=ci-tag
+                      VITE_API_URL=https://api.example.com
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache,mode=max
+
+            - name: build server image
+              uses: docker/build-push-action@v6
+              with:
+                  context: server
+                  target: base
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache,mode=max

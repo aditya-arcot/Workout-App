@@ -32,12 +32,14 @@ jobs:
                   password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
                   logout: false
 
-            - name: docker context
-              run: docker context ls
+            - name: set up docker buildx
+              uses: docker/setup-buildx-action@v3
 
             - name: build & push docker image
-              working-directory: server
-              run: |
-                  IMAGE=${{secrets.DOCKER_REGISTRY}}/${{ vars.PROJECT }}-${{ vars.ENV}}-server:${{ inputs.tag }}
-                  docker build -t $IMAGE .
-                  docker push $IMAGE
+              uses: docker/build-push-action@v6
+              with:
+                  context: server
+                  push: true
+                  tags: ${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:${{ inputs.tag }}
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:build-cache,mode=max

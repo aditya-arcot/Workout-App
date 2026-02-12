@@ -14,6 +14,7 @@ jobs:
     generate-api:
         if: github.event.pull_request.merged == true
         runs-on: self-hosted
+        environment: stage
         steps:
             - name: set cache dirs
               run: |
@@ -53,15 +54,20 @@ jobs:
               working-directory: scripts
               run: ./generate_api.sh -f
 
-            - name: build client using docker
-              working-directory: client
-              run: |
-                  docker build \
-                      --target build \
-                      --build-arg VITE_ENV=ci \
-                      --build-arg VITE_IMAGE_TAG=ci-tag \
-                      --build-arg VITE_API_URL=https://api.example.com \
-                      .
+            - name: set up docker buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: build client image
+              uses: docker/build-push-action@v6
+              with:
+                  context: client
+                  target: build
+                  build-args: |
+                      VITE_ENV=ci
+                      VITE_IMAGE_TAG=ci-tag
+                      VITE_API_URL=https://api.example.com
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-client:build-cache,mode=max
 
             - name: commit & push
               run: |

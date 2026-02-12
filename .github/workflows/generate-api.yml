@@ -15,6 +15,11 @@ jobs:
         if: github.event.pull_request.merged == true
         runs-on: self-hosted
         steps:
+            - name: set cache dirs
+              run: |
+                  echo "NPM_CONFIG_CACHE=$HOME/.cache/npm" >> $GITHUB_ENV
+                  echo "UV_CACHE_DIR=$HOME/.cache/uv" >> $GITHUB_ENV
+
             - name: checkout
               uses: actions/checkout@v6
               with:
@@ -24,16 +29,21 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version: 'lts/*'
-                  check-latest: true
-
-            - name: update npm
-              run: npm i -g npm@latest
+                  cache: 'npm'
+                  cache-dependency-path: client/package-lock.json
 
             - name: install deps - client
               working-directory: client
               run: |
                   npm config ls
-                  npm ci --cache .npm
+                  npm ci
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                  working-directory: server
+                  enable-cache: true
+                  cache-dependency-glob: uv.lock
 
             - name: install deps - server
               working-directory: server
@@ -67,8 +77,3 @@ jobs:
                   else
                     echo "No changes to commit"
                   fi
-
-            - name: remove cache folder
-              if: always()
-              working-directory: client
-              run: rm -rf .npm

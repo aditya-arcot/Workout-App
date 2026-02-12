@@ -38,6 +38,21 @@ jobs:
                   cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-client:buildkit
                   cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-client:buildkit,mode=max
 
+    build-server:
+        runs-on: self-hosted
+        environment: ${{ github.base_ref == 'main' && 'prod' || github.base_ref }}
+        steps:
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
+            - name: checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.sha || github.ref_name }}
+
+            - name: set up docker buildx
+              uses: docker/setup-buildx-action@v3
+
             - name: build server image
               uses: docker/build-push-action@v6
               with:

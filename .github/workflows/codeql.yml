@@ -1,6 +1,7 @@
 name: Run CodeQL Analysis
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - stage
@@ -39,6 +40,10 @@ jobs:
                     - language: python
                       project: server
         steps:
+            - name: set cache dir
+              run: |
+                  echo "NPM_CONFIG_CACHE=$HOME/.cache/npm" >> $GITHUB_ENV
+
             - name: checkout
               uses: actions/checkout@v6
               with:
@@ -50,10 +55,8 @@ jobs:
               with:
                   node-version: 'lts/*'
                   check-latest: true
-
-            - name: update npm - typescript
-              if: matrix.language == 'typescript'
-              run: npm i -g npm@latest
+                  cache: 'npm'
+                  cache-dependency-path: client/package-lock.json
 
             - name: initialize codeql - actions
               if: matrix.language == 'actions'
@@ -92,15 +95,10 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   npm config ls
-                  npm ci --cache .npm
+                  npm ci
                   npm run build
 
             - name: run codeql
               uses: github/codeql-action/analyze@v4
               with:
                   category: '/language:${{matrix.language}}'
-
-            - name: remove cache folder
-              if: always()
-              working-directory: ${{ matrix.project }}
-              run: rm -rf .npm

@@ -1,0 +1,45 @@
+name: Deploy Server
+
+on:
+    workflow_call:
+        inputs:
+            runner:
+                required: true
+                type: string
+            tag:
+                required: true
+                type: string
+
+permissions:
+    contents: none
+
+jobs:
+    deploy:
+        runs-on: ${{ inputs.runner }}
+        environment: ${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
+        steps:
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
+            - name: checkout
+              uses: actions/checkout@v6
+
+            - name: log in to docker registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ secrets.DOCKER_REGISTRY }}
+                  username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+                  password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+                  logout: false
+
+            - name: set up docker buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: build & push docker image
+              uses: docker/build-push-action@v6
+              with:
+                  context: server
+                  push: true
+                  tags: ${{ secrets.DOCKER_REGISTRY }}/${{ vars.PROJECT }}-${{ vars.ENV }}-server:${{ inputs.tag }}
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-server:buildkit
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/cache/${{ vars.PROJECT }}-${{ vars.ENV }}-server:buildkit,mode=max

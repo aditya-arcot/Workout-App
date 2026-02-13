@@ -24,7 +24,7 @@ jobs:
             - name: create .env file
               working-directory: config/env
               run: |
-                  : > .env
+                  > .env
                   echo "PROJECT=${{ vars.PROJECT }}" >> .env
                   echo "PROD=${{ github.ref_name == 'main' && 'true' || 'false' }}" >> .env
                   echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env

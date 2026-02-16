@@ -10,6 +10,10 @@ on:
 permissions:
     contents: write
 
+concurrency:
+    group: merge-main-into-stage
+    cancel-in-progress: true
+
 jobs:
     merge-main-into-stage:
         if: github.event.pull_request.merged == true

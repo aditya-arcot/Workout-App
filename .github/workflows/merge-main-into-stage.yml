@@ -1,20 +1,18 @@
 name: Merge main into stage on PR Merge
 
 on:
-    workflow_run:
-        workflows: ['Format & Lint Code on PR Merge']
+    pull_request:
+        branches:
+            - main
         types:
-            - completed
+            - closed
 
 permissions:
     contents: write
 
 jobs:
     merge-main-into-stage:
-        if: ${{
-            github.event.workflow_run.event == 'pull_request' &&
-            github.event.workflow_run.pull_requests[0].base.ref == 'main'
-            }}
+        if: github.event.pull_request.merged == true
         runs-on: self-hosted
         steps:
             - name: checkout stage

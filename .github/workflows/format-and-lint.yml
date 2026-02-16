@@ -11,7 +11,6 @@ permissions:
 
 jobs:
     format-and-lint:
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: self-hosted
         steps:
             - name: set cache dirs

@@ -1,0 +1,33 @@
+name: Merge main into stage on PR Merge
+
+on:
+    workflow_run:
+        workflows: ['Format & Lint Code on PR Merge']
+        types:
+            - completed
+
+permissions:
+    contents: write
+
+jobs:
+    merge-main-into-stage:
+        if: ${{
+            github.event.workflow_run.event == 'pull_request' &&
+            github.event.workflow_run.pull_requests[0].base.ref == 'main'
+            }}
+        runs-on: self-hosted
+        steps:
+            - name: checkout stage
+              uses: actions/checkout@v6
+              with:
+                  ref: stage
+
+            - name: merge main into stage
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  git fetch origin main stage
+                  git checkout stage
+                  git merge --no-edit origin/main
+                  git push origin stage

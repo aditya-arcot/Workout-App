@@ -50,6 +50,34 @@ jobs:
               working-directory: server
               run: uv sync
 
+            - name: create .env
+              working-directory: config/env
+              run: |
+                  echo "ENV=stage" >> .env
+                  echo "LOG_LEVEL=debug" >> .env
+                  echo "CLIENT_URL=" >> .env
+
+                  echo "ADMIN__USERNAME=${{ secrets.ADMIN__USERNAME }}" >> .env
+                  echo "ADMIN__EMAIL=${{ secrets.ADMIN__EMAIL }}" >> .env
+                  echo "ADMIN__FIRST_NAME=${{ secrets.ADMIN__FIRST_NAME }}" >> .env
+                  echo "ADMIN__LAST_NAME=${{ secrets.ADMIN__LAST_NAME }}" >> .env
+                  echo "ADMIN__PASSWORD=${{ secrets.ADMIN__PASSWORD }}" >> .env
+
+                  echo "JWT__SECRET_KEY=${{ secrets.JWT__SECRET_KEY }}" >> .env
+                  echo "JWT__ALGORITHM=${{ secrets.JWT__ALGORITHM }}" >> .env
+                  echo "JWT__ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.JWT__ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+                  echo "JWT__REFRESH_TOKEN_EXPIRE_DAYS=${{ secrets.JWT__REFRESH_TOKEN_EXPIRE_DAYS }}" >> .env
+
+                  echo "DB__HOST=" >> .env
+                  echo "DB__PORT=0" >> .env
+                  echo "DB__NAME=" >> .env
+                  echo "DB__USER=" >> .env
+                  echo "DB__PASSWORD=" >> .env
+
+                  echo "EMAIL__BACKEND=console" >> .env
+
+                  echo "GH__BACKEND=console" >> .env
+
             - name: generate api client
               working-directory: scripts
               run: ./generate_api.sh -f

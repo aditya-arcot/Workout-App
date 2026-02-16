@@ -31,7 +31,7 @@ jobs:
                   enable-cache: true
                   cache-dependency-glob: uv.lock
 
-            - name: install
+            - name: install deps
               working-directory: server
               run: uv sync
 

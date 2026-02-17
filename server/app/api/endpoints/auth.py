@@ -6,6 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.dependencies import get_db, refresh_token_cookie
 from app.core.security import ACCESS_JWT_KEY, REFRESH_JWT_KEY
+from app.models.api import (
+    REQUEST_ACCESS_APPROVED_MESSAGE,
+    REQUEST_ACCESS_CREATED_MESSAGE,
+)
 from app.models.schemas.auth import (
     ForgotPasswordRequest,
     LoginRequest,
@@ -50,8 +54,8 @@ async def request_access_endpoint(
         email=req.email,
     )
     if already_approved:
-        return "Access already approved. Approval email resent"
-    return "Requested access. Wait for admin approval"
+        return REQUEST_ACCESS_APPROVED_MESSAGE
+    return REQUEST_ACCESS_CREATED_MESSAGE
 
 
 @api_router.post(

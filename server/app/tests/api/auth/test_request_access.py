@@ -2,6 +2,10 @@ from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.api import (
+    REQUEST_ACCESS_APPROVED_MESSAGE,
+    REQUEST_ACCESS_CREATED_MESSAGE,
+)
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
 from app.models.database.user import User
 from app.models.errors import (
@@ -27,6 +31,7 @@ async def make_request(
     )
 
 
+# 200
 async def test_request_access(client: AsyncClient):
     resp = await make_request(
         client, email="new_user@example.com", first_name="New", last_name="User"
@@ -34,9 +39,10 @@ async def test_request_access(client: AsyncClient):
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    assert body == "Requested access. Wait for admin approval"
+    assert body == REQUEST_ACCESS_CREATED_MESSAGE
 
 
+# 200
 async def test_request_access_approved(client: AsyncClient, session: AsyncSession):
     approved_email = "approved@example.com"
     req = AccessRequest(
@@ -54,9 +60,31 @@ async def test_request_access_approved(client: AsyncClient, session: AsyncSessio
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
-    assert body == "Access already approved. Approval email resent"
+    assert body == REQUEST_ACCESS_APPROVED_MESSAGE
 
 
+# 403
+async def test_request_access_rejected(client: AsyncClient, session: AsyncSession):
+    rejected_email = "rejected@example.com"
+    req = AccessRequest(
+        email=rejected_email,
+        first_name="Rejected",
+        last_name="User",
+        status=AccessRequestStatus.REJECTED,
+    )
+    session.add(req)
+    await session.commit()
+
+    resp = await make_request(
+        client, email=rejected_email, first_name="Test", last_name="User"
+    )
+
+    assert resp.status_code == AccessRequestRejected.status_code
+    body = resp.json()
+    assert body["detail"] == AccessRequestRejected.detail
+
+
+# 409
 async def test_request_access_existing_user(client: AsyncClient, session: AsyncSession):
     existing_email = "existing@example.com"
     user = User(
@@ -79,6 +107,7 @@ async def test_request_access_existing_user(client: AsyncClient, session: AsyncS
     assert body["detail"] == EmailAlreadyRegistered.detail
 
 
+# 409
 async def test_request_access_pending(client: AsyncClient, session: AsyncSession):
     pending_email = "pending@example.com"
     req = AccessRequest(
@@ -99,21 +128,19 @@ async def test_request_access_pending(client: AsyncClient, session: AsyncSession
     assert body["detail"] == AccessRequestPending.detail
 
 
-async def test_request_access_rejected(client: AsyncClient, session: AsyncSession):
-    rejected_email = "rejected@example.com"
-    req = AccessRequest(
-        email=rejected_email,
-        first_name="Rejected",
-        last_name="User",
-        status=AccessRequestStatus.REJECTED,
-    )
-    session.add(req)
-    await session.commit()
-
-    resp = await make_request(
-        client, email=rejected_email, first_name="Test", last_name="User"
+# 422
+async def test_request_access_invalid_email(client: AsyncClient):
+    resp = await make_http_request(
+        client,
+        method=HttpMethod.POST,
+        endpoint="/api/auth/request-access",
+        json={
+            "email": "invalid-email",
+            "first_name": "Test",
+            "last_name": "User",
+        },
     )
 
-    assert resp.status_code == AccessRequestRejected.status_code
+    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     body = resp.json()
-    assert body["detail"] == AccessRequestRejected.detail
+    assert body["detail"][0]["loc"] == ["body", "email"]

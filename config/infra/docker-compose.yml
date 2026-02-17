@@ -7,9 +7,9 @@ services:
         restart: always
 
         volumes:
-            - pg-data:/var/lib/postgresql/data/pgdata
+            - pg-data:/var/lib/postgresql
         environment:
-            - PGDATA=/var/lib/postgresql/data/pgdata
+            - PGDATA=/var/lib/postgresql
             - POSTGRES_DB=${DB__NAME?}
             - POSTGRES_USER=${DB__USER?}
             - POSTGRES_PASSWORD=${DB__PASSWORD?}
@@ -31,6 +31,7 @@ services:
             - default
 
         volumes:
+            - pg-admin-data:/var/lib/pgadmin
             - ../env/servers.json:/pgadmin4/servers.json:ro
             - ../env/pgpass:/pgpass:ro
         environment:
@@ -187,6 +188,7 @@ services:
 
 volumes:
     pg-data:
+    pg-admin-data:
     server-data:
     server-logs:
 

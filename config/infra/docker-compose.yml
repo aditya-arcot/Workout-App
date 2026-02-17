@@ -23,7 +23,7 @@ services:
             interval: 1m
 
     pg-admin:
-        image: dpage/pgadmin4:9.11.0
+        image: dpage/pgadmin4:9
         container_name: ${PROJECT?}-${ENV?}-pg-admin
         restart: always
         networks:

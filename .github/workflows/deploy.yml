@@ -40,7 +40,7 @@ jobs:
         steps:
             - name: set runner
               id: set_runner
-              run: echo "runner=mbp-13" >> $GITHUB_OUTPUT
+              run: echo "runner=mbp-13-ubuntu" >> $GITHUB_OUTPUT
 
             - name: set tag
               id: set_tag

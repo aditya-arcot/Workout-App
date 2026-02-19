@@ -5,7 +5,6 @@ from fastapi import BackgroundTasks
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.security import (
     PASSWORD_HASH,
     authenticate_user,
@@ -77,10 +76,6 @@ async def request_access(
                 db.add(token)
                 await db.commit()
 
-                if settings.env == "test":
-                    await db.refresh(existing_request)
-                    await db.refresh(token)
-
                 background_tasks.add_task(
                     email_svc.send_access_request_approved_email,
                     existing_request,
@@ -96,9 +91,6 @@ async def request_access(
     )
     db.add(access_request)
     await db.commit()
-
-    if settings.env == "test":
-        await db.refresh(access_request)
 
     admins = (await db.execute(select(User).where(User.is_admin))).scalars().all()
     for admin in admins:
@@ -165,10 +157,6 @@ async def request_password_reset(
     token_str, token = create_password_reset_token(user.id)
     db.add(token)
     await db.commit()
-
-    if settings.env == "test":
-        await db.refresh(user)
-        await db.refresh(token)
 
     background_tasks.add_task(
         email_svc.send_password_reset_email,

@@ -59,7 +59,7 @@ jobs:
 
                   echo "EMAIL__BACKEND=smtp" >> .env
                   echo "EMAIL__EMAIL_FROM=${{ secrets.EMAIL__EMAIL_FROM }}" >> .env
-                  # exclude host
+                  echo "EMAIL__SMTP_HOST=${{ secrets.EMAIL__SMTP_HOST }}" >> .env
                   echo "EMAIL__SMTP_USERNAME=${{ secrets.EMAIL__SMTP_USERNAME }}" >> .env
                   echo "EMAIL__SMTP_PASSWORD=${{ secrets.EMAIL__SMTP_PASSWORD }}" >> .env
 

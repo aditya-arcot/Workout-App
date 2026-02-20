@@ -66,6 +66,7 @@ jobs:
                   echo "GH__BACKEND=api" >> .env
                   echo "GH__REPO_OWNER=${{ secrets.GH__REPO_OWNER }}" >> .env
                   echo "GH__TOKEN=${{ secrets.GH__TOKEN }}" >> .env
+                  echo "GH__ISSUE_ASSIGNEE=${{ secrets.GH__ISSUE_ASSIGNEE }}" >> .env
 
             - name: create pg admin config
               working-directory: scripts

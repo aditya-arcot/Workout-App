@@ -124,6 +124,7 @@ class GitHubApiSettings(BaseModel):
     backend: Literal["api"]
     repo_owner: str
     token: str
+    issue_assignee: str
 
 
 class GitHubConsoleSettings(BaseModel):
@@ -137,4 +138,9 @@ class GitHubConsoleSettings(BaseModel):
     @computed_field
     @property
     def token(self) -> None:
+        return None
+
+    @computed_field
+    @property
+    def issue_assignee(self) -> None:
         return None

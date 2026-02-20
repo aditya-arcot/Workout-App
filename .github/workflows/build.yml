@@ -15,6 +15,9 @@ jobs:
         runs-on: self-hosted
         environment: ${{ github.base_ref == 'main' && 'prod' || github.base_ref }}
         steps:
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
             - name: checkout
               uses: actions/checkout@v6
               with:
@@ -38,6 +41,9 @@ jobs:
         runs-on: self-hosted
         environment: ${{ github.base_ref == 'main' && 'prod' || github.base_ref }}
         steps:
+            - name: unlock keychain
+              run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
+
             - name: checkout
               uses: actions/checkout@v6
               with:

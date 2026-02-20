@@ -107,6 +107,8 @@ services:
         networks:
             - traefik-public
             - default
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
         depends_on:
             database:

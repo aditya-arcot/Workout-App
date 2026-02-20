@@ -12,7 +12,7 @@ services:
     database:
         image: postgres:18
         container_name: ${PROJECT?}-${ENV?}-database
-        restart: always
+        restart: unless-stopped
 
         volumes:
             - pg-data:/var/lib/postgresql
@@ -33,7 +33,7 @@ services:
     pg-admin:
         image: dpage/pgadmin4:9
         container_name: ${PROJECT?}-${ENV?}-pg-admin
-        restart: always
+        restart: unless-stopped
         networks:
             - traefik-public
             - default
@@ -113,7 +113,7 @@ services:
     server:
         image: ${DOCKER_REGISTRY?}/${PROJECT?}-${ENV?}-server:${TAG?}
         container_name: ${PROJECT?}-${ENV?}-server
-        restart: always
+        restart: unless-stopped
         networks:
             - traefik-public
             - default
@@ -187,7 +187,7 @@ services:
     client:
         image: ${DOCKER_REGISTRY?}/${PROJECT?}-${ENV?}-client:${TAG?}
         container_name: ${PROJECT?}-${ENV?}-client
-        restart: always
+        restart: unless-stopped
         networks:
             - traefik-public
             - default

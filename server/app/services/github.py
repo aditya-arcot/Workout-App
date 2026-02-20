@@ -84,6 +84,12 @@ class ApiGitHubService(GitHubService):
                     feedback.id,
                     e.response.text if e.response else "<no response>",
                 )
+            except Exception as e:
+                logger.error(
+                    "Unexpected error while creating GitHub issue for feedback id %s - %s",
+                    feedback.id,
+                    e,
+                )
 
 
 class ConsoleGitHubService(GitHubService):

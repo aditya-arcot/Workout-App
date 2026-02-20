@@ -55,6 +55,7 @@ services:
             - ../../server/logs:/src/logs
         environment:
             - EMAIL__BACKEND=local
+            - EMAIL__SMTP_HOST=docker.host.internal
             - GH__BACKEND=console
 
         develop:

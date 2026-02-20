@@ -71,13 +71,19 @@ class ApiGitHubService(GitHubService):
         payload: dict[str, Any] = {
             "title": title,
             "body": body,
-            "assignees": [settings.gh.repo_owner],
+            "assignees": [settings.gh.issue_assignee],
         }
         async with httpx.AsyncClient() as client:
-            resp = await client.post(url, headers=self.HEADERS, json=payload)
-            resp.raise_for_status()
-
-        logging.info(f"Created GitHub issue for feedback id: {feedback.id}")
+            try:
+                resp = await client.post(url, headers=self.HEADERS, json=payload)
+                resp.raise_for_status()
+                logging.info(f"Created GitHub issue for feedback id: {feedback.id}")
+            except httpx.HTTPStatusError as e:
+                logger.error(
+                    "Failed to create GitHub issue for feedback id %s - %s",
+                    feedback.id,
+                    e.response.text if e.response else "<no response>",
+                )
 
 
 class ConsoleGitHubService(GitHubService):

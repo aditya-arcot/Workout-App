@@ -91,6 +91,7 @@ services:
             - EMAIL__BACKEND=${EMAIL__BACKEND?}
             - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
             - EMAIL__SMTP_HOST=${EMAIL__SMTP_HOST?}
+            - EMAIL__SMTP_PORT=${EMAIL__SMTP_PORT?}
             - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
             - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 
@@ -146,6 +147,7 @@ services:
             - EMAIL__BACKEND=${EMAIL__BACKEND?}
             - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
             - EMAIL__SMTP_HOST=${EMAIL__SMTP_HOST?}
+            - EMAIL__SMTP_PORT=${EMAIL__SMTP_PORT?}
             - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
             - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 

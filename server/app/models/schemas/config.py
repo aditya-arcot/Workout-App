@@ -40,24 +40,16 @@ class EmailSmtpSettings(BaseModel):
     # allow arbitrary string
     email_from: str
     smtp_host: str
+    smtp_port: int
     smtp_username: str
     smtp_password: str
-
-    @computed_field
-    @property
-    def smtp_port(self) -> int:
-        return 1025
 
 
 class EmailLocalSettings(BaseModel):
     backend: Literal["local"]
     email_from: str
     smtp_host: str
-
-    @computed_field
-    @property
-    def smtp_port(self) -> int:
-        return 1026
+    smtp_port: int
 
     @computed_field
     @property

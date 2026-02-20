@@ -21,8 +21,8 @@ services:
         container_name: ${PROJECT?}-${ENV?}-mailcatcher
         restart: no
         ports:
-            - '1080:1080' # web ui
-            - '1026:1025' # smtp
+            - 1080:1080 # web ui
+            - '${EMAIL__SMTP_PORT?}:1025' # smtp
 
         labels:
             - traefik.enable=true

@@ -62,7 +62,7 @@ services:
             - ../../server/logs:/src/logs
         environment:
             - EMAIL__BACKEND=local
-            - EMAIL_SMTP_PORT=${EMAIL__SMTP_PORT?}
+            - EMAIL__SMTP_PORT=${EMAIL__SMTP_PORT?}
             - GH__BACKEND=console
 
         develop:

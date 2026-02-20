@@ -1,8 +1,12 @@
 services:
+    smtp-proxy:
+        profiles:
+            - dummy
+
     database:
         restart: no
         ports:
-            - '${DB__PORT?}:5432'
+            - ${DB__PORT?}:5432
 
     pg-admin:
         restart: no
@@ -21,8 +25,8 @@ services:
         container_name: ${PROJECT?}-${ENV?}-mailcatcher
         restart: no
         ports:
-            - '1080:1080' # web ui
-            - '1026:1025' # smtp
+            - 1080:1080 # web ui
+            - ${EMAIL__SMTP_PORT?}:1025 # smtp
 
         labels:
             - traefik.enable=true
@@ -48,13 +52,17 @@ services:
 
         restart: no
         ports:
-            - '8000:8000'
+            - 8000:8000
+
+        depends_on:
+            smtp-proxy: !reset ''
 
         volumes:
             - ../../server/data:/src/data
             - ../../server/logs:/src/logs
         environment:
             - EMAIL__BACKEND=local
+            - EMAIL_SMTP_PORT=${EMAIL__SMTP_PORT?}
             - GH__BACKEND=console
 
         develop:
@@ -93,7 +101,7 @@ services:
 
         restart: no
         ports:
-            - '5173:5173'
+            - 5173:5173
 
         environment:
             - VITE_ENV=dev

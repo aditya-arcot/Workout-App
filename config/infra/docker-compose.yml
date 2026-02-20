@@ -1,6 +1,14 @@
 name: ${PROJECT?}-${ENV?}
 
 services:
+    smtp-proxy:
+        image: alpine/socat
+        container_name: ${PROJECT?}-${ENV?}-smtp-proxy
+        restart: unless-stopped
+        network_mode: host
+
+        command: TCP-LISTEN:1026,fork,reuseaddr TCP:127.0.0.1:1025
+
     database:
         image: postgres:18
         container_name: ${PROJECT?}-${ENV?}-database
@@ -91,6 +99,7 @@ services:
             - EMAIL__BACKEND=${EMAIL__BACKEND?}
             - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
             - EMAIL__SMTP_HOST=host.docker.internal
+            - EMAIL__SMTP_PORT=1026
             - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
             - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 
@@ -107,8 +116,12 @@ services:
         networks:
             - traefik-public
             - default
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
         depends_on:
+            smtp-proxy:
+                condition: service_started
             database:
                 condition: service_healthy
                 restart: true
@@ -144,6 +157,7 @@ services:
             - EMAIL__BACKEND=${EMAIL__BACKEND?}
             - EMAIL__EMAIL_FROM=${EMAIL__EMAIL_FROM?}
             - EMAIL__SMTP_HOST=host.docker.internal
+            - EMAIL__SMTP_PORT=1026
             - EMAIL__SMTP_USERNAME=${EMAIL__SMTP_USERNAME?}
             - EMAIL__SMTP_PASSWORD=${EMAIL__SMTP_PASSWORD?}
 

@@ -20,6 +20,7 @@ async def test_smtp(
         backend="smtp",
         email_from="test@example.com",
         smtp_host="smtp.example.com",
+        smtp_port=1025,
         smtp_username="user",
         smtp_password="pass",
     )

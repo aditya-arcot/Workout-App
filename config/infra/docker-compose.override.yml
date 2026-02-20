@@ -1,4 +1,8 @@
 services:
+    smtp-proxy:
+        profiles:
+            - dummy
+
     database:
         restart: no
         ports:
@@ -50,12 +54,15 @@ services:
         ports:
             - '8000:8000'
 
+        depends_on:
+            smtp-proxy: !reset ''
+
         volumes:
             - ../../server/data:/src/data
             - ../../server/logs:/src/logs
         environment:
             - EMAIL__BACKEND=local
-            - EMAIL__SMTP_HOST=docker.host.internal
+            - EMAIL__SMTP_HOST=host.docker.internal
             - GH__BACKEND=console
 
         develop:

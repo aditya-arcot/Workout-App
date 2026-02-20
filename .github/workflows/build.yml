@@ -16,6 +16,7 @@ jobs:
         environment: ${{ github.base_ref == 'main' && 'prod' || github.base_ref }}
         steps:
             - name: unlock keychain
+              if: runner.os == 'macOS'
               run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
 
             - name: checkout
@@ -42,6 +43,7 @@ jobs:
         environment: ${{ github.base_ref == 'main' && 'prod' || github.base_ref }}
         steps:
             - name: unlock keychain
+              if: runner.os == 'macOS'
               run: security unlock-keychain -p ${{ secrets.KEYCHAIN_PASSWORD }} login.keychain
 
             - name: checkout

@@ -1,8 +1,4 @@
 services:
-    smtp-proxy:
-        profiles:
-            - dummy
-
     database:
         restart: no
         ports:
@@ -53,9 +49,6 @@ services:
         restart: no
         ports:
             - 8000:8000
-
-        depends_on:
-            smtp-proxy: !reset ''
 
         volumes:
             - ../../server/data:/src/data

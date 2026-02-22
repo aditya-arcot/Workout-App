@@ -2,9 +2,10 @@
     "name": "rep-track",
     "private": true,
     "scripts": {
+        "check:py": "uv run --project server pyright",
         "format": "npm run prettier && npm run format:py",
         "format:py": "uv run --project server ruff format server",
-        "lint": "npm run lint:py && cd client && npm run lint",
+        "lint": "npm run lint:py && npm run check:py && cd client && npm run lint",
         "lint:py": "uv run --project server ruff check server --fix",
         "prepare": "husky && npm run sort-package-jsons",
         "prettier": "prettier . --write",
@@ -12,6 +13,7 @@
     },
     "lint-staged": {
         "*.py": [
+            "uv run --project server pyright",
             "uv run --project server ruff check --fix",
             "uv run --project server ruff format"
         ],

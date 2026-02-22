@@ -17,6 +17,7 @@ async def make_request(client: AsyncClient):
     )
 
 
+# 200
 async def test_get_current_user(client: AsyncClient):
     await login_admin(client)
     resp = await make_request(client)
@@ -29,6 +30,7 @@ async def test_get_current_user(client: AsyncClient):
     assert body["is_admin"] is True
 
 
+# 401
 async def test_get_current_user_not_logged_in(client: AsyncClient):
     resp = await make_request(client)
 
@@ -37,6 +39,7 @@ async def test_get_current_user_not_logged_in(client: AsyncClient):
     assert body["detail"] == "Not authenticated"
 
 
+# 401
 async def test_get_current_user_invalid_cookie(client: AsyncClient):
     await login_admin(client)
     client.cookies.set(ACCESS_JWT_KEY, "invalid_token")
@@ -47,6 +50,7 @@ async def test_get_current_user_invalid_cookie(client: AsyncClient):
     assert body["detail"] == InvalidCredentials.detail
 
 
+# 401
 async def test_get_current_user_deleted_user(
     client: AsyncClient, session: AsyncSession
 ):

@@ -44,7 +44,7 @@ async def test_create_feedback_invalid_body(client: AsyncClient):
     await login_admin(client)
     resp = await make_request(client, data={"invalid": "data"})
 
-    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     body = resp.json()
     assert body["detail"][0]["loc"] == ["body", "type"]
     assert body["detail"][1]["loc"] == ["body", "url"]

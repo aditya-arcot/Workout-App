@@ -63,6 +63,6 @@ async def test_reset_password_invalid_body(client: AsyncClient):
         password="NewPassword123",
     )
 
-    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     body = resp.json()
     assert body["detail"][0]["loc"] == ["body", "token"]

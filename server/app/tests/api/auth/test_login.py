@@ -40,7 +40,7 @@ async def test_login_invalid_password(client: AsyncClient):
 async def test_login_invalid_body(client: AsyncClient):
     resp = await login(client, username=None, password=None)  # type: ignore
 
-    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     body = resp.json()
     assert body["detail"][0]["loc"] == ["body", "username"]
     assert body["detail"][1]["loc"] == ["body", "password"]

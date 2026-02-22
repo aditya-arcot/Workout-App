@@ -94,6 +94,6 @@ async def test_register_invalid_body(client: AsyncClient):
         password=None,  # type: ignore
     )
 
-    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     body = resp.json()
     assert body["detail"][0]["loc"] == ["body", "password"]

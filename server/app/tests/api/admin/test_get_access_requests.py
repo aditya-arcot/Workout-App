@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.database.user import User
 from app.models.errors import InsufficientPermissions
 from app.models.schemas.user import UserPublic
@@ -45,7 +45,7 @@ async def test_get_access_requests_non_admin_user(
 ):
     await session.execute(
         update(User)
-        .where(User.username == settings.admin.username)
+        .where(User.username == get_settings().admin.username)
         .values(is_admin=False)
     )
     await session.commit()

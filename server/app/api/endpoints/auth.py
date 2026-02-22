@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.dependencies import get_db, refresh_token_cookie
 from app.core.security import ACCESS_JWT_KEY, REFRESH_JWT_KEY
 from app.models.api import (
@@ -135,16 +135,16 @@ async def login_endpoint(
         key=ACCESS_JWT_KEY,
         value=result.access_token,
         httponly=True,
-        secure=settings.cookie_secure,
-        samesite=settings.cookie_same_site,
+        secure=get_settings().cookie_secure,
+        samesite=get_settings().cookie_same_site,
         max_age=60 * 60,  # 1 hour
     )
     res.set_cookie(
         key=REFRESH_JWT_KEY,
         value=result.refresh_token,
         httponly=True,
-        secure=settings.cookie_secure,
-        samesite=settings.cookie_same_site,
+        secure=get_settings().cookie_secure,
+        samesite=get_settings().cookie_same_site,
         max_age=60 * 60 * 24 * 365,  # 1 year
     )
 
@@ -167,8 +167,8 @@ async def refresh_token_endpoint(
         key=ACCESS_JWT_KEY,
         value=access_token,
         httponly=True,
-        secure=settings.cookie_secure,
-        samesite=settings.cookie_same_site,
+        secure=get_settings().cookie_secure,
+        samesite=get_settings().cookie_same_site,
         max_age=60 * 60,  # 1 hour
     )
 
@@ -182,12 +182,12 @@ async def logout_endpoint(res: Response):
     res.delete_cookie(
         key=ACCESS_JWT_KEY,
         httponly=True,
-        secure=settings.cookie_secure,
-        samesite=settings.cookie_same_site,
+        secure=get_settings().cookie_secure,
+        samesite=get_settings().cookie_same_site,
     )
     res.delete_cookie(
         key=REFRESH_JWT_KEY,
         httponly=True,
-        secure=settings.cookie_secure,
-        samesite=settings.cookie_same_site,
+        secure=get_settings().cookie_secure,
+        samesite=get_settings().cookie_same_site,
     )

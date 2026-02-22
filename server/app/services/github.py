@@ -4,7 +4,7 @@ from typing import Any
 
 import httpx
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.database.feedback import Feedback
 from app.models.schemas.feedback import FeedbackType
 from app.utilities.date import get_utc_timestamp_str
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_github_service() -> GitHubService:
-    match settings.gh.backend:
+    match get_settings().gh.backend:
         case "api":
             return ApiGitHubService()
         case "console":
@@ -26,12 +26,10 @@ class GitHubService(ABC):
 
 
 class ApiGitHubService(GitHubService):
-    GITHUB_API_URL_REPO = (
-        f"https://api.github.com/repos/{settings.gh.repo_owner}/{settings.repo_name}"
-    )
+    GITHUB_API_URL_REPO = f"https://api.github.com/repos/{get_settings().gh.repo_owner}/{get_settings().repo_name}"
 
     HEADERS = {
-        "Authorization": f"Bearer {settings.gh.token}",
+        "Authorization": f"Bearer {get_settings().gh.token}",
         "Accept": "application/vnd.github+json",
     }
 
@@ -71,7 +69,7 @@ class ApiGitHubService(GitHubService):
         payload: dict[str, Any] = {
             "title": title,
             "body": body,
-            "assignees": [settings.gh.issue_assignee],
+            "assignees": [get_settings().gh.issue_assignee],
         }
         async with httpx.AsyncClient() as client:
             try:

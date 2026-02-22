@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.security import ACCESS_JWT_KEY
 from app.models.database.user import User
 from app.models.errors import InvalidCredentials
@@ -25,8 +25,8 @@ async def test_get_current_user(client: AsyncClient):
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
     UserPublic.model_validate(body)
-    assert body["username"] == settings.admin.username
-    assert body["email"] == settings.admin.email
+    assert body["username"] == get_settings().admin.username
+    assert body["email"] == get_settings().admin.email
     assert body["is_admin"] is True
 
 
@@ -56,7 +56,9 @@ async def test_get_current_user_deleted_user(
 ):
     await login_admin(client)
 
-    await session.execute(delete(User).where(User.username == settings.admin.username))
+    await session.execute(
+        delete(User).where(User.username == get_settings().admin.username)
+    )
     await session.commit()
 
     resp = await make_request(client)

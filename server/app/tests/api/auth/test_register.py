@@ -2,7 +2,7 @@ from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.security import create_registration_token
 from app.models.database.access_request import AccessRequest, AccessRequestStatus
 from app.models.errors import InvalidToken, UsernameAlreadyRegistered
@@ -76,7 +76,7 @@ async def test_register_username_already_registered(
     resp = await make_request(
         client,
         token=token_str,
-        username=settings.admin.username,
+        username=get_settings().admin.username,
         password="Password123",
     )
 

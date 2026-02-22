@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.database.user import User
 from app.models.errors import InsufficientPermissions
 from app.models.schemas.user import UserPublic
@@ -30,7 +30,7 @@ async def test_get_users(client: AsyncClient):
         UserPublic.model_validate(item)
 
     usernames = {item["username"] for item in body}  # type: ignore
-    assert settings.admin.username in usernames
+    assert get_settings().admin.username in usernames
 
 
 # 401
@@ -46,7 +46,7 @@ async def test_get_users_not_logged_in(client: AsyncClient):
 async def test_get_users_non_admin_user(client: AsyncClient, session: AsyncSession):
     await session.execute(
         update(User)
-        .where(User.username == settings.admin.username)
+        .where(User.username == get_settings().admin.username)
         .values(is_admin=False)
     )
     await session.commit()

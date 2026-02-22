@@ -4,7 +4,7 @@ from typing import Any
 
 from pythonjsonlogger.json import JsonFormatter
 
-from app.core.config import settings
+from app.core.config import get_settings
 
 
 def setup_logging() -> None:
@@ -15,7 +15,7 @@ def setup_logging() -> None:
         },
     }
 
-    log_file = settings.log_dir / f"reptrack_server_{settings.env}.log"
+    log_file = get_settings().log_dir / f"reptrack_server_{get_settings().env}.log"
     handlers["file"] = {
         "class": "logging.handlers.RotatingFileHandler",
         "formatter": "json",
@@ -42,7 +42,7 @@ def setup_logging() -> None:
             },
             "handlers": handlers,
             "root": {
-                "level": settings.log_level.upper(),
+                "level": get_settings().log_level.upper(),
                 "handlers": list(handlers.keys()),
             },
         }

@@ -2,23 +2,23 @@ from datetime import datetime, timezone
 
 import jwt
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.security import create_access_jwt
 
 
 def test_create_access_token():
-    token = create_access_jwt(settings.admin.username)
+    token = create_access_jwt(get_settings().admin.username)
 
     assert isinstance(token, str)
     assert len(token) > 0
 
     payload = jwt.decode(
         token,
-        settings.jwt.secret_key,
-        algorithms=[settings.jwt.algorithm],
+        get_settings().jwt.secret_key,
+        algorithms=[get_settings().jwt.algorithm],
     )
 
-    assert payload["sub"] == settings.admin.username
+    assert payload["sub"] == get_settings().admin.username
     assert "exp" in payload
     exp = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
     assert exp > datetime.now(timezone.utc)

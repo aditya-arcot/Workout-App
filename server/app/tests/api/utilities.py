@@ -4,7 +4,7 @@ from typing import Any
 
 from httpx import AsyncClient
 
-from app.core.config import settings
+from app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +44,8 @@ async def login_admin(
 ):
     return await login(
         client,
-        username=settings.admin.username,
-        password=settings.admin.password,
+        username=get_settings().admin.username,
+        password=get_settings().admin.password,
     )
 
 

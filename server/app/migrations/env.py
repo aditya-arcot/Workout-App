@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
 import app.models.database  # pyright: ignore[reportUnusedImport] # noqa: F401
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.database import Base
 
 # this is the Alembic Config object, which provides
@@ -32,7 +32,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    return settings.db.url
+    return get_settings().db.url
 
 
 def run_migrations_offline() -> None:

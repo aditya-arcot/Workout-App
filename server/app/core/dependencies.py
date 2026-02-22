@@ -1,5 +1,6 @@
 import logging
 from collections.abc import AsyncGenerator
+from functools import cache
 
 from fastapi import Depends
 from fastapi.security import APIKeyCookie
@@ -7,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from typing_extensions import Annotated
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.security import ACCESS_JWT_KEY, REFRESH_JWT_KEY, verify_jwt
 from app.models.database.user import User
 from app.models.errors import InsufficientPermissions, InvalidCredentials
@@ -15,19 +16,21 @@ from app.models.schemas.user import UserPublic
 
 logger = logging.getLogger(__name__)
 
-async_engine = create_async_engine(
-    settings.db.url,
-    echo=not settings.is_prod,
-)
 
-AsyncSessionLocal = async_sessionmaker(
-    bind=async_engine,
-    expire_on_commit=False,
-)
+@cache
+def get_sessionmaker():
+    engine = create_async_engine(
+        get_settings().db.url,
+        echo=not get_settings().is_prod,
+    )
+    return async_sessionmaker(
+        bind=engine,
+        expire_on_commit=False,
+    )
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
+    async with get_sessionmaker()() as session:
         yield session
 
 

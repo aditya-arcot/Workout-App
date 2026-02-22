@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.database.feedback import Feedback
 from app.models.schemas.feedback import CreateFeedbackRequest
 from app.models.schemas.user import UserPublic
@@ -11,7 +11,7 @@ from app.services.storage import store_files
 
 logger = logging.getLogger(__name__)
 
-FEEDBACK_DIR = settings.data_dir / "feedback"
+FEEDBACK_DIR = get_settings().data_dir / "feedback"
 
 
 async def create_feedback(

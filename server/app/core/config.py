@@ -1,4 +1,5 @@
 import os
+from functools import cache
 from pathlib import Path
 from typing import Annotated, Literal, Union
 
@@ -107,4 +108,6 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()  # type: ignore
+@cache
+def get_settings() -> Settings:
+    return Settings()  # type: ignore

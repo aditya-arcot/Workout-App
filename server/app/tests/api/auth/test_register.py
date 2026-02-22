@@ -41,7 +41,7 @@ async def create_approved_request_with_token(session: AsyncSession) -> tuple[str
 
 # 204
 async def test_register(client: AsyncClient, session: AsyncSession):
-    email, token_str = await create_approved_request_with_token(session)
+    _, token_str = await create_approved_request_with_token(session)
 
     resp = await make_request(
         client,
@@ -91,7 +91,7 @@ async def test_register_invalid_body(client: AsyncClient):
         client,
         token="some_token",
         username="newuser",
-        password=None,  # ty:ignore[invalid-argument-type]
+        password=None,  # type: ignore
     )
 
     assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

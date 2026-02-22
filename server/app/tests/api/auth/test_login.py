@@ -38,7 +38,7 @@ async def test_login_invalid_password(client: AsyncClient):
 
 # 422
 async def test_login_invalid_body(client: AsyncClient):
-    resp = await login(client, username=None, password=None)  # ty:ignore[invalid-argument-type]
+    resp = await login(client, username=None, password=None)  # type: ignore
 
     assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     body = resp.json()

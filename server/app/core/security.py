@@ -1,7 +1,7 @@
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple, Type, TypeVar
 
 import jwt
 from pwdlib import PasswordHash
@@ -25,12 +25,15 @@ ACCESS_JWT_KEY = "access_token"
 REFRESH_JWT_KEY = "refresh_token"
 
 
+T = TypeVar("T", RegistrationToken, PasswordResetToken)
+
+
 async def _get_token(
     token_str: str,
-    model: type[RegistrationToken | PasswordResetToken],
-    load_option: InstrumentedAttribute,
+    model: Type[T],
+    load_option: InstrumentedAttribute[Any],
     db: AsyncSession,
-):
+) -> Optional[T]:
     token_prefix = token_str[:TOKEN_PREFIX_LENGTH]
     tokens = (
         (
@@ -76,8 +79,8 @@ async def get_password_reset_token(
 
 
 async def _expire_existing_tokens(
-    model: type[RegistrationToken | PasswordResetToken],
-    where_clause: list,
+    model: type[T],
+    where_clause: list[Any],
     db: AsyncSession,
 ) -> None:
     await db.execute(
@@ -113,11 +116,11 @@ async def expire_existing_password_reset_tokens(
     )
 
 
-def _create_token(model: type[RegistrationToken | PasswordResetToken], **fields):
+def _create_token(model: Type[T], **fields: Any) -> Tuple[str, T]:
     token_str = secrets.token_urlsafe(TOKEN_URLSAFE_SIZE)
     token_hash = PASSWORD_HASH.hash(token_str)
 
-    token: RegistrationToken | PasswordResetToken = model(
+    token: T = model(
         token_prefix=token_str[:TOKEN_PREFIX_LENGTH],
         token_hash=token_hash,
         **fields,

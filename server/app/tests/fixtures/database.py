@@ -13,7 +13,9 @@ from sqlalchemy.ext.asyncio import (
     AsyncTransaction,
     create_async_engine,
 )
-from testcontainers.postgres import PostgresContainer
+from testcontainers.postgres import (  # pyright: ignore[reportMissingTypeStubs]
+    PostgresContainer,
+)
 
 from app.core.database import Base
 
@@ -28,7 +30,7 @@ def run_migrations(connection: Connection) -> None:
     script = ScriptDirectory.from_config(config)
 
     def upgrade(rev: str, context: EnvironmentContext):
-        return script._upgrade_revs("head", rev)
+        return script._upgrade_revs("head", rev)  # type: ignore
 
     with EnvironmentContext(
         config,

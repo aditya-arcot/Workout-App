@@ -26,10 +26,10 @@ async def test_get_users(client: AsyncClient):
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
     assert isinstance(body, list)
-    for item in body:
+    for item in body:  # type: ignore
         UserPublic.model_validate(item)
 
-    usernames = {item["username"] for item in body}
+    usernames = {item["username"] for item in body}  # type: ignore
     assert settings.admin.username in usernames
 
 

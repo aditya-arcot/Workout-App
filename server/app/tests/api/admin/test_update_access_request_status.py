@@ -123,7 +123,7 @@ async def test_update_access_request_status_not_found(client: AsyncClient):
 # 422
 async def test_update_access_request_status_invalid_status(client: AsyncClient):
     await login_admin(client)
-    resp = await make_request(client, 1, FeedbackType.feedback)  # ty:ignore[invalid-argument-type]
+    resp = await make_request(client, 1, FeedbackType.feedback)  # type: ignore
 
     assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     body = resp.json()

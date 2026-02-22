@@ -59,7 +59,7 @@ async def test_reset_password_invalid_token(client: AsyncClient):
 async def test_reset_password_invalid_body(client: AsyncClient):
     resp = await make_request(
         client,
-        token=None,  # ty:ignore[invalid-argument-type]
+        token=None,  # type: ignore
         password="NewPassword123",
     )
 

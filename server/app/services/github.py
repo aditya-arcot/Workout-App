@@ -33,7 +33,7 @@ class GitHubService(ABC):
 
 class ApiGitHubService(GitHubService):
     async def create_feedback_issue(self, feedback: Feedback, settings: Settings):
-        logging.info(f"Creating GitHub issue for feedback id: {feedback.id}")
+        logger.info(f"Creating GitHub issue for feedback id: {feedback.id}")
 
         github_api_url_repo = f"https://api.github.com/repos/{settings.gh.repo_owner}/{settings.repo_name}"
         url = f"{github_api_url_repo}/issues"
@@ -79,7 +79,7 @@ class ApiGitHubService(GitHubService):
             try:
                 resp = await client.post(url, headers=headers, json=payload)
                 resp.raise_for_status()
-                logging.info(f"Created GitHub issue for feedback id: {feedback.id}")
+                logger.info(f"Created GitHub issue for feedback id: {feedback.id}")
             except httpx.HTTPStatusError as e:
                 logger.error(
                     "Failed to create GitHub issue for feedback id %s - %s",

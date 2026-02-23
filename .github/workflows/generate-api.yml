@@ -57,7 +57,7 @@ jobs:
             - name: create .env
               working-directory: config/env
               run: |
-                  echo "ENV=stage" >> .env
+                  echo "ENV=test" >> .env
                   echo "LOG_LEVEL=debug" >> .env
                   echo "CLIENT_URL=" >> .env
 

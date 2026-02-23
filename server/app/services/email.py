@@ -5,16 +5,20 @@ from datetime import datetime, timezone
 from email.message import EmailMessage
 
 import aiosmtplib
+from fastapi import Depends
+from typing_extensions import Annotated
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.models.database.access_request import AccessRequest
 from app.utilities.date import get_utc_timestamp_str
 
 logger = logging.getLogger(__name__)
 
 
-def get_email_service() -> EmailService:
-    match get_settings().email.backend:
+def get_email_service(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> EmailService:
+    match settings.email.backend:
         case "smtp" | "local":
             return SmtpEmailService()
         case "console":
@@ -27,6 +31,7 @@ class EmailService(ABC):
     @abstractmethod
     async def send(
         self,
+        settings: Settings,
         to: str,
         subject: str,
         text: str,
@@ -34,31 +39,42 @@ class EmailService(ABC):
     ) -> None: ...
 
     async def send_access_request_notification(
-        self, admin_email: str, access_request: AccessRequest
+        self,
+        settings: Settings,
+        admin_email: str,
+        access_request: AccessRequest,
     ) -> None:
         logger.info(
             f"Sending access request notification to {admin_email} for request id {access_request.id}"
         )
 
-        subject = f"New Access Request - {get_settings().project_name}"
+        subject = f"New Access Request - {settings.project_name}"
         body = (
             f"{access_request.first_name} {access_request.last_name} ({access_request.email}) "
             f"has requested access (request id {access_request.id})."
         )
         try:
-            await self.send(to=admin_email, subject=subject, text=body)
+            await self.send(
+                settings=settings,
+                to=admin_email,
+                subject=subject,
+                text=body,
+            )
         except Exception as e:
             logger.error(
                 f"Failed to send access request notification to {admin_email}: {e}"
             )
 
     async def send_access_request_approved_email(
-        self, access_request: AccessRequest, token: str
+        self,
+        settings: Settings,
+        access_request: AccessRequest,
+        token: str,
     ) -> None:
         logger.info(f"Sending access request approved email to {access_request.email}")
 
-        subject = f"Access Request Approved - {get_settings().project_name}"
-        url = f"{get_settings().client_url}/register?token={token}"
+        subject = f"Access Request Approved - {settings.project_name}"
+        url = f"{settings.client_url}/register?token={token}"
         text = (
             "Your access request has been approved!\n"
             f"Please register to access the application: {url}\n"
@@ -71,7 +87,11 @@ class EmailService(ABC):
         )
         try:
             await self.send(
-                to=access_request.email, subject=subject, text=text, html=html
+                settings=settings,
+                to=access_request.email,
+                subject=subject,
+                text=text,
+                html=html,
             )
         except Exception as e:
             logger.error(
@@ -79,27 +99,39 @@ class EmailService(ABC):
             )
 
     async def send_access_request_rejected_email(
-        self, access_request: AccessRequest
+        self,
+        settings: Settings,
+        access_request: AccessRequest,
     ) -> None:
         logger.info(f"Sending access request rejected email to {access_request.email}")
 
-        subject = f"Access Request Rejected - {get_settings().project_name}"
+        subject = f"Access Request Rejected - {settings.project_name}"
         body = (
             "Your access request has been rejected.\n"
             "If you believe this is a mistake, please contact an admin."
         )
         try:
-            await self.send(to=access_request.email, subject=subject, text=body)
+            await self.send(
+                settings=settings,
+                to=access_request.email,
+                subject=subject,
+                text=body,
+            )
         except Exception as e:
             logger.error(
                 f"Failed to send access request rejected email to {access_request.email}: {e}"
             )
 
-    async def send_password_reset_email(self, email: str, token: str) -> None:
+    async def send_password_reset_email(
+        self,
+        settings: Settings,
+        email: str,
+        token: str,
+    ) -> None:
         logger.info(f"Sending password reset email to {email}")
 
-        subject = f"Password Reset - {get_settings().project_name}"
-        url = f"{get_settings().client_url}/reset-password?token={token}"
+        subject = f"Password Reset - {settings.project_name}"
+        url = f"{settings.client_url}/reset-password?token={token}"
         text = (
             "A request was made to reset your password.\n"
             f"Reset your password here: {url}\n"
@@ -111,19 +143,21 @@ class EmailService(ABC):
             "<br>This link will expire in 1 hour."
         )
         try:
-            await self.send(to=email, subject=subject, text=text, html=html)
+            await self.send(
+                settings=settings,
+                to=email,
+                subject=subject,
+                text=text,
+                html=html,
+            )
         except Exception as e:
             logger.error(f"Failed to send password reset email to {email}: {e}")
 
 
 class SmtpEmailService(EmailService):
-    use_tls = get_settings().email.backend == "smtp"
-    tls_context = ssl.create_default_context()
-    tls_context.check_hostname = False
-    tls_context.verify_mode = ssl.CERT_NONE
-
     async def send(
         self,
+        settings: Settings,
         to: str,
         subject: str,
         text: str,
@@ -133,7 +167,7 @@ class SmtpEmailService(EmailService):
         logger.info(f"Sending email to {to} with subject {subject} ({now})")
 
         message = EmailMessage()
-        message["From"] = get_settings().email.email_from
+        message["From"] = settings.email.email_from
         message["To"] = to
         message["Subject"] = subject
 
@@ -143,17 +177,21 @@ class SmtpEmailService(EmailService):
         else:
             message.set_content(text)
 
+        tls_context = ssl.create_default_context()
+        tls_context.check_hostname = False
+        tls_context.verify_mode = ssl.CERT_NONE
+
         kwargs = dict(
-            hostname=get_settings().email.smtp_host,
-            port=get_settings().email.smtp_port,
-            start_tls=self.use_tls,
+            hostname=settings.email.smtp_host,
+            port=settings.email.smtp_port,
+            start_tls=True,
             timeout=10,
-            tls_context=self.tls_context if self.use_tls else None,
+            tls_context=tls_context,
         )
 
-        if get_settings().email.smtp_username and get_settings().email.smtp_password:
-            kwargs["username"] = get_settings().email.smtp_username
-            kwargs["password"] = get_settings().email.smtp_password
+        if settings.email.smtp_username and settings.email.smtp_password:
+            kwargs["username"] = settings.email.smtp_username
+            kwargs["password"] = settings.email.smtp_password
 
         resp = await aiosmtplib.send(message, **kwargs)  # type: ignore
         logger.info(f"Email sent to {to} with subject {subject} ({now})")
@@ -163,6 +201,7 @@ class SmtpEmailService(EmailService):
 class ConsoleEmailService(EmailService):
     async def send(
         self,
+        settings: Settings,
         to: str,
         subject: str,
         text: str,
@@ -174,6 +213,7 @@ class ConsoleEmailService(EmailService):
 class DisabledEmailService(EmailService):
     async def send(
         self,
+        settings: Settings,
         to: str,
         subject: str,
         text: str,

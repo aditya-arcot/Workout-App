@@ -177,6 +177,8 @@ class SmtpEmailService(EmailService):
         else:
             message.set_content(text)
 
+        # local backend does not support TLS
+        use_tls = settings.email.backend == "smtp"
         tls_context = ssl.create_default_context()
         tls_context.check_hostname = False
         tls_context.verify_mode = ssl.CERT_NONE
@@ -184,9 +186,9 @@ class SmtpEmailService(EmailService):
         kwargs = dict(
             hostname=settings.email.smtp_host,
             port=settings.email.smtp_port,
-            start_tls=True,
             timeout=10,
-            tls_context=tls_context,
+            start_tls=use_tls,
+            tls_context=tls_context if use_tls else None,
         )
 
         if settings.email.smtp_username and settings.email.smtp_password:

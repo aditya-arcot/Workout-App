@@ -1,30 +1,40 @@
-import pytest
+import logging
+from typing import Any, Callable
 
-from app.core.config import (
-    EmailSettings,
-    settings,
-)
-from app.services.email import get_email_service
+import pytest
+from pydantic_settings import SettingsConfigDict
+from pytest import MonkeyPatch
+
+from app.core.config import EmailSettings, Settings
+from app.services.email import EmailService, get_email_service
+from app.tests.fixtures.settings import TEST_SETTINGS
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(autouse=True)
-def override_env_test(monkeypatch: pytest.MonkeyPatch):
-    original_env = settings.env
-
-    monkeypatch.setattr(settings, "env", "test")
-    yield
-
-    monkeypatch.setattr(settings, "env", original_env)
+def disable_env_file(monkeypatch: MonkeyPatch):
+    monkeypatch.setattr(
+        Settings,
+        "model_config",
+        SettingsConfigDict(extra="ignore"),
+    )
 
 
 @pytest.fixture
-def override_email(monkeypatch: pytest.MonkeyPatch):
-    original_email: EmailSettings = settings.email
+def override_settings() -> Callable[[dict[str, Any]], Settings]:
+    def _factory(overrides: dict[str, Any]) -> Settings:
+        settings = TEST_SETTINGS.model_copy(update=overrides)
+        return settings
 
-    def _override(email: EmailSettings):
-        monkeypatch.setattr(settings, "email", email)
-        return get_email_service()
+    return _factory
 
-    yield _override
 
-    monkeypatch.setattr(settings, "email", original_email)
+@pytest.fixture
+def override_email_settings() -> Callable[[EmailSettings], EmailService]:
+    def _factory(email_settings: EmailSettings) -> EmailService:
+        settings: Settings = TEST_SETTINGS.model_copy(update={"email": email_settings})
+        service: EmailService = get_email_service(settings)
+        return service
+
+    return _factory

@@ -1,13 +1,12 @@
-import logging
 import logging.config
 from typing import Any
 
 from pythonjsonlogger.json import JsonFormatter
 
-from app.core.config import settings
+from app.core.config import Settings
 
 
-def setup_logging() -> None:
+def setup_logging(env: str, settings: Settings) -> None:
     handlers: dict[str, dict[str, Any]] = {
         "console": {
             "class": "logging.StreamHandler",
@@ -15,7 +14,7 @@ def setup_logging() -> None:
         },
     }
 
-    log_file = settings.log_dir / f"reptrack_server_{settings.env}.log"
+    log_file = settings.log_dir / f"reptrack_server_{env}.log"
     handlers["file"] = {
         "class": "logging.handlers.RotatingFileHandler",
         "formatter": "json",

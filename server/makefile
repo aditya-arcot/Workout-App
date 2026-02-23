@@ -12,7 +12,7 @@ test:
 	uv run pytest -v
 
 check:
-	uv run ty check
+	uv run pyright
 
 check_migrations:
 	uv run alembic check

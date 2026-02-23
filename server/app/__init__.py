@@ -30,7 +30,7 @@ def create_app(settings: Settings | None = None) -> Tuple[FastAPI, CORSMiddlewar
     if settings.env != "prod":
         title += f" ({settings.env})"
 
-    if settings.is_prod:
+    if settings.is_prod_like:
         fastapi_app = FastAPI(
             title=title,
             docs_url=None,
@@ -42,7 +42,7 @@ def create_app(settings: Settings | None = None) -> Tuple[FastAPI, CORSMiddlewar
         )
 
     # set for exception handler
-    fastapi_app.state.is_prod = settings.is_prod
+    fastapi_app.state.is_prod = settings.is_prod_like
 
     fastapi_app.add_exception_handler(StarletteHTTPException, exception_handler)
     fastapi_app.add_exception_handler(Exception, exception_handler)

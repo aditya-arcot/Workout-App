@@ -16,13 +16,13 @@ LOCALHOST_URL = "http://localhost"
 
 
 def test_dev_config(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "dev",
         "client_url": MOCK_CLIENT_URL,
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
     settings = Settings.model_validate(settings.model_dump())
 
     assert settings.env == "dev"
@@ -44,7 +44,7 @@ def test_dev_config(
 
 
 def test_test_config(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "test",
@@ -56,7 +56,7 @@ def test_test_config(
             "smtp_port": 25,
         },
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
     settings = Settings.model_validate(settings.model_dump())
 
     assert settings.env == "test"
@@ -78,7 +78,7 @@ def test_test_config(
 
 
 def test_stage_config(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "stage",
@@ -98,7 +98,7 @@ def test_stage_config(
             "issue_assignee": "assignee",
         },
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
     settings = Settings.model_validate(settings.model_dump())
 
     assert settings.env == "stage"
@@ -120,7 +120,7 @@ def test_stage_config(
 
 
 def test_prod_config(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "prod",
@@ -140,7 +140,7 @@ def test_prod_config(
             "issue_assignee": "assignee",
         },
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
     settings = Settings.model_validate(settings.model_dump())
 
     assert settings.env == "prod"
@@ -162,7 +162,7 @@ def test_prod_config(
 
 
 def test_prod_gh_validator_raises_for_wrong_backend(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "prod",
@@ -176,14 +176,14 @@ def test_prod_gh_validator_raises_for_wrong_backend(
         },
         "gh": {"backend": "console"},
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
 
     with pytest.raises(ValueError, match="github.backend must be 'api' in production"):
         Settings.model_validate(settings.model_dump())
 
 
 def test_prod_email_validator_raises_for_wrong_backend(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "prod",
@@ -195,48 +195,48 @@ def test_prod_email_validator_raises_for_wrong_backend(
         },
         "email": {"backend": "console"},
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
 
     with pytest.raises(ValueError, match="email.backend must be 'smtp' in production"):
         Settings.model_validate(settings.model_dump())
 
 
 def test_gh_backend_fails_with_missing_properties(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "dev",
         "gh": {"backend": "api"},
         "email": {"backend": "console"},
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
 
     with pytest.raises(ValueError, match="3 validation errors"):
         Settings.model_validate(settings.model_dump())
 
 
 def test_email_backend_fails_with_missing_properties(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "prod",
         "gh": {"backend": "console"},
         "email": {"backend": "smtp"},
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
 
     with pytest.raises(ValueError, match="5 validation errors"):
         Settings.model_validate(settings.model_dump())
 
 
 def test_extra_field_ignored(
-    override_settings: Callable[[], Settings],
+    override_settings: Callable[[dict[str, Any]], Settings],
 ):
     overrides: dict[str, Any] = {
         "env": "dev",
         "extra_field": "ignored",
     }
-    settings = override_settings(**overrides)
+    settings = override_settings(overrides)
     settings = Settings.model_validate(settings.model_dump())
 
     assert not hasattr(settings, "extra_field")

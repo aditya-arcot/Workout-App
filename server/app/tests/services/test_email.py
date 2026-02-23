@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import (
     EmailConsoleSettings,
     EmailDisabledSettings,
+    EmailSettings,
     EmailSmtpSettings,
     Settings,
 )
@@ -17,7 +18,7 @@ async def test_smtp(
     # required to prevent pytest error
     session: AsyncSession,
     settings: Settings,
-    override_email_settings: Callable[[EmailSmtpSettings], EmailService],
+    override_email_settings: Callable[[EmailSettings], EmailService],
 ):
     smtp_settings = EmailSmtpSettings(
         backend="smtp",
@@ -36,7 +37,7 @@ async def test_smtp(
 async def test_console(
     session: AsyncSession,
     settings: Settings,
-    override_email_settings: Callable[[EmailConsoleSettings], EmailService],
+    override_email_settings: Callable[[EmailSettings], EmailService],
     caplog: LogCaptureFixture,
 ):
     console_settings = EmailConsoleSettings(backend="console")
@@ -49,7 +50,7 @@ async def test_console(
 async def test_disabled(
     session: AsyncSession,
     settings: Settings,
-    override_email_settings: Callable[[EmailDisabledSettings], EmailService],
+    override_email_settings: Callable[[EmailSettings], EmailService],
     caplog: LogCaptureFixture,
 ):
     disabled_settings = EmailDisabledSettings(backend="disabled")

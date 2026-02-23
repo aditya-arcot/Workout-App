@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import get_settings
+from app.core.config import Settings
 from app.core.security import ACCESS_JWT_KEY
 from app.models.database.user import User
 from app.models.errors import InvalidCredentials
@@ -18,15 +18,15 @@ async def make_request(client: AsyncClient):
 
 
 # 200
-async def test_get_current_user(client: AsyncClient):
-    await login_admin(client)
+async def test_get_current_user(client: AsyncClient, settings: Settings):
+    await login_admin(client, settings)
     resp = await make_request(client)
 
     assert resp.status_code == status.HTTP_200_OK
     body = resp.json()
     UserPublic.model_validate(body)
-    assert body["username"] == get_settings().admin.username
-    assert body["email"] == get_settings().admin.email
+    assert body["username"] == settings.admin.username
+    assert body["email"] == settings.admin.email
     assert body["is_admin"] is True
 
 
@@ -40,8 +40,8 @@ async def test_get_current_user_not_logged_in(client: AsyncClient):
 
 
 # 401
-async def test_get_current_user_invalid_cookie(client: AsyncClient):
-    await login_admin(client)
+async def test_get_current_user_invalid_cookie(client: AsyncClient, settings: Settings):
+    await login_admin(client, settings)
     client.cookies.set(ACCESS_JWT_KEY, "invalid_token")
     resp = await make_request(client)
 
@@ -52,13 +52,11 @@ async def test_get_current_user_invalid_cookie(client: AsyncClient):
 
 # 401
 async def test_get_current_user_deleted_user(
-    client: AsyncClient, session: AsyncSession
+    client: AsyncClient, session: AsyncSession, settings: Settings
 ):
-    await login_admin(client)
+    await login_admin(client, settings)
 
-    await session.execute(
-        delete(User).where(User.username == get_settings().admin.username)
-    )
+    await session.execute(delete(User).where(User.username == settings.admin.username))
     await session.commit()
 
     resp = await make_request(client)

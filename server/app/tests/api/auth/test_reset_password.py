@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import get_settings
+from app.core.config import Settings
 from app.core.security import create_password_reset_token
 from app.models.database.user import User
 from app.models.errors import InvalidToken
@@ -22,16 +22,18 @@ async def make_request(client: AsyncClient, *, token: str, password: str):
     )
 
 
-async def get_admin(session: AsyncSession) -> User:
+async def get_admin(session: AsyncSession, settings: Settings) -> User:
     result = await session.execute(
-        select(User).where(User.username == get_settings().admin.username)
+        select(User).where(User.username == settings.admin.username)
     )
     return result.scalar_one()
 
 
 # 204
-async def test_reset_password(client: AsyncClient, session: AsyncSession):
-    admin = await get_admin(session)
+async def test_reset_password(
+    client: AsyncClient, session: AsyncSession, settings: Settings
+):
+    admin = await get_admin(session, settings)
 
     token_str, token = create_password_reset_token(admin.id)
     session.add(token)

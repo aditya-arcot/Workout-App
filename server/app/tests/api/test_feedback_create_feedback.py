@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import status
 from httpx import AsyncClient
 
+from app.core.config import Settings
 from app.tests.api.utilities import HttpMethod, login_admin, make_http_request
 
 MOCK_DATA = {
@@ -23,8 +24,8 @@ async def make_request(client: AsyncClient, data: dict[str, Any] = MOCK_DATA):
 
 
 # 202
-async def test_create_feedback(client: AsyncClient):
-    await login_admin(client)
+async def test_create_feedback(client: AsyncClient, settings: Settings):
+    await login_admin(client, settings)
     resp = await make_request(client)
 
     assert resp.status_code == status.HTTP_202_ACCEPTED
@@ -40,8 +41,8 @@ async def test_create_feedback_not_logged_in(client: AsyncClient):
 
 
 # 422
-async def test_create_feedback_invalid_body(client: AsyncClient):
-    await login_admin(client)
+async def test_create_feedback_invalid_body(client: AsyncClient, settings: Settings):
+    await login_admin(client, settings)
     resp = await make_request(client, data={"invalid": "data"})
 
     assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT

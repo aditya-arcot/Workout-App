@@ -27,9 +27,11 @@ def anyio_backend():
 
 def run_migrations(connection: Connection) -> None:
     config = Config("alembic.ini")
+    # used by seed admin migration to prevent reading from .env
+    config.attributes["is_testing"] = True
     script = ScriptDirectory.from_config(config)
 
-    def upgrade(rev: str, context: EnvironmentContext):
+    def upgrade(rev: str, _: EnvironmentContext):
         return script._upgrade_revs("head", rev)  # type: ignore
 
     with EnvironmentContext(

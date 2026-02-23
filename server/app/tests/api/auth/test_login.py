@@ -1,15 +1,15 @@
 from fastapi import status
 from httpx import AsyncClient
 
-from app.core.config import get_settings
+from app.core.config import Settings
 from app.core.security import ACCESS_JWT_KEY, REFRESH_JWT_KEY
 from app.models.errors import InvalidCredentials
 from app.tests.api.utilities import login, login_admin
 
 
 # 204
-async def test_login(client: AsyncClient):
-    resp = await login_admin(client)
+async def test_login(client: AsyncClient, settings: Settings):
+    resp = await login_admin(client, settings)
 
     assert resp.status_code == status.HTTP_204_NO_CONTENT
     assert ACCESS_JWT_KEY in resp.cookies
@@ -26,9 +26,9 @@ async def test_login_non_existent_user(client: AsyncClient):
 
 
 # 401
-async def test_login_invalid_password(client: AsyncClient):
+async def test_login_invalid_password(client: AsyncClient, settings: Settings):
     resp = await login(
-        client, username=get_settings().admin.username, password="some_password"
+        client, username=settings.admin.username, password="some_password"
     )
 
     assert resp.status_code == InvalidCredentials.status_code

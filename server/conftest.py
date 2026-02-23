@@ -3,4 +3,5 @@ pytest_plugins = [
     "app.tests.fixtures.database",
     "app.tests.fixtures.mocks",
     "app.tests.fixtures.overrides",
+    "app.tests.fixtures.settings",
 ]
